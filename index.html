@@ -36,6 +36,9 @@
         line-height: 1.7;
       }
 
+      a { color: var(--blue); }
+      a:hover { color: var(--teal); }
+
       .topbar {
         background: var(--ink);
         color: #fff;
@@ -271,10 +274,8 @@
             <table>
               <thead><tr><th>项目</th><th>应确认内容</th></tr></thead>
               <tbody>
-                <tr><td>平台入口</td><td><code>API_PLATFORM_URL</code></td></tr>
-                <tr><td>登录方式</td><td>指定账号、SSO 或 API Key 的获取与保管方式</td></tr>
-                <tr><td>客户端配置</td><td>服务地址、模型权限和配置文件位置</td></tr>
-                <tr><td>支持渠道</td><td>访问受限、认证失败或额度异常时的处理联系人</td></tr>
+                <tr><td>平台入口</td><td><a href="https://api.saulxj.ggff.net/">https://api.saulxj.ggff.net/</a><br />大陆地区无法直连</td></tr>
+                <tr><td>登录方式</td><td>授权账号</td></tr>
               </tbody>
             </table>
           </div>
@@ -282,7 +283,7 @@
 
         <section aria-labelledby="network">
           <h2 id="network">网络访问验证</h2>
-          <p>使用者需自行准备满足平台访问条件的网络环境。完成网络连接后，先访问管理员下发的指定网址 <code>API_PLATFORM_URL</code>，确认页面或接口可正常响应，再启动 Claude Code CLI。</p>
+          <p>使用者需自行准备满足平台访问条件的网络环境。完成网络连接后，先访问 <a href="https://api.saulxj.ggff.net/">https://api.saulxj.ggff.net/</a>，确认页面或接口可正常响应，再启动 Claude Code CLI。</p>
         </section>
 
         <section aria-labelledby="hosts">
