@@ -17,6 +17,8 @@
         --teal: #14766f;
         --amber: #9a5a00;
         --amber-bg: #fff4db;
+        --risk: #a53426;
+        --risk-bg: #fff0ed;
         --blue-bg: #eaf3fb;
         --teal-bg: #e9f7f4;
       }
@@ -33,9 +35,6 @@
         font-size: 16px;
         line-height: 1.7;
       }
-
-      a { color: var(--blue); }
-      a:hover { color: var(--teal); }
 
       .topbar {
         background: var(--ink);
@@ -84,14 +83,21 @@
         letter-spacing: 0;
       }
 
-      .intro {
-        max-width: 650px;
-        margin-bottom: 0;
-        color: var(--muted);
-        font-size: 18px;
+      .content { padding: 32px 0 56px; }
+
+      .risk-panel {
+        margin: 0 0 8px;
+        padding: 24px;
+        border: 1px solid #e7b4aa;
+        border-left: 6px solid var(--risk);
+        border-radius: 6px;
+        background: var(--risk-bg);
       }
 
-      .content { padding: 32px 0 56px; }
+      .risk-panel h2 { margin-bottom: 12px; color: var(--risk); }
+      .risk-panel p { margin-bottom: 14px; }
+      .risk-panel ul { margin: 0; }
+      .risk-panel strong { color: #762319; }
 
       section {
         padding: 32px 0;
@@ -185,9 +191,6 @@
       th { background: var(--blue-bg); font-size: 14px; }
       tr:last-child td { border-bottom: 0; }
 
-      .links { columns: 2; gap: 40px; }
-      .links li { break-inside: avoid; }
-
       .footer { border-top: 1px solid var(--line); background: var(--surface); }
       .footer-inner { padding: 22px 0; color: var(--muted); font-size: 14px; }
 
@@ -196,9 +199,7 @@
         .hero { padding: 40px 0 34px; }
         .topbar-inner, .hero-inner, .content, .footer-inner { width: min(100% - 28px, 960px); }
         h1 { font-size: 32px; }
-        .intro { font-size: 16px; }
         .checklist { grid-template-columns: 1fr; }
-        .links { columns: 1; }
       }
     </style>
   </head>
@@ -214,33 +215,57 @@
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-inner">
           <h1 id="page-title">Claude 账号使用说明</h1>
-          <p class="intro">适用于 Claude 个人账号与 Team 成员的登录、客户端、指定 API 平台、Hosts 配置和日常账号安全管理。</p>
         </div>
       </section>
 
-      <div class="content">
+        <div class="content">
+        <aside class="risk-panel" aria-labelledby="risk-title">
+          <h2 id="risk-title">重要风险提示</h2>
+          <p><strong>中国地区无法直接使用指定 API 平台。</strong>开始使用前，须确认网络环境、账号权限和平台入口均满足管理员下发的使用条件。</p>
+          <ul>
+            <li><strong>连续使用超过 24 小时：</strong>可能触发账号安全校验、用量控制或服务限制。</li>
+            <li><strong>多个 CLI 进程并发使用，且并发超过 5：</strong>可能加速消耗额度，并触发动态速率限制或异常会话核验。</li>
+            <li><strong>未配置 Hosts：</strong>指定域名可能无法解析到要求的服务地址，导致登录、访问或请求失败。</li>
+            <li><strong>破限使用：</strong>包括规避平台配额、地区、账号或访问限制的行为，可能导致账号或服务权限受限。</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="model-test">
+          <h2 id="model-test">模型测试题</h2>
+          <pre><code>不调用任何工具、也不调用联网，帮我做一下这个题目。
+
+在一个黑色的袋子里放有三种口味的糖果，每种糖果有两种不同的形状（圆形和五角星形，不同的形状靠手感可以分辨）。现已知不同口味的糖和不同形状的数量统计如下表。参赛者需要在活动前决定摸出的糖果数目，那么，最少取出多少个糖果才能保证手中同时拥有不同形状的苹果味和桃子味的糖？（同时手中有圆形苹果味匹配五角星桃子味糖果，或者有圆形桃子味匹配五角星苹果味糖果都满足要求）
+
+形状       苹果味  桃子味  西瓜味
+圆形       7       9       8
+五角星形   7       6       4
+
+请给出严格证明，说明答案为什么可行，以及为什么更小的取出数量无法保证成功。
+
+判定标准：正确答案应为 29 个。</code></pre>
+        </section>
+
         <section aria-labelledby="before-use">
           <h2 id="before-use">使用前准备</h2>
           <ul class="checklist">
-            <li><b>01 官方客户端</b>仅安装官方 Claude App 或 Claude Code CLI。</li>
+            <li><b>01 Claude Code CLI</b>仅允许使用 Claude Code CLI；Claude App 存在账号风险。</li>
             <li><b>02 指定平台</b>仅使用公司指定的 API 平台与账号配置。</li>
-            <li><b>03 网络验证</b>先确认指定网址可访问，再启动客户端。</li>
-            <li><b>04 Hosts 配置</b>完成本机 Hosts 配置并确认解析已生效。</li>
+            <li><b>03 Hosts 配置</b>完成本机 Hosts 配置并确认解析已生效。</li>
+            <li><b>04 网络验证</b>先确认指定网址可访问，再启动 CLI。</li>
           </ul>
         </section>
 
         <section aria-labelledby="client">
-          <h2 id="client">官方客户端与 CLI</h2>
+          <h2 id="client">Claude Code CLI</h2>
           <ul>
-            <li><strong>Claude Desktop / 移动端 App：</strong>仅从官方 <a href="https://claude.com/download">Claude 下载页</a> 或官方应用商店安装。</li>
             <li><strong>Claude Code CLI：</strong>仅依照 Anthropic 官方安装文档或公司提供的官方安装指引安装、更新。</li>
-            <li>不使用来源不明的安装包、浏览器扩展、二次封装客户端或代登录工具。</li>
+            <li>仅允许使用 CLI；不使用 Claude App、来源不明的安装包、浏览器扩展、二次封装客户端或代登录工具。</li>
           </ul>
         </section>
 
         <section aria-labelledby="platform">
           <h2 id="platform">指定 API 平台</h2>
-          <p>账号和客户端须接入公司指定的 API 平台。该平台默认不向中国地区开放服务；请以平台页面、管理员通知和账号实际权限为准。</p>
+          <p><strong>账号和客户端须接入公司指定的 API 平台。该平台默认不向中国地区开放服务。</strong>请以平台页面、管理员通知和账号实际权限为准。</p>
           <div class="notice"><strong>地区限制：</strong>出现“地区不可用”“无访问权限”或认证失败时，联系管理员核实账号、地区与平台权限。</div>
           <div class="table-wrap">
             <table>
@@ -257,7 +282,7 @@
 
         <section aria-labelledby="network">
           <h2 id="network">网络访问验证</h2>
-          <p>使用者需自行准备满足平台访问条件的网络环境。完成网络连接后，先访问管理员下发的指定网址 <code>API_PLATFORM_URL</code>，确认页面或接口可正常响应，再启动 Claude App 或 Claude Code CLI。</p>
+          <p>使用者需自行准备满足平台访问条件的网络环境。完成网络连接后，先访问管理员下发的指定网址 <code>API_PLATFORM_URL</code>，确认页面或接口可正常响应，再启动 Claude Code CLI。</p>
         </section>
 
         <section aria-labelledby="hosts">
@@ -274,35 +299,45 @@
               </tbody>
             </table>
           </div>
+          <h3>Claude 域名映射片段</h3>
+          <p>以下为可精确表示的域名映射。Hosts 仅支持精确主机名，不支持 <code>DOMAIN-SUFFIX</code> 子域通配、<code>DOMAIN-KEYWORD</code>、<code>IP-CIDR</code>、<code>IP-ASN</code> 或 <code>GEOSITE</code> 规则。</p>
+          <pre><code># Exact root domains from DOMAIN-SUFFIX rules
+127.0.0.1 claude.ai
+127.0.0.1 claude.com
+127.0.0.1 claude.site
+127.0.0.1 clau.de
+127.0.0.1 anthropic.com
+127.0.0.1 anthropiccdn.com
+127.0.0.1 anthropic-cdn.com
+127.0.0.1 claudeusercontent.com
+127.0.0.1 claudemcpclient.com
+127.0.0.1 anthropicsystem.com
+127.0.0.1 anthropic.cloud
+127.0.0.1 sentry.io
+127.0.0.1 statsigapi.net
+127.0.0.1 intercom.io
+127.0.0.1 intercomcdn.com
+
+# Exact domains from DOMAIN rules
+127.0.0.1 cdn.usefathom.com
+127.0.0.1 platform.claude.com
+127.0.0.1 preview.claude.ai
+127.0.0.1 feedback.anthropic.com
+127.0.0.1 servd-anthropic-website.b-cdn.net
+127.0.0.1 anthropic.com.cdn.cloudflare.net
+127.0.0.1 anthropic.auth0.com
+127.0.0.1 anthropic-com.ghost.io
+127.0.0.1 browser-intake-us5-datadoghq.com</code></pre>
           <h3>验证命令</h3>
-          <pre><code>curl -vI https://TARGET_DOMAIN</code></pre>
+          <pre><code># macOS / Linux
+ping -c 1 claude.ai
+
+# Windows
+ping claude.ai</code></pre>
           <ol>
-            <li>连接日志应显示连接到 <code>TARGET_IP</code>，并能收到目标站点的 HTTP 响应。</li>
-            <li>在浏览器访问 <code>https://TARGET_DOMAIN/VERIFY_PATH</code>，结果应与管理员提供的预期页面或响应一致。</li>
-            <li>若仍解析到旧 IP，检查 Hosts 文件是否有重复或冲突条目，刷新 DNS 缓存后重启浏览器或客户端。</li>
+            <li>正常结果应显示 <code>claude.ai (127.0.0.1)</code> 或等价的 <code>127.0.0.1</code> 解析结果。</li>
+            <li>若未解析到 <code>127.0.0.1</code>，检查 Hosts 文件是否有重复或冲突条目，刷新 DNS 缓存后重启浏览器或客户端。</li>
           </ol>
-        </section>
-
-        <section aria-labelledby="account">
-          <h2 id="account">账号安全与使用</h2>
-          <ul>
-            <li>使用真实、长期可访问的邮箱完成注册或登录，并按页面要求完成手机号验证。</li>
-            <li>定期检查 <code>Settings → Account → Active sessions</code>；发现未知会话时立即退出并重新认证。</li>
-            <li>不共享账号密码、Cookie、登录链接、验证码、API Key 或终端认证文件。</li>
-            <li>付费套餐的实际额度以 <code>Settings → Usage</code> 显示的用量和重置时间为准。</li>
-          </ul>
-        </section>
-
-        <section aria-labelledby="references">
-          <h2 id="references">官方链接</h2>
-          <ul class="links">
-            <li><a href="https://claude.ai/">Claude</a></li>
-            <li><a href="https://claude.com/download">Claude 下载页</a></li>
-            <li><a href="https://www.anthropic.com/pricing">Claude Pricing</a></li>
-            <li><a href="https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan">Pro / Max 与 Claude Code</a></li>
-            <li><a href="https://support.claude.com/en/articles/13124001-managing-your-active-sessions">管理活动会话</a></li>
-            <li><a href="https://support.claude.com/en/articles/13133750-manage-members-on-team-and-enterprise-plans">管理 Team 成员</a></li>
-          </ul>
         </section>
       </div>
     </main>
