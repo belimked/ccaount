@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Claude 账号使用说明" />
+    <title>Claude 账号使用说明</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #132238;
+        --muted: #536177;
+        --line: #d9e0e8;
+        --surface: #ffffff;
+        --canvas: #f4f7fa;
+        --blue: #195f9b;
+        --teal: #14766f;
+        --amber: #9a5a00;
+        --amber-bg: #fff4db;
+        --blue-bg: #eaf3fb;
+        --teal-bg: #e9f7f4;
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--canvas);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      a { color: var(--blue); }
+      a:hover { color: var(--teal); }
+
+      .topbar {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .topbar-inner,
+      .hero-inner,
+      .content,
+      .footer-inner {
+        width: min(100% - 40px, 960px);
+        margin: 0 auto;
+      }
+
+      .topbar-inner {
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .updated {
+        color: #d6e1ed;
+        font-size: 14px;
+      }
+
+      .hero {
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+        padding: 58px 0 48px;
+      }
+
+      h1, h2, h3, p { margin-top: 0; }
+
+      h1 {
+        max-width: 680px;
+        margin-bottom: 14px;
+        font-size: 40px;
+        line-height: 1.2;
+        letter-spacing: 0;
+      }
+
+      .intro {
+        max-width: 650px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .content { padding: 32px 0 56px; }
+
+      section {
+        padding: 32px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      section:last-child { border-bottom: 0; }
+
+      h2 {
+        margin-bottom: 18px;
+        font-size: 25px;
+        line-height: 1.35;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 26px 0 10px;
+        font-size: 18px;
+        line-height: 1.45;
+        letter-spacing: 0;
+      }
+
+      .notice {
+        margin: 20px 0;
+        padding: 16px 18px;
+        border-left: 4px solid var(--amber);
+        background: var(--amber-bg);
+      }
+
+      .notice strong { color: #704100; }
+
+      .checklist {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        list-style: none;
+        margin: 20px 0 0;
+        padding: 0;
+      }
+
+      .checklist li {
+        min-height: 72px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+
+      .checklist b {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--teal);
+        font-size: 14px;
+      }
+
+      ol, ul { padding-left: 24px; }
+      li + li { margin-top: 8px; }
+
+      code {
+        padding: 2px 5px;
+        border-radius: 3px;
+        background: #e8edf3;
+        color: #24364f;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.9em;
+        overflow-wrap: anywhere;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0;
+        padding: 16px;
+        border-radius: 6px;
+        background: #132238;
+        color: #e9f2fb;
+        line-height: 1.55;
+      }
+
+      pre code { padding: 0; background: transparent; color: inherit; }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin: 18px 0;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+
+      table { width: 100%; border-collapse: collapse; min-width: 620px; }
+      th, td { padding: 13px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+      th { background: var(--blue-bg); font-size: 14px; }
+      tr:last-child td { border-bottom: 0; }
+
+      .links { columns: 2; gap: 40px; }
+      .links li { break-inside: avoid; }
+
+      .footer { border-top: 1px solid var(--line); background: var(--surface); }
+      .footer-inner { padding: 22px 0; color: var(--muted); font-size: 14px; }
+
+      @media (max-width: 640px) {
+        .topbar-inner { align-items: flex-start; flex-direction: column; justify-content: center; gap: 1px; padding: 10px 0; }
+        .hero { padding: 40px 0 34px; }
+        .topbar-inner, .hero-inner, .content, .footer-inner { width: min(100% - 28px, 960px); }
+        h1 { font-size: 32px; }
+        .intro { font-size: 16px; }
+        .checklist { grid-template-columns: 1fr; }
+        .links { columns: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">Claude 使用指引</div>
+        <div class="updated">更新日期：2026-09-10</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-inner">
+          <h1 id="page-title">Claude 账号使用说明</h1>
+          <p class="intro">适用于 Claude 个人账号与 Team 成员的登录、客户端、指定 API 平台、Hosts 配置和日常账号安全管理。</p>
+        </div>
+      </section>
+
+      <div class="content">
+        <section aria-labelledby="before-use">
+          <h2 id="before-use">使用前准备</h2>
+          <ul class="checklist">
+            <li><b>01 官方客户端</b>仅安装官方 Claude App 或 Claude Code CLI。</li>
+            <li><b>02 指定平台</b>仅使用公司指定的 API 平台与账号配置。</li>
+            <li><b>03 网络验证</b>先确认指定网址可访问，再启动客户端。</li>
+            <li><b>04 Hosts 配置</b>完成本机 Hosts 配置并确认解析已生效。</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="client">
+          <h2 id="client">官方客户端与 CLI</h2>
+          <ul>
+            <li><strong>Claude Desktop / 移动端 App：</strong>仅从官方 <a href="https://claude.com/download">Claude 下载页</a> 或官方应用商店安装。</li>
+            <li><strong>Claude Code CLI：</strong>仅依照 Anthropic 官方安装文档或公司提供的官方安装指引安装、更新。</li>
+            <li>不使用来源不明的安装包、浏览器扩展、二次封装客户端或代登录工具。</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="platform">
+          <h2 id="platform">指定 API 平台</h2>
+          <p>账号和客户端须接入公司指定的 API 平台。该平台默认不向中国地区开放服务；请以平台页面、管理员通知和账号实际权限为准。</p>
+          <div class="notice"><strong>地区限制：</strong>出现“地区不可用”“无访问权限”或认证失败时，联系管理员核实账号、地区与平台权限。</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>项目</th><th>应确认内容</th></tr></thead>
+              <tbody>
+                <tr><td>平台入口</td><td><code>API_PLATFORM_URL</code></td></tr>
+                <tr><td>登录方式</td><td>指定账号、SSO 或 API Key 的获取与保管方式</td></tr>
+                <tr><td>客户端配置</td><td>服务地址、模型权限和配置文件位置</td></tr>
+                <tr><td>支持渠道</td><td>访问受限、认证失败或额度异常时的处理联系人</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="network">
+          <h2 id="network">网络访问验证</h2>
+          <p>使用者需自行准备满足平台访问条件的网络环境。完成网络连接后，先访问管理员下发的指定网址 <code>API_PLATFORM_URL</code>，确认页面或接口可正常响应，再启动 Claude App 或 Claude Code CLI。</p>
+        </section>
+
+        <section aria-labelledby="hosts">
+          <h2 id="hosts">Hosts 配置与生效验证</h2>
+          <p>管理员会提供目标域名和对应 IP。以下示例中的 <code>TARGET_IP</code>、<code>TARGET_DOMAIN</code> 和 <code>VERIFY_PATH</code> 必须替换为实际下发值。</p>
+          <pre><code>TARGET_IP TARGET_DOMAIN</code></pre>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>系统</th><th>Hosts 文件位置</th><th>刷新 DNS 缓存</th></tr></thead>
+              <tbody>
+                <tr><td>macOS</td><td><code>/etc/hosts</code></td><td><code>sudo dscacheutil -flushcache &amp;&amp; sudo killall -HUP mDNSResponder</code></td></tr>
+                <tr><td>Windows</td><td><code>C:\Windows\System32\drivers\etc\hosts</code></td><td><code>ipconfig /flushdns</code></td></tr>
+                <tr><td>Linux</td><td><code>/etc/hosts</code></td><td><code>sudo resolvectl flush-caches</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>验证命令</h3>
+          <pre><code>curl -vI https://TARGET_DOMAIN</code></pre>
+          <ol>
+            <li>连接日志应显示连接到 <code>TARGET_IP</code>，并能收到目标站点的 HTTP 响应。</li>
+            <li>在浏览器访问 <code>https://TARGET_DOMAIN/VERIFY_PATH</code>，结果应与管理员提供的预期页面或响应一致。</li>
+            <li>若仍解析到旧 IP，检查 Hosts 文件是否有重复或冲突条目，刷新 DNS 缓存后重启浏览器或客户端。</li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="account">
+          <h2 id="account">账号安全与使用</h2>
+          <ul>
+            <li>使用真实、长期可访问的邮箱完成注册或登录，并按页面要求完成手机号验证。</li>
+            <li>定期检查 <code>Settings → Account → Active sessions</code>；发现未知会话时立即退出并重新认证。</li>
+            <li>不共享账号密码、Cookie、登录链接、验证码、API Key 或终端认证文件。</li>
+            <li>付费套餐的实际额度以 <code>Settings → Usage</code> 显示的用量和重置时间为准。</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="references">
+          <h2 id="references">官方链接</h2>
+          <ul class="links">
+            <li><a href="https://claude.ai/">Claude</a></li>
+            <li><a href="https://claude.com/download">Claude 下载页</a></li>
+            <li><a href="https://www.anthropic.com/pricing">Claude Pricing</a></li>
+            <li><a href="https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan">Pro / Max 与 Claude Code</a></li>
+            <li><a href="https://support.claude.com/en/articles/13124001-managing-your-active-sessions">管理活动会话</a></li>
+            <li><a href="https://support.claude.com/en/articles/13133750-manage-members-on-team-and-enterprise-plans">管理 Team 成员</a></li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"><div class="footer-inner">如遇访问、认证或配置问题，请联系管理员确认平台权限和下发配置。</div></footer>
+  </body>
+</html>
