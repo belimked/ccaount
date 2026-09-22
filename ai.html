@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 中转站合规筹备</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F5F6F3; --surface:#FFFFFF; --sunk:#ECEEE9; --ink:#1A211E; --ink-2:#4A5550; --ink-3:#77827C;
+  --line:#D9DDD6; --accent:#0E5C57; --accent-soft:#DCEBE8;
+  --ok:#2E7A4C; --ok-bg:#E1F0E6; --warn:#9A6212; --warn-bg:#F7ECD8; --bad:#A63B2A; --bad-bg:#F6E1DC;
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121715; --surface:#1A201E; --sunk:#222926; --ink:#E6EBE8; --ink-2:#B3BDB8; --ink-3:#86918C;
+    --line:#2F3834; --accent:#6CC3BA; --accent-soft:#1F3533;
+    --ok:#7CCB98; --ok-bg:#1D3226; --warn:#E3B065; --warn-bg:#3A2E1B; --bad:#EE8E7C; --bad-bg:#3C231E;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121715; --surface:#1A201E; --sunk:#222926; --ink:#E6EBE8; --ink-2:#B3BDB8; --ink-3:#86918C;
+  --line:#2F3834; --accent:#6CC3BA; --accent-soft:#1F3533;
+  --ok:#7CCB98; --ok-bg:#1D3226; --warn:#E3B065; --warn-bg:#3A2E1B; --bad:#EE8E7C; --bad-bg:#3C231E;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;padding-inline:20px;padding-block:0 64px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px;word-break:break-all}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px}
+header.top{max-width:1120px;margin:0 auto;padding-block:48px 28px;border-bottom:1px solid var(--line);margin-bottom:36px}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;font-weight:500}
+h1{font-family:var(--serif);font-size:clamp(28px,4.2vw,40px);line-height:1.25;margin:10px 0 14px;text-wrap:balance;font-weight:700}
+.lede{color:var(--ink-2);max-width:62ch;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:18px;font-size:13px;color:var(--ink-3)}
+.disclaimer{margin-top:20px;background:var(--warn-bg);color:var(--ink);border-radius:6px;padding:12px 16px;font-size:13.5px;max-width:78ch}
+.disclaimer b{color:var(--warn)}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px);align-self:start;font-size:13.5px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;border-left:1px solid var(--line)}
+nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:5px 0 5px 14px;margin-left:-1px;border-left:2px solid transparent;word-break:normal}
+nav.toc a:hover{color:var(--ink);border-left-color:var(--ink-3)}
+nav.toc .k{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-right:6px}
+main{min-width:0}
+section{padding-block:8px 36px;border-bottom:1px solid var(--line);margin-bottom:36px}
+section:last-of-type{border-bottom:0}
+h2{font-family:var(--serif);font-size:24px;line-height:1.35;margin:0 0 6px;text-wrap:balance;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-size:14px;color:var(--accent);font-weight:500}
+.q{color:var(--ink-2);margin:0 0 20px;max-width:70ch}
+h3{font-size:16.5px;margin:28px 0 10px;font-weight:700}
+p{margin:0 0 12px;max-width:72ch}
+ul,ol.steps{margin:0 0 14px;padding-left:1.3em;max-width:72ch}
+li{margin-bottom:4px}
+.answer{background:var(--accent-soft);border-radius:6px;padding:14px 18px;margin:0 0 20px;max-width:78ch}
+.answer strong:first-child{color:var(--accent)}
+.tbl{overflow-x:auto;margin:6px 0 18px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;line-height:1.6}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{background:var(--sunk);font-weight:500;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:12px;line-height:1;padding:4px 8px;border-radius:999px;font-weight:500;white-space:nowrap}
+.pill.must{background:var(--bad-bg);color:var(--bad)}
+.pill.cond{background:var(--warn-bg);color:var(--warn)}
+.pill.opt{background:var(--ok-bg);color:var(--ok)}
+.pill.no{background:var(--sunk);color:var(--ink-3)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 18px}
+.two > div{border:1px solid var(--line);border-radius:6px;padding:14px 16px;background:var(--surface)}
+.two h4{margin:0 0 8px;font-size:14px}
+.two .yes h4{color:var(--ok)} .two .nope h4{color:var(--bad)}
+.two ul{margin:0;padding-left:1.1em;font-size:14px}
+.callout{border-left:3px solid var(--warn);background:var(--surface);padding:12px 16px;margin:6px 0 18px;max-width:78ch;border-radius:0 6px 6px 0}
+.callout.bad{border-left-color:var(--bad)}
+.callout h4{margin:0 0 6px;font-size:14.5px}
+.callout p:last-child,.callout ol:last-child,.callout ul:last-child{margin-bottom:0}
+pre{background:var(--sunk);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.65;margin:6px 0 18px}
+code{font-family:var(--mono);font-size:.9em;background:var(--sunk);padding:1px 5px;border-radius:3px}
+pre code{background:none;padding:0}
+.src{font-size:13px;color:var(--ink-3);margin-top:8px}
+.src a{color:var(--ink-2)}
+.timeline{list-style:none;padding:0;margin:6px 0 14px;display:grid;gap:0;max-width:none}
+.timeline li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);margin:0;align-items:baseline}
+.timeline li:last-child{border-bottom:0}
+.timeline .s{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:500}
+.timeline .t{font-weight:500}
+.timeline .d{display:block;font-size:13px;color:var(--ink-3);font-weight:400}
+.timeline .w{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+.timeline .key .t{color:var(--accent)}
+.refs{columns:2;column-gap:32px;font-size:13px;padding-left:1.1em}
+.refs li{break-inside:avoid}
+footer{max-width:1120px;margin:24px auto 0;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:860px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.toc{position:static;margin-bottom:28px}
+  nav.toc ol{grid-template-columns:1fr 1fr;border-left:0;gap:4px 12px}
+  nav.toc a{border-left:0;padding-left:0}
+  .refs{columns:1}
+}
+@media (max-width:560px){
+  body{padding-inline:16px;font-size:14.5px}
+  .two{grid-template-columns:1fr}
+  .timeline li{grid-template-columns:28px minmax(0,1fr)}
+  .timeline .w{grid-column:2}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="eyebrow">筹备资料 · 整理于 2026-09-22</div>
+  <h1>在大陆开一家国产模型 Token 中转站，需要准备什么</h1>
+  <p class="lede">以公司主体面向用户售卖国产大模型 API Token，用 sub2api 做网关，收款走支付宝/微信官方商户。本页按办理顺序整理：域名、服务器、资质、支付、模型采购，每条结论都附出处。</p>
+  <div class="meta"><span>适用范围：中国大陆 · 国产已备案模型</span><span>不含：GPT / Claude 等境外模型</span></div>
+  <div class="disclaimer"><b>注意：</b>本页依据公开法规和厂商文档整理，不构成法律意见。价格和政策变化快，办理前请以官网和属地主管部门的口径为准，重要事项建议咨询专业律师或代办机构。</div>
+</header>
+
+<div class="wrap">
+<nav class="toc" aria-label="目录">
+  <ol>
+    <li><a href="#flow"><span class="k">00</span>办理顺序</a></li>
+    <li><a href="#domain"><span class="k">01</span>域名</a></li>
+    <li><a href="#server"><span class="k">02</span>服务器与 sub2api</a></li>
+    <li><a href="#license"><span class="k">03</span>备案与许可</a></li>
+    <li><a href="#pay"><span class="k">04</span>支付商户</a></li>
+    <li><a href="#models"><span class="k">05</span>模型采购</a></li>
+    <li><a href="#risk"><span class="k">—</span>风险汇总</a></li>
+    <li><a href="#refs"><span class="k">—</span>参考来源</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="flow">
+  <h2><span class="n">00</span>办理顺序与周期</h2>
+  <p class="q">ICP 备案是前置条件：支付签约、许可证申请都要求网站已备案。可以先完成第 1–4 步，再把第 5、6、7 步并行推进。</p>
+  <ol class="timeline">
+    <li><span class="s">0</span><span class="t">注册公司，开对公账户<span class="d">经营范围含"信息技术服务、增值电信业务"等 · 市场监管局、银行</span></span><span class="w">1–3 周</span></li>
+    <li><span class="s">1</span><span class="t">域名实名到公司名下<span class="d">必要时转入国内注册商</span></span><span class="w">3–5 天</span></li>
+    <li><span class="s">2</span><span class="t">购买国内云服务器<span class="d">阿里云 / 腾讯云 / 华为云等</span></span><span class="w">当天</span></li>
+    <li class="key"><span class="s">3</span><span class="t">ICP 备案<span class="d">云厂商初审 → 省通信管理局</span></span><span class="w">1–3 周</span></li>
+    <li><span class="s">4</span><span class="t">公安联网备案<span class="d">网站开通后 30 日内</span></span><span class="w">1–2 周</span></li>
+    <li class="key"><span class="s">5</span><span class="t">经营性 ICP 许可证（B25）<span class="d">省通信管理局</span></span><span class="w">35–60 工作日</span></li>
+    <li class="key"><span class="s">6</span><span class="t">算法备案 + 生成式 AI 登记<span class="d">网信办 · 登记由属地网信办办理</span></span><span class="w">1–3 个月</span></li>
+    <li><span class="s">7</span><span class="t">支付宝 / 微信支付商户签约</span><span class="w">1–2 周</span></li>
+    <li><span class="s">8</span><span class="t">上线<span class="d">公示所用模型名称和备案号，添加 AI 内容标识</span></span><span class="w">—</span></li>
+  </ol>
+</section>
+
+<section id="domain">
+  <h2><span class="n">01</span>域名：已有的域名能不能用？</h2>
+  <div class="answer"><strong>要满足四个条件才能用。</strong>其中后缀是硬条件：<code>.ai</code> 目前不在工信部批复的可备案后缀里，<b>不能备案</b>。其他三项都可以补办。</div>
+  <div class="tbl"><table>
+    <thead><tr><th>检查项</th><th>要求</th><th>不满足怎么办</th></tr></thead>
+    <tbody>
+      <tr><td>① 后缀</td><td>顶级域名必须在工信部批复的可备案后缀列表中。<code>.com</code> <code>.cn</code> <code>.net</code> <code>.top</code> <code>.xyz</code> 等常见后缀可以备案，<b><code>.ai</code> 目前不能</b></td><td>换一个可备案后缀的域名，比如注册同名的 <code>.com</code> 或 <code>.cn</code></td></tr>
+      <tr><td>② 注册商</td><td>必须是工信部批准的境内域名注册服务机构</td><td>GoDaddy、Namecheap、Cloudflare 等境外注册商的域名，要转入阿里云、腾讯云等国内注册商</td></tr>
+      <tr><td>③ 实名</td><td>持有者完成实名认证，且与备案主体一致（公司备案就要实名到公司名下）</td><td>在注册商处办理持有者变更，改为公司主体，同步需要 2–3 天</td></tr>
+      <tr><td>④ 有效期</td><td>距离到期通常要有 45 天以上</td><td>先续费</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>自检方法：</b>用阿里云或腾讯云备案页面上的"域名检测"工具，输入域名，可以一次查清后缀和注册商是否符合要求。</p>
+  <p><b>如果现有域名是 <code>.ai</code>：</b>可以保留，用作海外品牌站或跳转入口，但国内服务器上提供服务的主域名必须是可备案的后缀。</p>
+  <p class="src">出处：<a href="https://help.aliyun.com/zh/icp-filing/basic-icp-service/user-guide/prepare-and-check-the-domain-name">阿里云 · ICP 备案域名核验要求</a> · <a href="https://cloud.tencent.com/document/product/243/18905">腾讯云 · 准备备案域名</a> · <a href="https://beian.miit.gov.cn/">工信部备案管理系统</a></p>
+</section>
+
+<section id="server">
+  <h2><span class="n">02</span>国内服务器：要不要备案？什么配置？</h2>
+  <div class="answer"><strong>要备案。</strong>服务器在中国大陆，并且通过域名对外提供 Web/API 服务，就必须先做 ICP 备案，否则 80/443 端口会被云厂商拦截。但 ICP 备案只解决"网站能开"的问题，收费经营还需要第 03 节里的许可证和 AI 相关手续。</div>
+  <ul>
+    <li>ICP 备案在服务器所在的云厂商处提交。一般要求在该厂商有符合条件的实例，比如阿里云通常要求 ECS 为包年包月且不少于 3 个月，以厂商规则为准。</li>
+    <li>备案通过后 30 日内，要在 <a href="https://beian.mps.gov.cn/">全国互联网安全管理服务平台</a> 办理公安联网备案。</li>
+  </ul>
+
+  <h3>关于 sub2api（务必先读）</h3>
+  <p><a href="https://github.com/Wei-Shaw/sub2api">sub2api</a> 是一个 Go 语言写的开源 AI API 网关（LGPL-3.0）。它的核心定位是把 Claude、OpenAI、Gemini、Grok 的<b>订阅账号</b>统一接入，支持"拼车共享"。它也支持 API Key 类型的上游，README 提到可以接入自定义 base_url 的 OpenAI 兼容上游，<b>部署后需要在后台实际验证</b>。内置支付支持 EasyPay、支付宝、微信支付和 Stripe。依赖 PostgreSQL 15+ 和 Redis 7+。</p>
+  <div class="callout bad"><h4>项目免责声明原文要点</h4><p>使用本项目可能违反 Anthropic 等上游的服务条款，账号被封等风险由使用者自行承担。</p></div>
+  <div class="two">
+    <div class="yes"><h4>✓ 国内售卖场景可以这样用</h4><ul>
+      <li>上游只接国产模型的<b>按量付费 API Key</b>，并且是企业账号</li>
+      <li>支付走支付宝/微信<b>官方直连</b>商户</li>
+      <li>用自有品牌名做模型别名，页面公示真实上游模型和备案号</li>
+    </ul></div>
+    <div class="nope"><h4>✗ 不要这样用</h4><ul>
+      <li>接 Claude/ChatGPT 等订阅账号做拼车</li>
+      <li>用 EasyPay/易支付等"四方"聚合收款，可能涉嫌帮信、非法经营</li>
+      <li>把 Coding Plan 等订阅套餐拼车转售</li>
+    </ul></div>
+  </div>
+  <p>备选网关：<a href="https://github.com/QuantumNous/new-api">new-api</a>，以及它的上游项目 one-api。这两个项目原生面向"多家 API Key + 计费"的场景，和按量售卖 Token 的模式更契合。</p>
+
+  <h3>推荐配置</h3>
+  <p>sub2api 本身资源占用小，主要负载来自 PostgreSQL、Redis 和并发的流式长连接。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>阶段</th><th>CPU / 内存</th><th>系统盘</th><th>带宽</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>起步（&lt; 100 活跃用户）</td><td class="num">2C / 4G</td><td class="num">60G SSD</td><td class="num">5–10 Mbps</td><td>应用、PG、Redis 全部装在一台机器上</td></tr>
+      <tr><td>成长期</td><td class="num">4C / 8G</td><td class="num">100G SSD</td><td class="num">10–20 Mbps</td><td>PG 换成云数据库 RDS，Redis 换成云 Redis</td></tr>
+      <tr><td>规模化</td><td>应用多实例 + SLB</td><td>—</td><td>按需</td><td>数据库、Redis 独立部署，开启备份</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><b>地域：</b>上游模型都在国内，选华东或华北都可以，延迟都比较低。系统用 Ubuntu 22.04/24.04 LTS 或 Debian 12。</li>
+    <li><b>安全：</b>配置 HTTPS 证书，安全组只开放 80/443，SSH 限制来源 IP。</li>
+    <li><b>日志：</b>访问日志和用户对话日志要留存不少于 6 个月，需要提前规划磁盘或 OSS 归档。</li>
+    <li><b>等保：</b>经营规模上来后，建议办理等保二级备案和测评。</li>
+  </ul>
+
+  <h3>部署步骤（Docker Compose）</h3>
+<pre><code># 1. 安装 Docker 和 Compose v2（国内服务器建议配置镜像加速）
+# 2. 执行官方部署脚本
+mkdir -p sub2api-deploy &amp;&amp; cd sub2api-deploy
+curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/docker-deploy.sh | bash
+# 3. 编辑 .env：数据库密码、SERVER_PORT（默认 8080）、管理员账号
+docker compose up -d
+# 4. 用 Nginx/Caddy 反向代理 443 → 8080，配置 HTTPS
+# 5. 登录后台：添加上游 API Key、配置模型别名、价格倍率、支付参数</code></pre>
+</section>
+
+<section id="license">
+  <h2><span class="n">03</span>售卖国内 Token：需要哪些备案和许可？</h2>
+  <p class="q">只调用第三方已备案模型的 API，不需要做最重的"大模型备案"，但要办"登记"。收费经营必须有经营性 ICP 许可证。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>事项</th><th>是否必须</th><th>依据</th><th>办理入口</th></tr></thead>
+    <tbody>
+      <tr><td><b>ICP 备案</b></td><td><span class="pill must">必须</span></td><td>《互联网信息服务管理办法》</td><td>云厂商 → <a href="https://beian.miit.gov.cn/">工信部备案系统</a></td></tr>
+      <tr><td><b>经营性 ICP 许可证</b><br>增值电信 B25 信息服务</td><td><span class="pill must">收费必须</span></td><td>同上，第四条：经营性互联网信息服务实行许可制度</td><td>省通信管理局 · <a href="https://ythzxfw.miit.gov.cn/">工信部政务服务平台</a></td></tr>
+      <tr><td>公安联网备案</td><td><span class="pill must">必须</span></td><td>《计算机信息网络国际联网安全保护管理办法》</td><td><a href="https://beian.mps.gov.cn/">beian.mps.gov.cn</a></td></tr>
+      <tr><td><b>算法备案</b></td><td><span class="pill cond">有舆论属性时必须</span></td><td>《互联网信息服务算法推荐管理规定》第二十四条；《深度合成管理规定》</td><td><a href="https://beian.cac.gov.cn/">算法备案系统</a></td></tr>
+      <tr><td><b>生成式 AI 登记</b><br>调用已备案模型</td><td><span class="pill must">面向公众必须</span></td><td>《生成式人工智能服务管理暂行办法》；网信办备案公告</td><td>属地（省级）网信办</td></tr>
+      <tr><td>大模型备案</td><td><span class="pill no">纯调用不需要</span></td><td>自研或实质性修改模型时才需要</td><td>省网信办 → 国家网信办</td></tr>
+      <tr><td>AI 生成内容标识</td><td><span class="pill must">必须</span></td><td>《人工智能生成合成内容标识办法》，2025-09-01 起施行</td><td>产品内实现，写入用户协议</td></tr>
+      <tr><td>网络安全等级保护</td><td><span class="pill opt">建议（二级）</span></td><td>《网络安全法》《数据安全法》</td><td>属地公安网安部门</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>经营性 ICP 许可证（B25）</h3>
+  <ul>
+    <li><b>条件：</b>内资公司，注册资本不少于 100 万元（认缴即可，各地执行口径略有差异）；公司、主要出资者和主要经营管理人员 3 年内没有违反电信监管的记录；有网络与信息安全保障措施。</li>
+    <li><b>材料：</b>营业执照、法人和股东身份证、公司章程、域名证书、ICP 备案信息、网络与信息安全保障措施、社保证明（部分省份要求）。</li>
+    <li><b>周期：</b>受理后约 35–60 个工作日，管局不收费。</li>
+  </ul>
+
+  <h3>"备案"和"登记"的区别（网信办公告原文）</h3>
+  <ul>
+    <li><b>备案</b>由国家网信办负责，针对提供生成式 AI 服务的模型本身。</li>
+    <li><b>登记</b>由地方网信办开展，针对"通过 API 接口或其他方式直接调用已备案模型能力的生成式人工智能应用或功能"。</li>
+    <li>截至 2026-06-30，累计 988 款服务完成备案，598 款应用或功能完成登记。</li>
+    <li><b>公示义务：</b>已上线的应用"应在显著位置或产品详情页面公示所使用已备案或登记生成式人工智能服务情况，注明模型名称、备案号或上线编号"。</li>
+  </ul>
+
+  <div class="callout"><h4>需要提前和属地网信办确认的两个问题</h4>
+    <ol class="steps">
+      <li><b>纯 API 分发（B2B 卖 Token 给开发者）算不算"面向公众提供服务"：</b>目前没有统一口径。如果同时提供网页聊天界面（C 端），一般会被认定为需要登记。</li>
+      <li><b>"二次处理"是否构成实质性修改：</b>有律师文章指出，如果对模型输出做了过滤、重组等二次处理，可能会被要求改走更重的大模型备案。自有品牌别名、system prompt 注入属于轻度处理，登记材料里要如实说明。</li>
+    </ol>
+  </div>
+  <p>上游厂商（阿里云、火山引擎等）通常会为调用其模型的客户提供登记所需的模型备案号和授权材料，签约时可以一并索要。</p>
+
+  <h3>官方法规原文</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>法规</th><th>发布机关</th><th>施行</th><th>原文</th></tr></thead>
+    <tbody>
+      <tr><td>《生成式人工智能服务管理暂行办法》</td><td>网信办等七部门</td><td class="num">2023-08-15</td><td><a href="https://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm">原文</a> · <a href="https://www.cac.gov.cn/2023-07/13/c_1690898326863363.htm">答记者问</a></td></tr>
+      <tr><td>《人工智能生成合成内容标识办法》</td><td>网信办、工信部、公安部、广电总局</td><td class="num">2025-09-01</td><td><a href="https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm">网信办</a> · <a href="https://www.gov.cn/zhengce/zhengceku/202503/content_7014286.htm">中国政府网</a></td></tr>
+      <tr><td>《互联网信息服务管理办法》（国务院令第 292 号）</td><td>国务院</td><td class="num">2024-12 修订</td><td><a href="https://www.gov.cn/gongbao/content/2000/content_60531.htm">政府网公报</a> · <a href="http://xzfg.moj.gov.cn/front/law/detail?LawID=819">行政法规库</a></td></tr>
+      <tr><td>《互联网信息服务算法推荐管理规定》</td><td>网信办等四部门</td><td class="num">2022-03-01</td><td>网信办官网检索</td></tr>
+      <tr><td>《互联网信息服务深度合成管理规定》</td><td>网信办等三部门</td><td class="num">2023-01-10</td><td>网信办官网检索</td></tr>
+      <tr><td>《人工智能拟人化互动服务管理暂行办法》</td><td>网信办</td><td class="num">2026</td><td><a href="https://www.cac.gov.cn/2026-04/10/c_1777558395078289.htm">原文</a>（仅做陪伴、角色扮演类产品时相关）</td></tr>
+      <tr><td>生成式 AI 已备案/登记信息公告</td><td>网信办</td><td class="num">2026-07</td><td><a href="https://www.cac.gov.cn/2026-07/10/c_1785427810632554.htm">2026 年 5–6 月</a> · <a href="https://www.cac.gov.cn/2026-01/09/c_1769688009588554.htm">2025 年全年</a></td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">实务解读（非官方）：<a href="https://www.allbrightlaw.com/CN/10475/9d795e4543aa51ea.aspx">锦天城律所</a>（周期参考：算法备案 1–2 个月，登记 1–3 个月，大模型备案 3–6 个月）· <a href="https://www.guantao.com/page4747">观韬律所</a> · <a href="https://docs.volcengine.com/docs/82379/1471389">火山方舟备案说明</a> · <a href="https://help.aliyun.com/zh/model-studio/compliance-and-launch-filing-guide-for-ai-apps-powered-by-the-tongyi-model">阿里云百炼上架合规</a></p>
+</section>
+
+<section id="pay">
+  <h2><span class="n">04</span>支付商户</h2>
+
+  <h3>支付宝商户号（重点）</h3>
+  <p><b>推荐产品：</b>PC 端用"电脑网站支付"，H5 页面用"手机网站支付"。备选"当面付"（生成付款二维码），门槛相对低，但对网站类虚拟商品的适配要看审核结果。</p>
+  <p><b>签约条件（电脑网站支付，官方文档）：</b></p>
+  <ul>
+    <li>支持企业、个体工商户、个人账号。<b>建议直接用企业账号</b>，和公司、ICP 备案主体保持一致。</li>
+    <li>网站能正常访问，经营内容明确，商品信息完整：要有价格页或充值套餐页、用户协议、隐私政策、联系方式。</li>
+    <li>网站必须通过 ICP 备案，且备案主体与支付宝账号主体一致；不一致时要上传授权函。</li>
+    <li>材料不全时收款额度受限：<b>单笔 ≤ 2000 元，单日 ≤ 20000 元</b>，要在合约生效后 30 天内补齐。</li>
+  </ul>
+  <div class="tbl"><table>
+    <thead><tr><th>类别</th><th>需要准备的资料</th></tr></thead>
+    <tbody>
+      <tr><td>主体</td><td>营业执照、法人身份证正反面、对公银行账户（企业账号认证用）</td></tr>
+      <tr><td>联系人</td><td>联系人手机、邮箱</td></tr>
+      <tr><td>网站</td><td>已备案且可访问的网站 URL、ICP 备案号、网站截图（首页、价格页、购买流程）</td></tr>
+      <tr><td>经营</td><td>经营类目一般选"软件/IT 服务"类，以系统可选项为准；如实描述业务为"AI 模型 API 调用服务（按量计费）"</td></tr>
+      <tr><td>资质（加分）</td><td>经营性 ICP 许可证、生成式 AI 登记编号</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>流程：</b></p>
+  <ol class="steps">
+    <li>注册支付宝企业账号，完成企业实名认证（营业执照、法人信息、对公账户打款验证）。</li>
+    <li>登录 <a href="https://open.alipay.com/">支付宝开放平台</a>，创建网页/移动应用，拿到 AppID。</li>
+    <li>在商家平台签约"电脑网站支付"和"手机网站支付"，提交网站和经营信息，等待审核（一般几个工作日）。</li>
+    <li>在开放平台为应用配置接口加签方式（推荐<b>公钥证书模式</b>），并绑定已签约的产品。</li>
+    <li>先用沙箱环境联调，确认异步通知（notify_url）和回调验签都没问题，再切到正式环境。</li>
+    <li>在 sub2api 后台填入 AppID、应用私钥、支付宝公钥证书等参数。</li>
+  </ol>
+  <p><b>费率：</b>标准费率一般约 0.6%，以签约页面显示为准。</p>
+  <p><b>风控提示：</b>"虚拟商品/充值"是高风控类目。商品页要写清楚"服务内容 = 模型 API 调用额度"，退款规则要明确。不要用个人收款码，不要接入易支付等四方平台。</p>
+  <p class="src">出处：<a href="https://opendocs.alipay.com/b/03ah5w">电脑网站支付申请条件</a> · <a href="https://opendocs.alipay.com/b/03ai91">如何签约电脑网站支付</a> · <a href="https://opendocs.alipay.com/b/03aia3">ICP 备案授权函</a> · <a href="https://opendocs.alipay.com/b/0cchn5">商家账号入驻签约指引</a></p>
+
+  <h3>微信支付：已有商户号能否沿用？</h3>
+  <div class="answer"><strong>满足以下四个条件就可以沿用，不必新开。</strong>最常见的卡点是经营类目：原来如果是餐饮、零售等无关类目，要先申请变更。</div>
+  <div class="tbl"><table>
+    <thead><tr><th>条件</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>① 主体一致</td><td>商户号主体 = 运营网站的公司 = ICP 备案主体。不一致时要提供网站授权函；AppID 主体不一致时要签《微信支付联合运营承诺函》并经过审核</td></tr>
+      <tr><td>② 类目匹配</td><td>要能覆盖"软件/IT 服务、在线充值"这类业务。不匹配就在商户平台申请类目变更，变更不通过只能新开</td></tr>
+      <tr><td>③ 开通 Native 支付</td><td>PC 网站扫码支付用 Native 支付：商户平台"产品中心 → Native 支付 → 申请开通"，审核一般在 7 个工作日内</td></tr>
+      <tr><td>④ 绑定 AppID</td><td>必须是<b>已认证的服务号</b>，或政府、媒体类型的公众号。订阅号不行</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>申请 Native 支付要准备：</b>经营场景选"PC 网站"；已 ICP 备案的网站域名；网站授权函（网站备案主体和商户主体不一致时需要，按模板打印并加盖公章）；已认证服务号的 AppID；规范的商户简称（不能只用人名或无意义文字）和真实可打通的客服电话。</p>
+  <p><b>注意：</b>商户号和 AppID 关联后<b>暂不支持解绑</b>，关联前要确认好。</p>
+  <p class="src">出处：<a href="https://pay.weixin.qq.com/doc/v3/merchant/4012791875">申请 Native 支付权限指引</a> · <a href="https://pay.weixin.qq.com/doc/v3/merchant/4013287246">管理商户号绑定的 APPID</a> · <a href="https://pay.weixin.qq.com/static/pay_setting/appid_protocol.shtml">APPID 授权管理</a></p>
+</section>
+
+<section id="models">
+  <h2><span class="n">05</span>国内模型：买哪些？去哪买？</h2>
+  <div class="callout bad"><h4>先搞清楚：Coding Plan 不能拿来转售</h4>
+    <p>各家的 Coding Plan / Token Plan（包月订阅）都不能用于中转售卖。以阿里云百炼的条款为例：仅限订阅账号本人使用，<b>严禁出借、共享、出售 API Key</b>；只能在编程工具中用于编程用途，<b>禁止用于自定义应用后端和自动化批量调用</b>；违规会被暂停订阅或封禁 Key。其他家也有类似限制。</p>
+    <p><b>转售场景只能用"按量付费 API"，并使用企业实名账号。</b>量大以后，可以谈企业合同或渠道/分销协议，拿到折扣和明确的转售授权。<a href="https://help.aliyun.com/zh/model-studio/coding-plan">条款原文</a></p>
+  </div>
+
+  <h3>推荐采购的模型（按量 API）</h3>
+  <p>价格单位：元/百万 tokens。只有 DeepSeek 取自官方页面，其余为第三方整理的数据，<b>以官网实时价格为准</b>。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>厂商</th><th>主力模型（2026-09）</th><th>参考价格</th><th>定位</th><th>入口</th></tr></thead>
+    <tbody>
+      <tr><td><b>DeepSeek</b></td><td>deepseek-flash（V4.1-Flash）<br>deepseek-v4-pro</td><td><b>flash</b>：输入 1–2（缓存命中 0.02–0.04），输出 4–8<br><b>v4-pro</b>：输入 4.5–9（缓存命中 0.15–0.3），输出 13.5–27<br><span style="color:var(--ink-3)">峰谷价：工作日 9–12、14–18 点为高峰价，其余时段减半 · 上下文 1M</span></td><td>性价比最高，走量首选</td><td><a href="https://api-docs.deepseek.com/zh-cn/quick_start/pricing">官方价格</a></td></tr>
+      <tr><td><b>阿里 千问</b></td><td>Qwen3.6 / Qwen3.7-Max</td><td>分档阶梯计费，常有折扣活动，见官方页面</td><td>综合能力强，型号齐全</td><td><a href="https://help.aliyun.com/zh/model-studio/model-pricing">百炼价格</a></td></tr>
+      <tr><td><b>智谱 GLM</b></td><td>GLM-5.3</td><td>输入约 8，输出约 28，缓存命中约 2 · 上下文 1M</td><td>编程、Agent</td><td><a href="https://bigmodel.cn/pricing">bigmodel.cn</a></td></tr>
+      <tr><td><b>Kimi</b></td><td>Kimi-K3</td><td>见官方页面</td><td>长上下文、Agent</td><td><a href="https://platform.moonshot.cn/">moonshot.cn</a></td></tr>
+      <tr><td><b>字节 豆包</b></td><td>Seed-2.1 Pro<br>Seed-1.8</td><td>2.1 Pro：输入约 6，输出约 30<br>1.8：输入约 0.8，输出约 8</td><td>多模态、低价小模型</td><td><a href="https://www.volcengine.com/product/ark">火山方舟</a></td></tr>
+      <tr><td><b>MiniMax</b></td><td>M2.7 / M3</td><td>见官方页面</td><td>编程、长文本</td><td><a href="https://platform.minimaxi.com/">minimaxi.com</a></td></tr>
+    </tbody>
+  </table></div>
+  <p><b>起步建议：</b>DeepSeek、千问、GLM 这三家基本能覆盖"便宜走量、综合能力、编程能力"三类需求，之后再按用户需求增加 Kimi、豆包。</p>
+
+  <h3>整合平台（一个账号购买多家模型）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>平台</th><th>覆盖模型</th><th>特点</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://bailian.console.aliyun.com/"><b>阿里云百炼</b></a></td><td>千问全系 + DeepSeek、Kimi、GLM、MiniMax 等百余款</td><td>大厂云，发票和合同齐全，能提供备案材料支持，<b>首选</b></td></tr>
+      <tr><td><a href="https://www.volcengine.com/product/ark"><b>火山方舟</b></a></td><td>豆包全系 + DeepSeek、Kimi、GLM 等</td><td>并发高，适合作为稳定的备用通道</td></tr>
+      <tr><td><a href="https://siliconflow.cn/pricing"><b>硅基流动</b></a></td><td>DeepSeek、Qwen、GLM、Kimi 等开源和国产模型</td><td>独立聚合平台，9B 以下小模型免费，新用户有赠送额度</td></tr>
+      <tr><td><a href="https://cloud.baidu.com/product/wenxinworkshop"><b>百度千帆</b></a></td><td>文心 ERNIE + DeepSeek 等</td><td>企业客户多</td></tr>
+      <tr><td><a href="https://cloud.tencent.com/document/product/1823/130092"><b>腾讯云 TokenHub</b></a></td><td>混元 + 第三方模型</td><td>腾讯云生态</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>采购策略：</b></p>
+  <ol class="steps">
+    <li><b>主通道</b>选一个大厂聚合平台（百炼或方舟）：一份合同、一张发票覆盖多家模型，备案材料也好要。</li>
+    <li><b>直连通道</b>用 DeepSeek 官方，价格最低。</li>
+    <li><b>备用通道</b>用硅基流动或另一个大厂平台，在网关里配置失败自动切换。</li>
+    <li>签约前逐条阅读各平台《服务协议》里关于转售、再分发、二次封装的条款。条款不明确时，走企业商务渠道拿书面授权。</li>
+    <li>记录每个上游模型的备案号，用于页面公示。</li>
+  </ol>
+</section>
+
+<section id="risk">
+  <h2>风险汇总</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>风险</th><th>后果</th><th>规避</th></tr></thead>
+    <tbody>
+      <tr><td>无证经营</td><td>没有经营性 ICP 许可证就收费，可能被责令整改、罚款、关停</td><td>先办许可证，取得前只做免费内测</td></tr>
+      <tr><td>未登记提供生成式 AI 服务</td><td>违反《生成式人工智能服务管理暂行办法》</td><td>办理算法备案和登记，页面公示备案号</td></tr>
+      <tr><td>接入境外模型或订阅拼车</td><td>境外模型没有在国内备案，还违反上游条款</td><td>只接国产已备案模型的按量 API</td></tr>
+      <tr><td>转售订阅套餐</td><td>违反 Coding Plan 条款，会被封号</td><td>只用按量 API 和企业合同</td></tr>
+      <tr><td>四方或个人码收款</td><td>资金被冻结，可能涉嫌帮信</td><td>只用支付宝/微信官方直连</td></tr>
+      <tr><td>模型"掺水"或冒充</td><td>消费欺诈，口碑崩盘</td><td>别名和实际上游一致，定价如实</td></tr>
+      <tr><td>日志缺失</td><td>无法满足留存和配合监管的要求</td><td>日志留存 ≥ 6 个月，接入内容安全审核</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="refs">
+  <h2>参考来源</h2>
+  <ul class="refs">
+    <li><a href="https://github.com/Wei-Shaw/sub2api">sub2api（GitHub）</a></li>
+    <li><a href="https://www.cac.gov.cn/2026-07/10/c_1785427810632554.htm">网信办 2026 年 5–6 月备案公告</a></li>
+    <li><a href="https://www.cac.gov.cn/2026-01/09/c_1769688009588554.htm">网信办 2025 年备案公告</a></li>
+    <li><a href="https://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm">生成式人工智能服务管理暂行办法</a></li>
+    <li><a href="https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm">人工智能生成合成内容标识办法</a></li>
+    <li><a href="https://www.cac.gov.cn/2026-04/10/c_1777558395078289.htm">人工智能拟人化互动服务管理暂行办法</a></li>
+    <li><a href="https://www.gov.cn/gongbao/content/2000/content_60531.htm">互联网信息服务管理办法</a></li>
+    <li><a href="https://help.aliyun.com/zh/icp-filing/basic-icp-service/user-guide/prepare-and-check-the-domain-name">阿里云 ICP 备案域名要求</a></li>
+    <li><a href="https://www.joyyan.com/Articles/Content/200">.ai 域名能否备案（第三方）</a></li>
+    <li><a href="https://cloud.tencent.com/developer/article/2551674">经营性 ICP 许可证办理（第三方）</a></li>
+    <li><a href="https://zhuanlan.zhihu.com/p/1896984498073236885">大模型登记与二次处理（第三方）</a></li>
+    <li><a href="https://www.allbrightlaw.com/CN/10475/9d795e4543aa51ea.aspx">锦天城律所解读</a></li>
+    <li><a href="https://opendocs.alipay.com/b/03ah5w">支付宝电脑网站支付申请条件</a></li>
+    <li><a href="https://pay.weixin.qq.com/doc/v3/merchant/4012791875">微信 Native 支付申请指引</a></li>
+    <li><a href="https://pay.weixin.qq.com/doc/v3/merchant/4013287246">微信商户号绑定 APPID</a></li>
+    <li><a href="https://api-docs.deepseek.com/zh-cn/quick_start/pricing">DeepSeek 官方价格</a></li>
+    <li><a href="https://github.com/wmpeng/codingplan">Coding Plan 横向对比（第三方）</a></li>
+    <li><a href="https://help.aliyun.com/zh/model-studio/coding-plan">阿里云百炼 Coding Plan 条款</a></li>
+    <li><a href="https://help.aliyun.com/zh/model-studio/model-pricing">阿里云百炼模型价格</a></li>
+    <li><a href="https://bigmodel.cn/pricing">智谱价格</a></li>
+    <li><a href="https://siliconflow.cn/pricing">硅基流动价格</a></li>
+    <li><a href="https://zhuanlan.zhihu.com/p/2075392954261320429">GLM-5.3 价格（第三方）</a></li>
+    <li><a href="https://k.sina.com.cn/article_7879995939_1d5af322301901cyqq.html">豆包价格（第三方）</a></li>
+  </ul>
+</section>
+
+</main>
+</div>
+<footer>整理于 2026-09-22 · 不构成法律意见 · 价格与政策以官方最新口径为准</footer>
+</body>
+</html>
