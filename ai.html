@@ -144,7 +144,7 @@ footer{max-width:1120px;margin:24px auto 0;font-size:12.5px;color:var(--ink-3);b
     <li><span class="s">2</span><span class="t">购买国内云服务器<span class="d">阿里云 / 腾讯云 / 华为云等</span></span><span class="w">当天</span></li>
     <li class="key"><span class="s">3</span><span class="t">ICP 备案<span class="d">云厂商初审 → 省通信管理局</span></span><span class="w">1–3 周</span></li>
     <li><span class="s">4</span><span class="t">公安联网备案<span class="d">网站开通后 30 日内</span></span><span class="w">1–2 周</span></li>
-    <li class="key"><span class="s">5</span><span class="t">经营性 ICP 许可证（B25）<span class="d">省通信管理局</span></span><span class="w">35–60 工作日</span></li>
+    <li class="key"><span class="s">5</span><span class="t">经营性 ICP 许可证（B25）<span class="d">省通信管理局</span></span><span class="w">45–60 工作日</span></li>
     <li class="key"><span class="s">6</span><span class="t">算法备案 + 生成式 AI 登记<span class="d">网信办 · 登记由属地网信办办理</span></span><span class="w">1–3 个月</span></li>
     <li><span class="s">7</span><span class="t">支付宝 / 微信支付商户签约</span><span class="w">1–2 周</span></li>
     <li><span class="s">8</span><span class="t">上线<span class="d">公示所用模型名称和备案号，添加 AI 内容标识</span></span><span class="w">—</span></li>
@@ -228,7 +228,7 @@ docker compose up -d
     <thead><tr><th>事项</th><th>是否必须</th><th>依据</th><th>办理入口</th></tr></thead>
     <tbody>
       <tr><td><b>ICP 备案</b></td><td><span class="pill must">必须</span></td><td>《互联网信息服务管理办法》</td><td>云厂商 → <a href="https://beian.miit.gov.cn/">工信部备案系统</a></td></tr>
-      <tr><td><b>经营性 ICP 许可证</b><br>增值电信 B25 信息服务</td><td><span class="pill must">收费必须</span></td><td>同上，第四条：经营性互联网信息服务实行许可制度</td><td>省通信管理局 · <a href="https://ythzxfw.miit.gov.cn/">工信部政务服务平台</a></td></tr>
+      <tr><td><b><a href="#b25">经营性 ICP 许可证</a></b><br>增值电信 B25 信息服务</td><td><span class="pill must">收费必须</span></td><td>同上，第四条：经营性互联网信息服务实行许可制度</td><td>省通信管理局 · <a href="https://ythzxfw.miit.gov.cn/">工信部政务服务平台</a></td></tr>
       <tr><td>公安联网备案</td><td><span class="pill must">必须</span></td><td>《计算机信息网络国际联网安全保护管理办法》</td><td><a href="https://beian.mps.gov.cn/">beian.mps.gov.cn</a></td></tr>
       <tr><td><b>算法备案</b></td><td><span class="pill cond">有舆论属性时必须</span></td><td>《互联网信息服务算法推荐管理规定》第二十四条；《深度合成管理规定》</td><td><a href="https://beian.cac.gov.cn/">算法备案系统</a></td></tr>
       <tr><td><b>生成式 AI 登记</b><br>调用已备案模型</td><td><span class="pill must">面向公众必须</span></td><td>《生成式人工智能服务管理暂行办法》；网信办备案公告</td><td>属地（省级）网信办</td></tr>
@@ -238,12 +238,72 @@ docker compose up -d
     </tbody>
   </table></div>
 
-  <h3>经营性 ICP 许可证（B25）</h3>
-  <ul>
-    <li><b>条件：</b>内资公司，注册资本不少于 100 万元（认缴即可，各地执行口径略有差异）；公司、主要出资者和主要经营管理人员 3 年内没有违反电信监管的记录；有网络与信息安全保障措施。</li>
-    <li><b>材料：</b>营业执照、法人和股东身份证、公司章程、域名证书、ICP 备案信息、网络与信息安全保障措施、社保证明（部分省份要求）。</li>
-    <li><b>周期：</b>受理后约 35–60 个工作日，管局不收费。</li>
-  </ul>
+  <h3 id="b25">经营性 ICP 许可证（B25）详解</h3>
+  <p>依据《电信业务经营许可管理办法》（<b>工信部令第 42 号</b>，2017-09-01 施行）、《电信条例》、《互联网信息服务管理办法》。业务种类为《电信业务分类目录》中的 <b>B25 信息服务业务</b>（互联网信息服务）。有效期 <b>5 年</b>（第十四条）。</p>
+  <p>证件编号形如「京 ICP 证 030173 号」，和 ICP 备案号（「京 ICP 备 xxxxx 号-1」）是两回事，<b>网站底部要同时标注</b>。</p>
+
+  <h4 style="margin:22px 0 8px;font-size:15px">省内证还是跨地区证？注册资本差 10 倍</h4>
+  <p>这是最容易踩的坑，《管理办法》第六条写得很明确：</p>
+  <div class="tbl"><table>
+    <thead><tr><th>类型</th><th>审批机关</th><th>注册资本下限</th><th>周期</th></tr></thead>
+    <tbody>
+      <tr><td><b>省内（地网）</b></td><td>省通信管理局</td><td class="num">100 万元</td><td class="num">约 45–60 工作日</td></tr>
+      <tr><td><b>跨地区（全网）</b></td><td>工业和信息化部</td><td class="num">1000 万元</td><td>更长</td></tr>
+    </tbody>
+  </table></div>
+  <p>判定口径各地不完全一致，一般看经营场所、服务器和分支机构是否跨省。网站面向全国用户访问，通常仍按省内证办，但<b>必须先问清属地管局的口径</b>：如果被要求办全网证，1000 万注册资本这道门槛会直接改变公司架构规划。办了省内证之后要跨省经营，得先升级成全网证，再到当地管局做跨省备案，遵循"先备案、后经营"。</p>
+  <div class="callout"><h4>外资提示</h4><p>有外资股东的，按《外商投资电信企业管理规定》单独走审批。增值电信业务外方持股一般上限 <b>50%</b>，北京、上海、海南、深圳等试点区域对部分业务有放开。</p></div>
+
+  <h4 style="margin:22px 0 8px;font-size:15px">申请条件</h4>
+  <ol class="steps">
+    <li>依法设立的<b>公司</b>（内资；有外资按上条处理）。</li>
+    <li>注册资本达标，<b>认缴即可</b>，但部分省份会看实缴或财务报表。</li>
+    <li>有与开展业务相适应的资金和专业人员。</li>
+    <li>有为用户提供长期服务的信誉或能力。</li>
+    <li>公司及主要出资者、主要经营管理人员<b>三年内无违反电信监督管理制度的违法记录</b>。</li>
+    <li><b>人员与社保</b>（各省细则，通常要求）：至少 3 名全职人员，分别担任许可负责人、网络信息安全负责人、客服负责人；网安负责人一般要求计算机相关专业大专及以上学历；需<b>企业直缴</b>的近 1 个月社保记录（第三方代缴无效），海南等省要求 3 个月。</li>
+  </ol>
+
+  <h4 style="margin:22px 0 8px;font-size:15px">申请材料（第八条，增值电信业务 9 项）</h4>
+  <div class="tbl"><table>
+    <thead><tr><th>类别</th><th>具体材料</th></tr></thead>
+    <tbody>
+      <tr><td>主体</td><td>申请书、营业执照副本、公司章程、股权结构及股东情况说明</td></tr>
+      <tr><td>人员</td><td>法定代表人和三名负责人的身份证明、学历证明、社保证明</td></tr>
+      <tr><td>业务</td><td><b>业务发展可行性研究报告和技术方案</b>：业务种类、覆盖范围、技术方案、服务项目、收费方式、市场分析、三年发展规划</td></tr>
+      <tr><td>安全</td><td><b>网络与信息安全保障措施</b>：信息安全管理制度、用户信息保护、有害信息监测和处置机制、应急响应预案、日志留存。<b>审核重点</b></td></tr>
+      <tr><td>服务</td><td>服务质量保障措施、用户投诉处理机制</td></tr>
+      <tr><td>网站</td><td>域名证书、ICP 备案信息、网站可访问截图、接入服务协议（云厂商出具）</td></tr>
+      <tr><td>信誉</td><td>近三年无违法违规记录的承诺书、股东承诺</td></tr>
+    </tbody>
+  </table></div>
+  <p>对本项目，安全保障措施要写明：内容安全审核怎么做、用户实名怎么做、对话日志留存多久、发现违法内容的处置流程。<b>这部分和算法备案的安全自评估报告内容大量重合，两份材料一起写能省不少时间。</b></p>
+
+  <h4 style="margin:22px 0 8px;font-size:15px">办理流程</h4>
+  <ol class="steps">
+    <li><b>前置</b>：公司注册好（经营范围含"第二类增值电信业务"）→ 域名实名到公司 → 网站上线 → ICP 备案完成。管局审核时会打开网站看，页面内容、价格、用户协议、联系方式都要齐全。</li>
+    <li><b>线上申报</b>：登录 <a href="https://tsm.miit.gov.cn/">电信业务市场综合管理信息系统</a> 注册企业账号，填报并上传材料。2025 年 10 月起全面推行<b>电子证照</b>，与纸质证照效力相同，可全流程线上办。</li>
+    <li><b>受理与补正</b>：管局形式审查，材料不全会一次性告知补正。安全保障措施和业务方案被退回修改是常事。</li>
+    <li><b>审查</b>：自收到全部申请材料之日起 <b>60 日内审查完毕</b>（第十条）。加上补正来回，实际 45–60 个工作日比较常见。</li>
+    <li><b>发证</b>：核发经营许可证（电子证照），在网站显著位置标注证号。</li>
+  </ol>
+
+  <h4 style="margin:22px 0 8px;font-size:15px">拿证之后的持续义务</h4>
+  <div class="tbl"><table>
+    <thead><tr><th>事项</th><th>时限</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><b>信息年报</b></td><td>每年 <b>1–3 月</b></td><td>42 号令把年检制度改为信息年报和公示制度，经营者对年报信息真实性负责。在 tsm 系统提交，含经营和财务数据</td></tr>
+      <tr><td><b>续期</b></td><td>有效期届满<b>前 90 日</b></td><td>第二十七条：提前 90 日向原发证机关提出延续申请。错过就要重新申请</td></tr>
+      <tr><td>变更</td><td>及时办理</td><td>公司名称、法定代表人、注册资本、股东、经营范围、业务覆盖范围变更，都要办变更手续</td></tr>
+      <tr><td>注销</td><td>终止经营时</td><td>办理注销并妥善处理用户善后</td></tr>
+      <tr><td>年报和公示</td><td>持续</td><td>网站底部同时公示 ICP 证号和 ICP 备案号</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4 style="margin:22px 0 8px;font-size:15px">无证经营的处罚</h4>
+  <p>《管理办法》第四十六条：擅自经营电信业务或超范围经营的，按《电信条例》第六十九条处罚——责令改正，没收违法所得，处违法所得 3 倍以上 5 倍以下罚款；没有违法所得或违法所得不足 1 万元的，处 <b>1 万元以上 10 万元以下罚款</b>；情节严重的责令停业整顿，并可列入失信名单。</p>
+  <p><b>费用：</b>管局不收费。代办市场价通常 1–3 万元，主要是替你写业务方案和安全保障措施、跟进补正。</p>
+  <p class="src">出处：<a href="https://www.gov.cn/gongbao/content/2017/content_5240090.htm">电信业务经营许可管理办法（工信部令第 42 号）· 中国政府网</a> · <a href="https://www.miit.gov.cn/zwgk/zcjd/art/2020/art_80782edb0a574fc3b02b192093d8687f.html">工信部官方解读</a> · <a href="https://tsm.miit.gov.cn/">电信业务市场综合管理信息系统</a></p>
 
   <h3>"备案"和"登记"的区别（网信办公告原文）</h3>
   <ul>
