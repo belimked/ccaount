@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sub2API 普通用户用量统计接口说明</title>
+<style>
+  :root { --bg:#f7f8fa; --card:#fff; --text:#1f2328; --muted:#656d76; --border:#d0d7de; --accent:#0969da; --code:#0d1117; --codetext:#e6edf3; --get:#1a7f37; --post:#9a6700; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); }
+  .layout { display:flex; max-width:1280px; margin:0 auto; }
+  nav { position:sticky; top:0; align-self:flex-start; width:250px; height:100vh; overflow:auto; padding:24px 16px; border-right:1px solid var(--border); }
+  nav a { display:block; color:var(--muted); text-decoration:none; padding:3px 8px; border-radius:6px; font-size:14px; }
+  nav a:hover { background:#eaeef2; color:var(--text); }
+  nav .sub { padding-left:22px; font-size:13px; }
+  main { flex:1; min-width:0; padding:32px 40px 80px; }
+  h1 { margin-top:0; font-size:28px; }
+  h2 { margin-top:48px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+  h3 { margin-top:32px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px 22px; margin:16px 0; }
+  .endpoint { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:15px; font-weight:600; }
+  .method { display:inline-block; min-width:52px; text-align:center; color:#fff; border-radius:5px; padding:1px 8px; margin-right:8px; font-size:13px; }
+  .GET { background:var(--get); } .POST { background:var(--post); }
+  table { width:100%; border-collapse:collapse; margin:10px 0; font-size:14px; }
+  th, td { border:1px solid var(--border); padding:6px 10px; text-align:left; vertical-align:top; }
+  th { background:#f0f3f6; }
+  td code, p code, li code { background:#eff1f3; padding:1px 5px; border-radius:4px; font-size:13px; }
+  pre { position:relative; background:var(--code); color:var(--codetext); padding:14px 16px; border-radius:8px; overflow:auto; font-size:13px; line-height:1.55; }
+  pre .copy { position:absolute; top:8px; right:8px; background:#30363d; color:#e6edf3; border:0; border-radius:5px; padding:3px 10px; cursor:pointer; font-size:12px; }
+  pre .copy:hover { background:#484f58; }
+  .note { border-left:4px solid var(--accent); background:#ddf4ff; padding:10px 14px; border-radius:6px; margin:12px 0; }
+  .warn { border-left:4px solid #bf8700; background:#fff8c5; padding:10px 14px; border-radius:6px; margin:12px 0; }
+  .muted { color:var(--muted); }
+  @media (max-width:900px){ nav{display:none;} main{padding:20px;} }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav>
+  <a href="#overview"><b>概览</b></a>
+  <a class="sub" href="#sites">站点地址</a>
+  <a href="#choose">如何选择</a>
+  <a href="#apikey"><b>方式一：API Key</b></a>
+  <a class="sub" href="#v1-usage">GET /v1/usage</a>
+  <a href="#jwt"><b>方式二：登录 JWT</b></a>
+  <a class="sub" href="#login">POST /auth/login</a>
+  <a class="sub" href="#login2fa">POST /auth/login/2fa</a>
+  <a class="sub" href="#refresh">POST /auth/refresh</a>
+  <a class="sub" href="#usage-stats">GET /usage/stats</a>
+  <a class="sub" href="#usage-models">GET /usage/dashboard/models</a>
+  <a class="sub" href="#usage-list">GET /usage</a>
+  <a href="#errors"><b>错误与注意事项</b></a>
+  <a href="#python"><b>Python 脚本</b></a>
+  <a class="sub" href="#py-apikey">API Key 版</a>
+  <a class="sub" href="#py-jwt">JWT 版（自动刷新）</a>
+</nav>
+
+<main>
+<h1>普通用户用量统计接口说明</h1>
+<p class="muted">适用于 sub2api-plus（国内站 <code>api.belimked.com</code>、海外站 <code>api.nicecode.de5.net</code>）。本文只涉及普通用户查询<b>自己</b>的用量统计，可按模型（可选）和时间范围过滤。</p>
+
+<h2 id="overview">概览</h2>
+<h3 id="sites">站点地址</h3>
+<table>
+  <tr><th>站点</th><th>BASE_URL</th><th>说明</th></tr>
+  <tr><td><b>国内站</b></td><td><code>https://api.belimked.com</code></td><td>中国大陆访问。注册、充值、余额以此站为准</td></tr>
+  <tr><td><b>海外站</b></td><td><code>https://api.nicecode.de5.net</code></td><td>海外访问（中国大陆 IP 可能无法访问）</td></tr>
+</table>
+<div class="warn"><b>两个站点的用量统计相互独立。</b>每个站点只统计在本站发生的请求：国内站的接口查不到海外站的用量，反之亦然。如需总用量，请分别查询两个站点后自行相加（下方 Python 脚本支持 <code>--site all</code>）。海外站的消费会异步同步到国内站并从余额中扣除，因此两站显示的余额可能存在短暂差异。</div>
+<p>下文中的 <code>BASE_URL</code> 指上表中的任一站点地址，例如：</p>
+<pre><code># 国内站
+export BASE_URL=https://api.belimked.com
+# 海外站
+export BASE_URL=https://api.nicecode.de5.net</code></pre>
+<p>普通用户有两种认证方式：</p>
+<table>
+  <tr><th>方式</th><th>凭证</th><th>统计范围</th><th>按模型过滤</th><th>凭证是否会过期</th></tr>
+  <tr><td>API Key</td><td><code>sk-xxx</code>（固定）</td><td>只统计当前这一个 Key</td><td>不支持过滤参数；返回按模型的明细 <code>model_stats</code></td><td>不会（除非 Key 设置了过期时间或被禁用）</td></tr>
+  <tr><td>登录 JWT</td><td>Access Token + Refresh Token</td><td>当前用户名下所有 Key，也可用 <code>api_key_id</code> 指定某个 Key</td><td>支持 <code>model=</code> 参数</td><td>会。Access Token 默认 24 小时，Refresh Token 默认 30 天</td></tr>
+</table>
+
+<h2 id="choose">如何选择</h2>
+<ul>
+  <li><b>脚本 / 监控 / 第三方客户端</b>：优先用 <b>API Key</b> 调 <code>GET /v1/usage</code>，不用处理登录、2FA 和验证码。</li>
+  <li><b>需要按模型过滤，或要汇总名下多个 Key</b>：用 <b>JWT</b> 调 <code>GET /api/v1/usage/stats</code>。</li>
+</ul>
+<div class="warn">如果站点开启了登录验证码（Turnstile / 腾讯验证码），脚本很难直接调用 <code>/auth/login</code>。这时可以在浏览器登录后，从开发者工具中复制 refresh_token 给脚本使用，或者直接改用 API Key 方式。</div>
+
+<!-- ================= API KEY ================= -->
+<h2 id="apikey">方式一：API Key</h2>
+
+<div class="card" id="v1-usage">
+  <div class="endpoint"><span class="method GET">GET</span>/v1/usage</div>
+  <p>返回当前 API Key 的额度或余额、今日与累计用量、每日用量和按模型统计。</p>
+
+  <h4>认证（三选一）</h4>
+  <table>
+    <tr><th>Header</th><th>示例</th></tr>
+    <tr><td><code>Authorization</code></td><td><code>Bearer sk-xxxxxxxx</code></td></tr>
+    <tr><td><code>x-api-key</code></td><td><code>sk-xxxxxxxx</code></td></tr>
+    <tr><td><code>x-goog-api-key</code></td><td><code>sk-xxxxxxxx</code></td></tr>
+  </table>
+
+  <h4>Query 参数（全部可选）</h4>
+  <table>
+    <tr><th>参数</th><th>说明</th><th>默认值</th></tr>
+    <tr><td><code>start_date</code></td><td><code>model_stats</code> 的起始日期，格式 <code>YYYY-MM-DD</code>（按服务器时区）</td><td>30 天前</td></tr>
+    <tr><td><code>end_date</code></td><td><code>model_stats</code> 的结束日期（包含当天）</td><td>当前时间</td></tr>
+    <tr><td><code>days</code></td><td><code>daily_usage</code> 返回的天数，取值 1–90</td><td>30</td></tr>
+    <tr><td><code>timezone</code></td><td><code>daily_usage</code> 按天切分使用的时区，例如 <code>Asia/Taipei</code></td><td>服务器时区</td></tr>
+  </table>
+  <div class="note"><code>start_date</code>/<code>end_date</code> 格式错误时<b>不会报错</b>，会被忽略并使用默认值。<code>days</code> 超出范围会返回 400。</div>
+
+  <h4>请求示例</h4>
+<pre><code>curl -s "$BASE_URL/v1/usage?start_date=2026-01-01&amp;end_date=2026-01-31&amp;days=7&amp;timezone=Asia/Taipei" \
+  -H "Authorization: Bearer sk-xxxxxxxx"</code></pre>
+
+  <h4>响应说明</h4>
+  <p>响应<b>不</b>包在 <code>{code,data}</code> 结构里，而是直接返回 JSON。根据 Key 的配置，分为三种形态：</p>
+  <table>
+    <tr><th><code>mode</code></th><th>触发条件</th><th>特有字段</th></tr>
+    <tr><td><code>quota_limited</code></td><td>Key 设置了总额度或 5h/1d/7d 速率限制</td><td><code>quota{limit,used,remaining,unit}</code>、<code>rate_limits[]</code>、<code>expires_at</code>、<code>days_until_expiry</code>、<code>status</code></td></tr>
+    <tr><td><code>unrestricted</code>（订阅）</td><td>Key 所属分组是订阅类型</td><td><code>planName</code>（分组名）、<code>subscription{daily/weekly/monthly/five_hour 的 usage_usd 与 limit_usd, expires_at…}</code></td></tr>
+    <tr><td><code>unrestricted</code>（余额）</td><td>其他情况</td><td><code>planName="钱包余额"</code>、<code>balance</code></td></tr>
+  </table>
+  <p>三种形态都可能包含以下字段（统计查询失败时会省略，不影响整体响应）：</p>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>usage.today</code> / <code>usage.total</code></td><td>今日 / 累计的 <code>requests</code>、<code>input_tokens</code>、<code>output_tokens</code>、<code>cache_creation_tokens</code>、<code>cache_read_tokens</code>、<code>total_tokens</code>、<code>cost</code>（标准计费）、<code>actual_cost</code>（实际扣费）</td></tr>
+    <tr><td><code>usage.rpm</code> / <code>usage.tpm</code> / <code>usage.average_duration_ms</code></td><td>当前 RPM、TPM、平均耗时</td></tr>
+    <tr><td><code>daily_usage[]</code></td><td>按天统计：<code>date</code>、<code>requests</code>、<code>input_tokens</code>、<code>output_tokens</code>、<code>cache_read_tokens</code>、<code>cache_write_tokens</code>、<code>total_tokens</code>、<code>cost</code>、<code>actual_cost</code></td></tr>
+    <tr><td><code>model_stats[]</code></td><td>在 <code>start_date</code>–<code>end_date</code> 范围内按模型统计：<code>model</code>、<code>requests</code>、各类 tokens、<code>cost</code>、<code>actual_cost</code>。没有数据时省略</td></tr>
+  </table>
+
+  <h4>响应示例（余额模式）</h4>
+<pre><code>{
+  "mode": "unrestricted",
+  "isValid": true,
+  "planName": "钱包余额",
+  "remaining": 42.18,
+  "balance": 42.18,
+  "unit": "USD",
+  "usage": {
+    "today": { "requests": 35, "input_tokens": 120340, "output_tokens": 18230,
+               "cache_creation_tokens": 5000, "cache_read_tokens": 80000,
+               "total_tokens": 223570, "cost": 0.91, "actual_cost": 0.91 },
+    "total": { "requests": 1820, "input_tokens": 9123000, "output_tokens": 1203000,
+               "cache_creation_tokens": 300000, "cache_read_tokens": 6100000,
+               "total_tokens": 16726000, "cost": 57.82, "actual_cost": 57.82 },
+    "average_duration_ms": 5321.4,
+    "rpm": 2,
+    "tpm": 3400
+  },
+  "daily_usage": [
+    { "date": "2026-01-30", "requests": 60, "input_tokens": 300000, "output_tokens": 40000,
+      "cache_read_tokens": 200000, "cache_write_tokens": 10000, "total_tokens": 550000,
+      "cost": 2.1, "actual_cost": 2.1 }
+  ],
+  "model_stats": [
+    { "model": "claude-sonnet-4-5", "requests": 1200, "input_tokens": 7000000,
+      "output_tokens": 900000, "cache_creation_tokens": 250000, "cache_read_tokens": 5000000,
+      "total_tokens": 13150000, "cost": 44.3, "actual_cost": 44.3 },
+    { "model": "gpt-5", "requests": 620, "total_tokens": 3576000, "cost": 13.52, "actual_cost": 13.52 }
+  ]
+}</code></pre>
+  <p class="muted">以上数值仅为示例。</p>
+</div>
+
+<!-- ================= JWT ================= -->
+<h2 id="jwt">方式二：登录 JWT</h2>
+<p><code>/api/v1/*</code> 下的接口都使用统一的响应包装：</p>
+<pre><code>{ "code": 0, "message": "success", "data": { ... } }</code></pre>
+<p><code>code != 0</code> 或 HTTP 状态码非 2xx 时表示失败，错误原因见 <code>message</code> 和 <code>reason</code>。</p>
+
+<div class="card" id="login">
+  <div class="endpoint"><span class="method POST">POST</span>/api/v1/auth/login</div>
+  <p>用邮箱和密码登录（限流：每分钟 20 次）。</p>
+  <table>
+    <tr><th>Body 字段</th><th>必填</th><th>说明</th></tr>
+    <tr><td><code>email</code></td><td>是</td><td>邮箱</td></tr>
+    <tr><td><code>password</code></td><td>是</td><td>密码</td></tr>
+    <tr><td><code>turnstile_token</code> / <code>tencent_captcha_ticket</code> / <code>tencent_captcha_randstr</code></td><td>站点开启验证码时必填</td><td>人机验证凭证</td></tr>
+  </table>
+<pre><code>curl -s -X POST "$BASE_URL/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"s4004567@blk.com","password":"your-password"}'</code></pre>
+  <p>成功（未开启 2FA）：</p>
+<pre><code>{
+  "code": 0, "message": "success",
+  "data": {
+    "access_token": "eyJhbGciOi...",
+    "refresh_token": "rt_...",
+    "expires_in": 86400,
+    "token_type": "Bearer",
+    "user": { "id": 12, "email": "s4004567@blk.com", ... }
+  }
+}</code></pre>
+  <p>账号开启了 TOTP 两步验证时，返回的是临时凭证，需要继续调用 <code>/login/2fa</code>：</p>
+<pre><code>{ "code": 0, "message": "success",
+  "data": { "requires_2fa": true, "temp_token": "...", "user_email_masked": "s***7@blk.com" } }</code></pre>
+</div>
+
+<div class="card" id="login2fa">
+  <div class="endpoint"><span class="method POST">POST</span>/api/v1/auth/login/2fa</div>
+  <table>
+    <tr><th>Body 字段</th><th>说明</th></tr>
+    <tr><td><code>temp_token</code></td><td>上一步返回的临时凭证</td></tr>
+    <tr><td><code>totp_code</code></td><td>6 位动态验证码</td></tr>
+  </table>
+<pre><code>curl -s -X POST "$BASE_URL/api/v1/auth/login/2fa" \
+  -H "Content-Type: application/json" \
+  -d '{"temp_token":"...","totp_code":"123456"}'</code></pre>
+  <p>成功后返回的 <code>data</code> 与普通登录相同。</p>
+</div>
+
+<div class="card" id="refresh">
+  <div class="endpoint"><span class="method POST">POST</span>/api/v1/auth/refresh</div>
+  <p>用 Refresh Token 换取新的 Access Token（限流：每分钟 30 次）。响应会带回新的 <code>refresh_token</code>，请用它<b>替换</b>本地保存的旧值。</p>
+<pre><code>curl -s -X POST "$BASE_URL/api/v1/auth/refresh" \
+  -H "Content-Type: application/json" \
+  -d '{"refresh_token":"rt_..."}'</code></pre>
+<pre><code>{ "code": 0, "message": "success",
+  "data": { "access_token": "eyJ...", "refresh_token": "rt_...", "expires_in": 86400, "token_type": "Bearer" } }</code></pre>
+  <table>
+    <tr><th>服务端配置</th><th>默认值</th><th>含义</th></tr>
+    <tr><td><code>jwt.expire_hour</code></td><td>24</td><td>Access Token 有效期（小时，最大 168）</td></tr>
+    <tr><td><code>jwt.access_token_expire_minutes</code></td><td>0</td><td>大于 0 时优先使用，单位为分钟</td></tr>
+    <tr><td><code>jwt.refresh_token_expire_days</code></td><td>30</td><td>Refresh Token 有效期（天）</td></tr>
+  </table>
+</div>
+
+<div class="card" id="usage-stats">
+  <div class="endpoint"><span class="method GET">GET</span>/api/v1/usage/stats</div>
+  <p><b>主要查询接口。</b>返回当前用户在指定条件下的汇总用量。统计范围固定为当前登录用户，无法查询其他用户。</p>
+  <p>Header：<code>Authorization: Bearer &lt;access_token&gt;</code></p>
+
+  <h4>Query 参数（全部可选）</h4>
+  <table>
+    <tr><th>参数</th><th>说明</th></tr>
+    <tr><td><code>model</code></td><td>模型名，精确匹配<b>请求时传入的模型名</b>（例如 <code>claude-sonnet-4-5</code>）。不传则统计所有模型</td></tr>
+    <tr><td><code>api_key_id</code></td><td>只统计自己名下的某个 Key。传入他人的 Key ID 会被拒绝</td></tr>
+    <tr><td><code>group_id</code></td><td>按分组过滤</td></tr>
+    <tr><td><code>start_date</code> / <code>end_date</code></td><td><code>YYYY-MM-DD</code>，<code>end_date</code> 包含当天。格式错误返回 400</td></tr>
+    <tr><td><code>period</code></td><td><code>today</code> | <code>week</code>（最近 7 天）| <code>month</code>（最近 1 个月）。未传 <code>start_date</code> 时生效</td></tr>
+    <tr><td><code>timezone</code></td><td>解析日期使用的时区，例如 <code>Asia/Taipei</code></td></tr>
+    <tr><td><code>stream</code></td><td><code>true</code>/<code>false</code>，按是否流式请求过滤</td></tr>
+    <tr><td><code>request_type</code> / <code>billing_type</code> / <code>billing_mode</code></td><td>进阶过滤条件，一般不需要</td></tr>
+  </table>
+  <div class="note">时间参数都不传时，默认统计<b>最近 7 天（含今天）</b>。</div>
+
+  <h4>请求示例</h4>
+<pre><code># 某模型、本月
+curl -s "$BASE_URL/api/v1/usage/stats?model=claude-sonnet-4-5&amp;start_date=2026-01-01&amp;end_date=2026-01-31&amp;timezone=Asia/Taipei" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+
+# 所有模型、今天
+curl -s "$BASE_URL/api/v1/usage/stats?period=today&amp;timezone=Asia/Taipei" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"</code></pre>
+
+  <h4>响应示例</h4>
+<pre><code>{
+  "code": 0, "message": "success",
+  "data": {
+    "total_requests": 1200,
+    "total_input_tokens": 7000000,
+    "total_output_tokens": 900000,
+    "total_cache_tokens": 5250000,
+    "total_cache_creation_tokens": 250000,
+    "total_cache_read_tokens": 5000000,
+    "total_tokens": 13150000,
+    "total_cost": 44.3,
+    "total_actual_cost": 44.3,
+    "average_duration_ms": 5120.7,
+    "endpoints": [
+      { "endpoint": "/v1/messages", "requests": 1200, "total_tokens": 13150000, "cost": 44.3, "actual_cost": 44.3 }
+    ]
+  }
+}</code></pre>
+  <table>
+    <tr><th>字段</th><th>说明</th></tr>
+    <tr><td><code>total_requests</code></td><td>请求数</td></tr>
+    <tr><td><code>total_input_tokens</code> / <code>total_output_tokens</code></td><td>输入 / 输出 tokens</td></tr>
+    <tr><td><code>total_cache_creation_tokens</code> / <code>total_cache_read_tokens</code></td><td>缓存写入 / 读取 tokens；<code>total_cache_tokens</code> 为两者之和</td></tr>
+    <tr><td><code>total_tokens</code></td><td>总 tokens</td></tr>
+    <tr><td><code>total_cost</code></td><td>标准计费（USD）</td></tr>
+    <tr><td><code>total_actual_cost</code></td><td>实际扣费（USD，已计入分组倍率等因素）</td></tr>
+    <tr><td><code>average_duration_ms</code></td><td>平均请求耗时</td></tr>
+    <tr><td><code>endpoints[]</code></td><td>按入站端点细分</td></tr>
+  </table>
+</div>
+
+<div class="card" id="usage-models">
+  <div class="endpoint"><span class="method GET">GET</span>/api/v1/usage/dashboard/models</div>
+  <p>按模型分组统计，一次返回所有模型的用量。参数与 <code>/usage/stats</code> 相同，也可以再加 <code>model</code> 只看某一个模型。</p>
+<pre><code>curl -s "$BASE_URL/api/v1/usage/dashboard/models?start_date=2026-01-01&amp;end_date=2026-01-31" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"</code></pre>
+<pre><code>{
+  "code": 0, "message": "success",
+  "data": {
+    "start_date": "2026-01-01",
+    "end_date": "2026-01-31",
+    "models": [
+      { "model": "claude-sonnet-4-5", "requests": 1200, "input_tokens": 7000000, "output_tokens": 900000,
+        "cache_creation_tokens": 250000, "cache_read_tokens": 5000000, "total_tokens": 13150000,
+        "cost": 44.3, "actual_cost": 44.3 }
+    ]
+  }
+}</code></pre>
+</div>
+
+<div class="card" id="usage-list">
+  <div class="endpoint"><span class="method GET">GET</span>/api/v1/usage</div>
+  <p>逐条返回使用记录（分页），过滤参数与 <code>/usage/stats</code> 相同，另外支持 <code>page</code>、<code>page_size</code>、<code>sort_by</code>（默认 <code>created_at</code>）和 <code>sort_order</code>（默认 <code>desc</code>）。适合对账或导出。</p>
+</div>
+
+<h2 id="errors">错误与注意事项</h2>
+<table>
+  <tr><th>情况</th><th>表现</th><th>处理</th></tr>
+  <tr><td>Access Token 过期或无效</td><td>HTTP 401</td><td>调用 <code>/auth/refresh</code> 后重试</td></tr>
+  <tr><td>Refresh Token 过期或已被使用</td><td><code>/auth/refresh</code> 返回 401</td><td>重新登录</td></tr>
+  <tr><td>API Key 无效</td><td>HTTP 401，<code>API_KEY_REQUIRED</code> / <code>authentication_error</code></td><td>检查 Key</td></tr>
+  <tr><td>日期格式错误（JWT 接口）</td><td>HTTP 400</td><td>使用 <code>YYYY-MM-DD</code> 格式</td></tr>
+  <tr><td><code>api_key_id</code> 不属于自己</td><td>HTTP 4xx</td><td>只能传自己名下的 Key ID</td></tr>
+  <tr><td>请求过于频繁</td><td>HTTP 429</td><td><code>/api/v1/usage/*</code> 属于重型查询，有面板限流，请降低频率</td></tr>
+</table>
+<ul>
+  <li><code>model</code> 过滤匹配的是<b>客户端请求时传入的模型名</b>，不是上游实际映射后的模型名。</li>
+  <li>金额单位均为 USD。</li>
+  <li>统计数据可能有短暂缓存，不适合用作实时计费依据。</li>
+</ul>
+
+<!-- ================= PYTHON ================= -->
+<h2 id="python">Python 脚本</h2>
+<p>依赖：<code>pip install requests</code>，需要 Python 3.8 及以上版本。</p>
+
+<h3 id="py-apikey">API Key 版（推荐用于脚本）</h3>
+<pre><code>#!/usr/bin/env python3
+"""用 API Key 查询自己的用量：python usage_by_key.py [--site cn|overseas|all] [--model 模型名] [--start 2026-01-01] [--end 2026-01-31]"""
+import argparse
+import os
+import sys
+
+import requests
+
+SITES = {
+    "cn": ("国内站", "https://api.belimked.com"),
+    "overseas": ("海外站", "https://api.nicecode.de5.net"),
+}
+API_KEY = os.environ.get("SUB2API_API_KEY", "")
+
+
+def fetch_usage(base_url, start=None, end=None, days=30, tz=None):
+    params = {"days": days}
+    if start:
+        params["start_date"] = start
+    if end:
+        params["end_date"] = end
+    if tz:
+        params["timezone"] = tz
+    resp = requests.get(
+        f"{base_url}/v1/usage",
+        headers={"Authorization": f"Bearer {API_KEY}"},
+        params=params,
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def report(name, data, model):
+    print(f"===== {name} =====")
+    print(f"模式: {data.get('mode')}  套餐: {data.get('planName', '-')}  "
+          f"剩余: {data.get('remaining', '-')} {data.get('unit', '')}")
+
+    usage = data.get("usage") or {}
+    for label in ("today", "total"):
+        u = usage.get(label)
+        if u:
+            print(f"[{label}] 请求 {u['requests']}  tokens {u['total_tokens']}  "
+                  f"标准 ${u['cost']:.4f}  实扣 ${u['actual_cost']:.4f}")
+
+    models = data.get("model_stats") or []
+    if model:
+        models = [m for m in models if m["model"] == model]
+    print("\n按模型统计:")
+    if not models:
+        print("  (无数据)")
+    for m in models:
+        print(f"  {m['model']:&lt;32} 请求 {m['requests']:&gt;7}  tokens {m['total_tokens']:&gt;12}  "
+              f"实扣 ${m['actual_cost']:.4f}")
+
+    print("\n每日用量:")
+    for d in data.get("daily_usage") or []:
+        print(f"  {d['date']}  请求 {d['requests']:&gt;6}  tokens {d['total_tokens']:&gt;11}  实扣 ${d['actual_cost']:.4f}")
+    print()
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--site", choices=["cn", "overseas", "all"], default="cn", help="国内站 / 海外站 / 两者")
+    p.add_argument("--model", help="只显示该模型（在 model_stats 中本地过滤）")
+    p.add_argument("--start", help="YYYY-MM-DD")
+    p.add_argument("--end", help="YYYY-MM-DD")
+    p.add_argument("--days", type=int, default=7, help="daily_usage 天数 1-90")
+    p.add_argument("--tz", default="Asia/Taipei")
+    args = p.parse_args()
+
+    if not API_KEY:
+        sys.exit("请设置环境变量 SUB2API_API_KEY")
+
+    sites = ["cn", "overseas"] if args.site == "all" else [args.site]
+    for key in sites:
+        name, base_url = SITES[key]
+        try:
+            data = fetch_usage(base_url, args.start, args.end, args.days, args.tz)
+        except requests.RequestException as e:
+            print(f"===== {name} =====\n请求失败: {e}\n")
+            continue
+        report(name, data, args.model)
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+<pre><code>export SUB2API_API_KEY=sk-xxxxxxxx
+# 国内站（默认）
+python usage_by_key.py --model deepseek-chat --start 2026-01-01 --end 2026-01-31
+# 海外站
+python usage_by_key.py --site overseas --model claude-sonnet-4-5
+# 两个站点都查
+python usage_by_key.py --site all</code></pre>
+<p class="muted">如果某个 Key 只在其中一个站点存在，查询另一站点会返回 401，脚本会打印失败信息后继续查询下一个站点。</p>
+
+<h3 id="py-jwt">JWT 版（支持按模型过滤，自动刷新 Token）</h3>
+<p>通过 <code>--site</code> 选择国内站、海外站或同时查询两者。两个站点的登录态相互独立，各自登录、各自保存 token。首次运行时用邮箱和密码登录（如开启了 2FA，会提示输入验证码），之后把 token 保存到本地文件，并自动续期。如果站点开启了验证码，可以先从浏览器复制 refresh_token，通过 <code>SUB2API_REFRESH_TOKEN_CN</code> 或 <code>SUB2API_REFRESH_TOKEN_OVERSEAS</code> 环境变量提供给脚本。</p>
+<pre><code>#!/usr/bin/env python3
+"""用登录态查询自己的用量：python usage_by_jwt.py [--site cn|overseas|all] [--model 模型名] [--start ...] [--end ...] [--period today|week|month] [--by-model]"""
+import argparse
+import getpass
+import json
+import os
+import stat
+import time
+from pathlib import Path
+
+import requests
+
+SITES = {
+    "cn": ("国内站", "https://api.belimked.com"),
+    "overseas": ("海外站", "https://api.nicecode.de5.net"),
+}
+
+
+class ApiError(Exception):
+    pass
+
+
+def _unwrap(resp):
+    try:
+        body = resp.json()
+    except ValueError:
+        raise ApiError(f"HTTP {resp.status_code}: {resp.text[:200]}")
+    if resp.status_code &gt;= 400 or body.get("code", 0) != 0:
+        raise ApiError(f"HTTP {resp.status_code}: {body.get('message')} {body.get('reason', '')}".strip())
+    return body.get("data")
+
+
+class Client:
+    def __init__(self, site):
+        self.name, self.base_url = SITES[site]
+        self.env_suffix = site.upper()
+        self.token_file = Path.home() / f".sub2api_token_{site}.json"
+        self.session = requests.Session()
+        self.tokens = self._load()
+
+    def _load(self):
+        if self.token_file.exists():
+            return json.loads(self.token_file.read_text())
+        rt = os.environ.get(f"SUB2API_REFRESH_TOKEN_{self.env_suffix}")
+        return {"refresh_token": rt} if rt else {}
+
+    def _save(self, data):
+        self.tokens = {
+            "access_token": data["access_token"],
+            "refresh_token": data.get("refresh_token") or self.tokens.get("refresh_token"),
+            "expires_at": time.time() + int(data.get("expires_in") or 3600) - 60,
+        }
+        self.token_file.write_text(json.dumps(self.tokens))
+        os.chmod(self.token_file, stat.S_IRUSR | stat.S_IWUSR)
+
+    def login(self):
+        print(f"登录{self.name} {self.base_url}")
+        email = os.environ.get("SUB2API_EMAIL") or input("Email: ")
+        password = os.environ.get("SUB2API_PASSWORD") or getpass.getpass("Password: ")
+        data = _unwrap(self.session.post(f"{self.base_url}/api/v1/auth/login",
+                                         json={"email": email, "password": password}, timeout=30))
+        if data.get("requires_2fa"):
+            code = input(f"2FA 验证码 ({data.get('user_email_masked', '')}): ").strip()
+            data = _unwrap(self.session.post(f"{self.base_url}/api/v1/auth/login/2fa",
+                                             json={"temp_token": data["temp_token"], "totp_code": code},
+                                             timeout=30))
+        self._save(data)
+
+    def refresh(self):
+        rt = self.tokens.get("refresh_token")
+        if not rt:
+            return False
+        try:
+            data = _unwrap(self.session.post(f"{self.base_url}/api/v1/auth/refresh",
+                                             json={"refresh_token": rt}, timeout=30))
+        except ApiError:
+            return False
+        self._save(data)
+        return True
+
+    def ensure_token(self):
+        if self.tokens.get("access_token") and self.tokens.get("expires_at", 0) &gt; time.time():
+            return
+        if not self.refresh():
+            self.login()
+
+    def get(self, path, params=None):
+        self.ensure_token()
+        for attempt in range(2):
+            resp = self.session.get(f"{self.base_url}{path}", params=params, timeout=60,
+                                    headers={"Authorization": f"Bearer {self.tokens['access_token']}"})
+            if resp.status_code == 401 and attempt == 0:
+                if not self.refresh():
+                    self.login()
+                continue
+            return _unwrap(resp)
+
+
+def build_params(args):
+    params = {"timezone": args.tz}
+    if args.model:
+        params["model"] = args.model
+    if args.api_key_id:
+        params["api_key_id"] = args.api_key_id
+    if args.start:
+        params["start_date"] = args.start
+    if args.end:
+        params["end_date"] = args.end
+    if not args.start and args.period:
+        params["period"] = args.period
+    return params
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--site", choices=["cn", "overseas", "all"], default="cn", help="国内站 / 海外站 / 两者")
+    p.add_argument("--model", help="模型名（可选）")
+    p.add_argument("--api-key-id", type=int, help="只统计自己名下的某个 Key（可选）")
+    p.add_argument("--start", help="YYYY-MM-DD")
+    p.add_argument("--end", help="YYYY-MM-DD")
+    p.add_argument("--period", choices=["today", "week", "month"])
+    p.add_argument("--tz", default="Asia/Taipei")
+    p.add_argument("--by-model", action="store_true", help="额外输出按模型明细")
+    args = p.parse_args()
+
+    params = build_params(args)
+    print(f"过滤条件: {params}\n")
+    sites = ["cn", "overseas"] if args.site == "all" else [args.site]
+    total_cost = 0.0
+    for site in sites:
+        client = Client(site)
+        print(f"===== {client.name} ({client.base_url}) =====")
+        try:
+            total_cost += show(client, params, args.by_model)
+        except (ApiError, requests.RequestException) as e:
+            print(f"请求失败: {e}")
+        print()
+    if len(sites) &gt; 1:
+        print(f"两站实际扣费合计: ${total_cost:.4f}")
+
+
+def show(client, params, by_model):
+    s = client.get("/api/v1/usage/stats", params)
+    print(f"请求数        {s['total_requests']}")
+    print(f"输入 tokens   {s['total_input_tokens']}")
+    print(f"输出 tokens   {s['total_output_tokens']}")
+    print(f"缓存写/读     {s['total_cache_creation_tokens']} / {s['total_cache_read_tokens']}")
+    print(f"总 tokens     {s['total_tokens']}")
+    print(f"标准计费      ${s['total_cost']:.4f}")
+    print(f"实际扣费      ${s['total_actual_cost']:.4f}")
+    print(f"平均耗时      {s['average_duration_ms']:.0f} ms")
+
+    if by_model:
+        m = client.get("/api/v1/usage/dashboard/models", params)
+        print(f"\n按模型 ({m['start_date']} ~ {m['end_date']}):")
+        for row in m["models"]:
+            print(f"  {row['model']:&lt;32} 请求 {row['requests']:&gt;7}  tokens {row['total_tokens']:&gt;12}  "
+                  f"实扣 ${row['actual_cost']:.4f}")
+    return s["total_actual_cost"]
+
+
+if __name__ == "__main__":
+    main()</code></pre>
+<pre><code># 方式 A：首次交互式登录（可预先设置邮箱，密码运行时输入）
+export SUB2API_EMAIL=s4004567@blk.com
+#   token 按站点分别保存：~/.sub2api_token_cn.json、~/.sub2api_token_overseas.json
+python usage_by_jwt.py --model deepseek-chat --start 2026-01-01 --end 2026-01-31      # 国内站（默认）
+python usage_by_jwt.py --site overseas --period month --by-model                       # 海外站
+python usage_by_jwt.py --site all --period month                                       # 两站分别统计并合计扣费
+
+# 方式 B：站点有验证码时，分别从两个站点的浏览器登录态中复制 refresh_token
+export SUB2API_REFRESH_TOKEN_CN=xxxxx
+export SUB2API_REFRESH_TOKEN_OVERSEAS=xxxxx
+python usage_by_jwt.py --site all --by-model</code></pre>
+<div class="warn">Token 文件包含登录凭证，脚本会将其权限设置为 600。请不要提交到代码仓库，也不要分享给他人。</div>
+
+</main>
+</div>
+<script>
+document.querySelectorAll("pre").forEach(function (pre) {
+  var btn = document.createElement("button");
+  btn.className = "copy"; btn.textContent = "复制";
+  btn.onclick = function () {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText).then(function () {
+      btn.textContent = "已复制"; setTimeout(function () { btn.textContent = "复制"; }, 1200);
+    });
+  };
+  pre.appendChild(btn);
+});
+</script>
+</body>
+</html>
