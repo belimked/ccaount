@@ -100,6 +100,20 @@
   .mock-btn { padding: 7px 22px; border-radius: 8px; font-weight: 600; font-size: 14px; }
   .mock-btn.cancel { background: #fff; }
   .mock-btn.save { background: var(--primary); color: #fff; }
+  .set-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 12px; border-radius: 10px; font-size: 15px; border: 2px solid transparent;
+  }
+  .set-row.hl { background: #eaf6ee; border-color: #e11d48; }
+  .toggle {
+    width: 42px; height: 24px; border-radius: 12px; background: #c4c7cc; position: relative;
+  }
+  .toggle::after {
+    content: ""; position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%; background: #fff;
+  }
+  .toggle.on { background: var(--primary); }
+  .toggle.on::after { left: 21px; }
   .caption { text-align: center; color: var(--muted); font-size: 13px; }
 
   .check { color: var(--ok); font-weight: 600; }
@@ -120,12 +134,28 @@
   </div>
 
   <section class="card">
-    <h2><span class="num">1</span>API 地址</h2>
+    <h2>API 地址</h2>
     <div class="url-box">
       <span id="api-url">https://api.nicecode.de5.net</span>
       <button onclick="copyText('https://api.nicecode.de5.net', this)">复制</button>
     </div>
     <p class="tip">在客户端 / SDK 中将 Base URL 设置为以上地址。</p>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">1</span>关闭系统代理，开启虚拟网卡模式（TUN）</h2>
+    <p>在 <strong>设置 → 系统设置</strong> 中：<strong>关闭「系统代理」</strong>，<strong>开启「虚拟网卡模式（TUN）」</strong>。</p>
+    <p>TUN 模式会接管包括命令行工具（<strong>Claude Code / Codex</strong>）在内的全部流量；而系统代理通常只对浏览器等部分程序生效，终端工具不会走代理。</p>
+
+    <div class="mock">
+      <div class="mock-title"><span>系统设置</span></div>
+      <div class="set-row hl"><span>▶ 虚拟网卡模式</span><span class="toggle on"></span></div>
+      <div class="set-row"><span>Ⅱ 系统代理</span><span class="toggle"></span></div>
+      <div class="set-row"><span>开机自启</span><span class="toggle on"></span></div>
+      <div class="set-row"><span>静默启动</span><span class="toggle on"></span></div>
+    </div>
+    <p class="caption">示意图：Clash Verge → 设置 → 系统设置（虚拟网卡模式 开启，系统代理 关闭）</p>
+    <p class="tip">提示：首次开启 TUN 可能需要授予管理员权限或安装服务模式（点击虚拟网卡模式旁的齿轮 / 按提示操作）；开启成功后图标会变为绿色。</p>
   </section>
 
   <section class="card">
@@ -186,10 +216,7 @@
 
   <section class="card">
     <h2><span class="num">4</span>确认代理已生效</h2>
-    <ul>
-      <li>浏览器访问方式：开启客户端的 <strong>系统代理</strong>。</li>
-      <li>命令行 / IDE / SDK 方式：系统代理对终端程序通常<strong>不生效</strong>，建议开启 <strong>TUN 模式</strong>，或手动设置环境变量：</li>
-    </ul>
+    <p>按第 1 步开启 TUN 后，浏览器与命令行工具均无需额外配置。如果无法使用 TUN，可退而在终端中手动设置代理环境变量：</p>
 <pre><button class="copy" onclick="copyPre(this)">复制</button><code># macOS / Linux（端口以客户端显示为准，常见 7890 / 7897）
 export https_proxy=http://127.0.0.1:7890
 export http_proxy=http://127.0.0.1:7890
@@ -207,7 +234,7 @@ $env:HTTP_PROXY="http://127.0.0.1:7890"</code></pre>
     <h2><span class="num">5</span>常见问题</h2>
     <ul>
       <li><strong>返回 403 / 拒绝访问：</strong>流量仍是大陆 IP 出口。检查规则是否启用、出站目标是否为 DIRECT、节点是否可用。</li>
-      <li><strong>浏览器能访问、终端不行：</strong>终端未走代理，开启 TUN 模式或设置上面的代理环境变量。</li>
+      <li><strong>浏览器能访问、终端不行：</strong>终端未走代理。确认已关闭系统代理并开启 TUN 模式（见第 1 步），或设置上面的代理环境变量。</li>
       <li><strong>添加规则后无变化：</strong>点击「刷新规则」，或重启客户端；同时检查是否有更靠前的规则把该域名指向了 DIRECT。</li>
       <li><strong>连接超时：</strong>切换其它节点重试。</li>
     </ul>
