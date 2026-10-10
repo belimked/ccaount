@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Demo 原型 · Web 管理署后台功能清单</title><style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;color:#222;background:#f4f6f8;line-height:1.7;font-size:15px}
+main{margin:24px auto;max-width:1240px;background:#fff;padding:36px 48px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+h1{font-size:24px;color:#1f6f6f;margin:0 0 6px}
+h2{font-size:19px;color:#1f6f6f;border-bottom:2px solid #1f6f6f;padding-bottom:4px;margin-top:32px}
+.sub{color:#555}.note{color:#666;font-size:13.5px}
+a{color:#0563c1}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{background:#1f6f6f;color:#fff;padding:6px 8px;border:1px solid #999}
+td{padding:6px 8px;border:1px solid #bbb;vertical-align:top}
+td.c{text-align:center}
+td.m1{background:#e8f2f2;color:#1f6f6f;font-weight:bold;vertical-align:middle}
+td.m2{background:#f3f9f9;vertical-align:middle}
+table.menu{width:auto;min-width:520px}
+@media (max-width:900px){main{margin:0;padding:18px}}
+</style></head><body><main>
+<h1>Demo 原型 · Web 管理署后台功能清单</h1>
+<p class="sub">共 25 项。<a href="wasteid-prototype-web-features.xlsx">⬇ 下载 Excel 版（可记录客户意见）</a></p>
+<h2>1. 菜单结构</h2>
+<div class="tbl"><table class="menu"><tr><th>一级菜单</th><th>二级菜单</th></tr><tr><td><b>登录</b></td><td>—</td></tr><tr><td><b>首页</b></td><td>—</td></tr><tr><td><b>地点管理</b></td><td>—</td></tr><tr><td><b>设备管理</b></td><td>设备列表、CSV 导入、变更记录</td></tr><tr><td><b>运输公司</b></td><td>公司列表、司机、车辆</td></tr><tr><td><b>作业记录</b></td><td>抽取记录、转运记录、卸货记录、流向追溯</td></tr><tr><td><b>处理厂管理</b></td><td>—</td></tr><tr><td><b>通用</b></td><td>—</td></tr></table></div>
+<h2>2. 功能清单</h2>
+<div class="tbl"><table><tr><th style="width:6%">编号</th><th style="width:10%">一级菜单</th><th style="width:10%">二级菜单</th>
+<th style="width:18%">功能</th><th>说明</th><th style="width:7%">优先级</th></tr><tr><td><b>W01</b></td><td rowspan="1" class="m1">登录</td><td rowspan="1" class="m2">—</td><td><b>账号密码登录</b></td><td>演示账号，不做真实认证</td><td class="c">必做</td></tr><tr><td><b>W02</b></td><td rowspan="1" class="m1">首页</td><td rowspan="1" class="m2">—</td><td><b>概览</b></td><td>在用设备数、逾期设备数、近 7 天抽取 / 转运 / 卸货次数、待审核司机数</td><td class="c">必做</td></tr><tr><td><b>W03</b></td><td rowspan="3" class="m1">地点管理</td><td rowspan="3" class="m2">—</td><td><b>地点列表</b></td><td>搜索；按区域、状态筛选</td><td class="c">必做</td></tr><tr><td><b>W04</b></td><td><b>新增 / 编辑 / 停用地点</b></td><td>名称、地址、坐标（地图选点）、协议编号</td><td class="c">必做</td></tr><tr><td><b>W05</b></td><td><b>地点详情</b></td><td>基本信息、地点下的设备列表</td><td class="c">必做</td></tr><tr><td><b>W06</b></td><td rowspan="8" class="m1">设备管理</td><td rowspan="4" class="m2">设备列表</td><td><b>列表、搜索、筛选</b></td><td>按状态（在用 / 停用 / 已拆除）、设备类型、逾期、负责运输公司筛选</td><td class="c">必做</td></tr><tr><td><b>W07</b></td><td><b>新增 / 编辑 / 停用设备</b></td><td>所属地点、Device Ref、设备类型、废物类型、容积、服务周期（周）、审批类别、风险等级、位置描述、负责运输公司、二维码；修改自动写入变更记录</td><td class="c">必做</td></tr><tr><td><b>W08</b></td><td><b>设备详情</b></td><td>页签：基本信息、服务日期、抽取记录、变更记录</td><td class="c">必做</td></tr><tr><td><b>W09</b></td><td><b>服务日期计算</b></td><td>下次服务日期 = 上次服务日期 + 服务周期×7 天；逾期标红并显示逾期周数</td><td class="c">必做</td></tr><tr><td><b>W10</b></td><td rowspan="3" class="m2">CSV 导入</td><td><b>上传 CSV</b></td><td>支持现有 WasteID 设备导出格式</td><td class="c">必做</td></tr><tr><td><b>W11</b></td><td><b>导入预览与执行</b></td><td>按 Device Ref 匹配：新增 N 条、更新 N 条、出错 N 条（列出原因）；确认后执行，更新内容写入变更记录（来源 = CSV 导入）</td><td class="c">必做</td></tr><tr><td><b>W12</b></td><td><b>导入历史</b></td><td>每次导入的时间、操作人、文件名、各类条数</td><td class="c">必做</td></tr><tr><td><b>W13</b></td><td rowspan="1" class="m2">变更记录</td><td><b>变更查询</b></td><td>全部设备的修改记录：设备、字段、原值、新值、修改人、时间、来源（Web / App / CSV）；可筛选，点进跳到设备</td><td class="c">必做</td></tr><tr><td><b>W14</b></td><td rowspan="5" class="m1">运输公司</td><td rowspan="2" class="m2">公司列表</td><td><b>列表、新增、编辑、停用</b></td><td>公司名称、ABN、联系人、电话、地址、状态</td><td class="c">必做</td></tr><tr><td><b>W15</b></td><td><b>公司详情</b></td><td>页签：基本信息、司机、车辆、负责的设备、作业记录</td><td class="c">必做</td></tr><tr><td><b>W16</b></td><td rowspan="1" class="m2">司机</td><td><b>司机列表、新增、审核、停用</b></td><td>所属公司、姓名、电话、账号、状态（待审核 / 正常 / 停用）；可按公司筛选</td><td class="c">必做</td></tr><tr><td><b>W17</b></td><td rowspan="2" class="m2">车辆</td><td><b>车辆列表、新增、编辑、停用</b></td><td>所属公司、车牌、车型（小车 / 大车）、罐体容积、车辆二维码、当前车上存量；可按公司筛选</td><td class="c">必做</td></tr><tr><td><b>W18</b></td><td><b>车辆详情</b></td><td>基本信息、当前存量、作业记录（抽取、转入 / 转出、卸货）</td><td class="c">必做</td></tr><tr><td><b>W19</b></td><td rowspan="4" class="m1">作业记录</td><td rowspan="1" class="m2">抽取记录</td><td><b>列表与详情</b></td><td>设备、地点、公司、司机、车辆、抽取量、时间、位置、位置距离、照片、异常标记（位置 / 容量）</td><td class="c">必做</td></tr><tr><td><b>W20</b></td><td rowspan="1" class="m2">转运记录</td><td><b>列表与详情</b></td><td>公司、司机、转出车、转入车、转运量、时间、位置</td><td class="c">必做</td></tr><tr><td><b>W21</b></td><td rowspan="1" class="m2">卸货记录</td><td><b>列表与详情</b></td><td>公司、司机、车辆、处理厂、卸货量、时间、位置</td><td class="c">必做</td></tr><tr><td><b>W22</b></td><td rowspan="1" class="m2">流向追溯</td><td><b>废油流向追溯</b></td><td>从抽取查到经过哪些车、卸到哪个处理厂；从卸货反查来源设备</td><td class="c">必做</td></tr><tr><td><b>W23</b></td><td rowspan="2" class="m1">处理厂管理</td><td rowspan="2" class="m2">—</td><td><b>列表、新增、编辑、停用</b></td><td>名称、地址、坐标、处理厂二维码</td><td class="c">必做</td></tr><tr><td><b>W24</b></td><td><b>处理厂详情</b></td><td>基本信息、卸货记录</td><td class="c">必做</td></tr><tr><td><b>W25</b></td><td rowspan="1" class="m1">通用</td><td rowspan="1" class="m2">—</td><td><b>二维码展示 / 打印</b></td><td>设备、车辆、处理厂详情页均可显示并打印二维码</td><td class="c">必做</td></tr></table></div>
+<p class="note">原型不含：后端与数据库、离线模式、警告与罚款、报表导出、历史数据迁移、多租户。</p>
+</main></body></html>
