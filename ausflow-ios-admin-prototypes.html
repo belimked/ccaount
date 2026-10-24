@@ -5,7 +5,9 @@
 <style>
 body{margin:0;background:#e2e8f0;font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#0f172a;padding:32px 24px 64px}
 h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;margin:0 0 6px}
-.sub{color:#475569;font-size:14px;margin:0 0 28px;max-width:900px;line-height:1.5}
+.sub{color:#475569;font-size:14px;margin:0 0 8px;max-width:900px;line-height:1.5}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 20px}
+.toc a{font-size:12px;padding:5px 10px;border-radius:14px;background:#fff;border:1px solid #cbd5e1;color:#0369a1;text-decoration:none}
 .row{display:flex;flex-wrap:wrap;gap:40px;justify-content:center}
 .shot{width:390px;display:flex;flex-direction:column;gap:12px}
 .shot h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;margin:0;color:#0f172a}
@@ -124,12 +126,203 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
 #b-A-Records .rec .r{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
 #b-A-Records .rec .r b{font-size:13px;color:#0f172a;font-weight:600}
 #b-A-Records .rec .r small{font-size:11px;color:#94a3b8}
+#b-A-Directory{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-Directory a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-Directory .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-Directory .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-Directory .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-Directory .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-Directory .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-Directory .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}
+#b-A-Directory .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-Directory .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-Directory .seg{display:flex;gap:2px;padding:3px;border-radius:9px;background:#eef1f5}
+#b-A-Directory .seg button{flex:1;border:0;background:transparent;border-radius:7px;height:28px;padding:0 4px;font:600 11.5px 'Inter',sans-serif;color:#475569;white-space:nowrap}
+#b-A-Directory .seg button.on{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.14),0 1px 1px rgba(15,23,42,.06)}
+#b-A-Directory .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #f1f5f9;color:inherit}
+#b-A-Directory .row:last-child{border-bottom:0}
+#b-A-Directory .row .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;background:#e6f0f6}
+#b-A-Directory .row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#b-A-Directory .row .t b{font-size:14px;color:#0f172a;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-Directory .row .t small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-Directory .row .r{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}
+#b-A-Directory .row .r b{font-size:13px;color:#0f172a}
+#b-A-Tickets{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-Tickets a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-Tickets .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-Tickets .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-Tickets .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-Tickets .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-Tickets .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-Tickets .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-Tickets .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-Tickets .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-Tickets .seg{display:flex;gap:2px;padding:3px;border-radius:9px;background:#eef1f5}
+#b-A-Tickets .seg button{flex:1;border:0;background:transparent;border-radius:7px;height:28px;padding:0 6px;font:600 12px 'Inter',sans-serif;color:#475569;white-space:nowrap}
+#b-A-Tickets .seg button.on{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.14),0 1px 1px rgba(15,23,42,.06)}
+#b-A-Tickets .tk{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-bottom:1px solid #f1f5f9;color:inherit}
+#b-A-Tickets .tk:last-child{border-bottom:0}
+#b-A-Tickets .tk .l1{display:flex;align-items:center;gap:8px}
+#b-A-Tickets .tk .l1 b{flex:1;min-width:0;font-size:13.5px;color:#0f172a;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-Tickets .tk .l1 time{font-size:11px;color:#94a3b8;flex:none}
+#b-A-Tickets .tk small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-Tickets .tk .l3{display:flex;align-items:center;gap:6px}
+#b-A-Tickets .av{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font-size:9px;font-weight:700;color:#fff;background:#0369a1}
+#b-A-DeviceDetail{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-DeviceDetail a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-DeviceDetail .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-DeviceDetail .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-DeviceDetail .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-DeviceDetail .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-DeviceDetail .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-DeviceDetail .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-DeviceDetail .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-DeviceDetail .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-DeviceDetail .seg{display:flex;gap:2px;padding:3px;border-radius:9px;background:#eef1f5}
+#b-A-DeviceDetail .seg button{flex:1;border:0;background:transparent;border-radius:7px;height:28px;padding:0 6px;font:600 12px 'Inter',sans-serif;color:#475569;white-space:nowrap}
+#b-A-DeviceDetail .seg button.on{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.14),0 1px 1px rgba(15,23,42,.06)}
+#b-A-DeviceDetail .kv{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-bottom:1px solid #eef2f6;border-right:1px solid #eef2f6}
+#b-A-DeviceDetail .kv small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-DeviceDetail .kv b{font-size:13.5px;color:#0f172a;font-weight:600}
+#b-A-DeviceDetail .rec{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f1f5f9;color:inherit;font-size:13px}
+#b-A-DeviceDetail .rec:last-child{border-bottom:0}
+#b-A-DeviceDetail .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;border-radius:9px;font:500 13px 'Inter',sans-serif;border:0;flex:1}
+#b-A-DeviceDetail .btn.sec{background:#eef1f5;color:#0369a1}
+#b-A-DeviceDetail .btn.pri{background:#0369a1;color:#fff;box-shadow:0 1px 2px rgba(3,105,161,.3)}
+#b-A-LocationDetail{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-LocationDetail a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-LocationDetail .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-LocationDetail .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-LocationDetail .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-LocationDetail .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-LocationDetail .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-LocationDetail .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-LocationDetail .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-LocationDetail .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-LocationDetail .kv{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-bottom:1px solid #eef2f6;border-right:1px solid #eef2f6}
+#b-A-LocationDetail .kv small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-LocationDetail .kv b{font-size:13.5px;color:#0f172a;font-weight:600}
+#b-A-LocationDetail .dev{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #f1f5f9;color:inherit}
+#b-A-LocationDetail .dev:last-child{border-bottom:0}
+#b-A-LocationDetail .dev .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none}
+#b-A-LocationDetail .dev .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#b-A-LocationDetail .dev .t b{font-size:13.5px;color:#0f172a;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-LocationDetail .dev .t small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-LocationDetail .ch{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f1f5f9;color:inherit;font-size:13px}
+#b-A-LocationDetail .ch:last-child{border-bottom:0}
+#b-A-OccupierDetail{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-OccupierDetail a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-OccupierDetail .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-OccupierDetail .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-OccupierDetail .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-OccupierDetail .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-OccupierDetail .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-OccupierDetail .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-OccupierDetail .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-OccupierDetail .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-OccupierDetail .kv{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-bottom:1px solid #eef2f6;border-right:1px solid #eef2f6}
+#b-A-OccupierDetail .kv small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-OccupierDetail .kv b{font-size:13.5px;color:#0f172a;font-weight:600}
+#b-A-OccupierDetail .row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #f1f5f9;color:inherit}
+#b-A-OccupierDetail .row:last-child{border-bottom:0}
+#b-A-OccupierDetail .row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#b-A-OccupierDetail .row .t b{font-size:13.5px;color:#0f172a;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-OccupierDetail .row .t small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-OccupierDetail .stat{flex:1;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid #e2e8f0}
+#b-A-OccupierDetail .stat small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-OccupierDetail .stat b{font-size:20px;color:#0f172a;font-weight:600;line-height:1.1}
+#b-A-CompanyDetail{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-CompanyDetail a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-CompanyDetail .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-CompanyDetail .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-CompanyDetail .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-CompanyDetail .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-CompanyDetail .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-CompanyDetail .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-CompanyDetail .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-CompanyDetail .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-CompanyDetail .seg{display:flex;gap:2px;padding:3px;border-radius:9px;background:#eef1f5}
+#b-A-CompanyDetail .seg button{flex:1;border:0;background:transparent;border-radius:7px;height:28px;padding:0 6px;font:600 12px 'Inter',sans-serif;color:#475569;white-space:nowrap}
+#b-A-CompanyDetail .seg button.on{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.14),0 1px 1px rgba(15,23,42,.06)}
+#b-A-CompanyDetail .row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #f1f5f9;color:inherit}
+#b-A-CompanyDetail .row:last-child{border-bottom:0}
+#b-A-CompanyDetail .row .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:12px;font-weight:700;color:#fff}
+#b-A-CompanyDetail .row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#b-A-CompanyDetail .row .t b{font-size:13.5px;color:#0f172a;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-CompanyDetail .row .t small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-CompanyDetail .stat{flex:1;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid #e2e8f0}
+#b-A-CompanyDetail .stat small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-CompanyDetail .stat b{font-size:20px;color:#0f172a;font-weight:600;line-height:1.1}
+#b-A-DriverDetail{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-DriverDetail a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-DriverDetail .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-DriverDetail .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-DriverDetail .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-DriverDetail .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-DriverDetail .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-DriverDetail .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-DriverDetail .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-DriverDetail .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-DriverDetail .seg{display:flex;gap:2px;padding:3px;border-radius:9px;background:#eef1f5}
+#b-A-DriverDetail .seg button{flex:1;border:0;background:transparent;border-radius:7px;height:28px;padding:0 6px;font:600 12px 'Inter',sans-serif;color:#475569;white-space:nowrap}
+#b-A-DriverDetail .seg button.on{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.14),0 1px 1px rgba(15,23,42,.06)}
+#b-A-DriverDetail .stat{flex:1;display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid #e2e8f0}
+#b-A-DriverDetail .stat small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-DriverDetail .stat b{font-size:20px;color:#0f172a;font-weight:600;line-height:1.1}
+#b-A-DriverDetail .leg{display:flex;gap:12px;position:relative;padding:0 0 14px 22px}
+#b-A-DriverDetail .leg:last-child{padding-bottom:0}
+#b-A-DriverDetail .leg::before{content:'';position:absolute;left:6px;top:14px;bottom:-2px;width:2px;background:#e2e8f0}
+#b-A-DriverDetail .leg:last-child::before{display:none}
+#b-A-DriverDetail .leg .pt{position:absolute;left:0;top:3px;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-sizing:border-box;box-shadow:0 0 0 1.5px #cbd5e1}
+#b-A-DriverDetail .leg .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#b-A-DriverDetail .leg .t b{font-size:13px;color:#0f172a;font-weight:600}
+#b-A-DriverDetail .leg .t small{font-size:11.5px;color:#64748b}
+#b-A-DriverDetail .leg time{font-size:11.5px;color:#64748b;flex:none;width:40px;text-align:right}
+#b-A-DriverDetail .day{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f1f5f9;color:inherit;font-size:13px}
+#b-A-DriverDetail .day:last-child{border-bottom:0}
+#b-A-VehicleDetail{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-VehicleDetail a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-VehicleDetail .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-VehicleDetail .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-VehicleDetail .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-VehicleDetail .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-VehicleDetail .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-VehicleDetail .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-VehicleDetail .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-VehicleDetail .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-VehicleDetail .kv{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-bottom:1px solid #eef2f6;border-right:1px solid #eef2f6}
+#b-A-VehicleDetail .kv small{font-size:10.5px;color:#64748b;font-weight:500}
+#b-A-VehicleDetail .kv b{font-size:13.5px;color:#0f172a;font-weight:600}
+#b-A-VehicleDetail .row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #f1f5f9;color:inherit;font-size:13px}
+#b-A-VehicleDetail .row:last-child{border-bottom:0}
+#b-A-VehicleDetail .row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#b-A-VehicleDetail .row .t b{font-size:13.5px;color:#0f172a;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-VehicleDetail .row .t small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-Me{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;color:#1e293b;-webkit-font-smoothing:antialiased}
+#b-A-Me a{color:#0369a1;text-decoration:none}a:hover{color:#075985}
+#b-A-Me .head{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:#0f172a}
+#b-A-Me .mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+#b-A-Me .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 3px rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.02)}
+#b-A-Me .tag{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:500;white-space:nowrap}
+#b-A-Me .tag i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+#b-A-Me .green{background:#ecfdf5;color:#047854}.amber{background:#fffbeb;color:#ae5f05}.rose{background:#fff1f2;color:#be123c}.slate{background:#f1f5f9;color:#475569}.blue{background:#e6f0f6;color:#075985}
+#b-A-Me .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;height:52px;justify-content:center;border-radius:12px;color:#64748b;font-size:10.5px;font-weight:600;border:0;background:transparent;font-family:inherit;padding:0}
+#b-A-Me .tab.on{color:#0369a1;background:#f0f9ff}
+#b-A-Me .sec{font-size:11px;font-weight:600;letter-spacing:.06em;color:#64748b;text-transform:uppercase;padding:4px 2px 0}
+#b-A-Me .it{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #f1f5f9;color:inherit}
+#b-A-Me .it:last-child{border-bottom:0}
+#b-A-Me .it .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;background:#e6f0f6}
+#b-A-Me .it .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#b-A-Me .it .t b{font-size:13.5px;color:#0f172a;font-weight:600}
+#b-A-Me .it .t small{font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#b-A-Me .it .cnt{min-width:22px;height:20px;padding:0 6px;border-radius:10px;background:#fff1f2;color:#be123c;font-size:11px;font-weight:600;display:grid;place-items:center}
+#b-A-Me .chev{color:#94a3b8;flex:none}
 
 </style></head><body>
-<h1>AusFlow iOS · 管理员模式原型</h1>
-<p class="sub">按角色切换：admin 登录后底部 Tab 变为 Dashboard / Devices / Records / Me；ops（司机）保持 Today / History / Devices / Me。三个方向的仪表盘均参考 web-prototype 的 D 版（Stitch）配色与字体。方向 A 另附三个二级页。点击画面里的卡片和 Tab 可在画面间跳转。</p>
-<h3 class="group">管理员仪表盘 · 三个方向</h3>
-<div class="row"><section class="shot" id="b-Main"><h2>A · Stitch Light</h2><div class="phone">
+<h1>AusFlow iOS · 管理员模式原型（方向 A）</h1>
+<p class="sub">按角色切换：admin 登录后底部 Tab 变为 Dashboard / Devices / Records / Me；ops（司机）保持 Today / History / Devices / Me。视觉参考 web-prototype 的 D 版（Stitch）。公司、占用方、司机、车辆、位置、设施、工单从 Me 页的 Console 分区和仪表盘卡片进入，Tab 保持四个。点击画面里的卡片和 Tab 可在画面间跳转。数据均为示意值。</p>
+<div class="toc"><a href="#b-Main">A · Stitch Light（已选）</a><a href="#b-B-Hero">B · AusFlow Hero</a><a href="#b-C-Console">C · Dense Console</a><a href="#b-A-Devices">Devices 设备列表</a><a href="#b-A-Alerts">Alerts 告警</a><a href="#b-A-Records">Records 运营记录</a><a href="#b-A-Directory">Companies &amp; people 目录</a><a href="#b-A-Tickets">Ops tickets 工单</a><a href="#b-A-DeviceDetail">Device 设备详情</a><a href="#b-A-LocationDetail">Location 位置详情</a><a href="#b-A-OccupierDetail">Occupier 占用方详情</a><a href="#b-A-CompanyDetail">Transport company 运输公司详情</a><a href="#b-A-DriverDetail">Driver 司机详情</a><a href="#b-A-VehicleDetail">Vehicle 车辆详情</a><a href="#b-A-Me">Me（admin）</a></div>
+<h3 class="group">管理员仪表盘 · 三个方向（已选 A）</h3><div class="row"><section class="shot" id="b-Main"><h2>A · Stitch Light（已选）</h2><div class="phone">
 
 <div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
 
@@ -228,7 +421,7 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
     <button class="tab" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
   </nav>
 </div>
-</div><p>方向 A：最贴近 web 控制台 D 版（Stitch）。白卡片、slate 灰阶、#0369a1 主色、Plus Jakarta Sans 标题、等宽数字、iOS 分段控件。</p></section><section class="shot" id="b-B-Hero"><h2>B · AusFlow Hero</h2><div class="phone">
+</div><p>最贴近 web 控制台 D 版（Stitch）。白卡片、slate 灰阶、#0369a1 主色、Plus Jakarta Sans 标题、等宽数字、iOS 分段控件。</p></section><section class="shot" id="b-B-Hero"><h2>B · AusFlow Hero</h2><div class="phone">
 
 <div style="width:390px;height:844px;box-sizing:border-box;background:#f2f5f8;position:relative;overflow:hidden;display:flex;flex-direction:column">
 
@@ -307,7 +500,7 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
     <button class="tab" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
   </nav>
 </div>
-</div><p>方向 B：保留现有 AusFlow 司机端的渐变头部，和司机 app 视觉连续；头部内嵌三个关键指标，下方沿用 Stitch 卡片。</p></section><section class="shot" id="b-C-Console"><h2>C · Dense Console</h2><div class="phone">
+</div><p>保留现有司机端渐变头部，头部内嵌三个关键指标，下方沿用 Stitch 卡片。</p></section><section class="shot" id="b-C-Console"><h2>C · Dense Console</h2><div class="phone">
 
 <div style="width:390px;height:844px;box-sizing:border-box;background:#f1f5f9;position:relative;overflow:hidden;display:flex;flex-direction:column">
 
@@ -373,9 +566,7 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
     <button class="tab" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
   </nav>
 </div>
-</div><p>方向 C：紧凑控制台。深色状态条 + 快速跳转搜索，2×3 指标砖，列表行更密，一屏信息量最大；底部 5 个 Tab 多一个 Alerts。</p></section></div>
-<h3 class="group">方向 A · 二级页面</h3>
-<div class="row"><section class="shot" id="b-A-Devices"><h2>A · Devices</h2><div class="phone">
+</div><p>紧凑控制台：深色状态条 + 快速跳转，2×3 指标砖，列表更密。</p></section></div><h3 class="group">方向 A · 列表页</h3><div class="row"><section class="shot" id="b-A-Devices"><h2>Devices 设备列表</h2><div class="phone">
 
 <div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
 
@@ -449,7 +640,7 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
     <button class="tab" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
   </nav>
 </div>
-</div><p>方向 A 二级页：设备列表。搜索 + 分段筛选（All / Overdue / Due soon / Inactive），按逾期时长排序，右侧公司筛选。</p></section><section class="shot" id="b-A-Alerts"><h2>A · Alerts</h2><div class="phone">
+</div><p>搜索 + 分段筛选（All / Overdue / Due soon / Inactive），按逾期时长排序，公司筛选。</p></section><section class="shot" id="b-A-Alerts"><h2>Alerts 告警</h2><div class="phone">
 
 <div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
 
@@ -512,7 +703,7 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
     <button class="tab" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
   </nav>
 </div>
-</div><p>方向 A 二级页：告警。严重度分段 + 类型 chips，未读点，Mark all read。</p></section><section class="shot" id="b-A-Records"><h2>A · Records</h2><div class="phone">
+</div><p>严重度分段 + 类型 chips，未读点，Mark all read。</p></section><section class="shot" id="b-A-Records"><h2>Records 运营记录</h2><div class="phone">
 
 <div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
 
@@ -583,5 +774,583 @@ h3.group{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;margin:48px 0
     <button class="tab" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
   </nav>
 </div>
-</div><p>方向 A 二级页：运营记录。Pump-outs / Transfers / Unloads / Checks 分段，按天分组，时间范围按钮。</p></section></div>
+</div><p>Pump-outs / Transfers / Unloads / Checks 分段，按天分组。</p></section><section class="shot" id="b-A-Directory"><h2>Companies &amp; people 目录</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-Me" aria-label="Back" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="display:flex;flex-direction:column;line-height:1.15"><span class="mono" style="font-size:10px;letter-spacing:.06em;color:#64748b">COMPANIES &amp; PEOPLE</span><h1 class="head" style="margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em">Transport companies</h1></div>
+      <span style="flex:1"></span>
+      <span class="mono" style="font-size:12px;color:#64748b">25</span>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:9px;background:#f1f5f9;border:1px solid #e2e8f0;color:#64748b;font-size:13px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" placeholder="Company, driver, rego, site" aria-label="Search directory" style="flex:1;min-width:0;border:0;background:transparent;font:inherit;color:#0f172a;outline:0">
+    </label>
+    <div class="seg" role="group" aria-label="Directory section"><button class="on" type="button">Transport</button><button type="button">Occupiers</button><button type="button">Drivers</button><button type="button">Vehicles</button><button type="button">Locations</button><button type="button">Facilities</button></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:8px;padding:0 2px;font-size:12px;color:#64748b"><span>Sorted by <b style="color:#0f172a;font-weight:600">overdue devices</b></span><span style="flex:1"></span><span>devices · overdue</span></div>
+    <div class="card">
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div>
+        <div class="t"><b>Metro Liquid Waste</b><small>6 drivers · 4 vehicles · Pinkenba</small></div>
+        <div class="r"><b class="mono">142</b><span class="tag rose"><i></i>4 overdue</span></div>
+      </a>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div>
+        <div class="t"><b>Harbour Pumping</b><small>4 drivers · 3 vehicles · Hemmant</small></div>
+        <div class="r"><b class="mono">88</b><span class="tag amber"><i></i>2 overdue</span></div>
+      </a>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div>
+        <div class="t"><b>Southside Services</b><small>3 drivers · 2 vehicles · Acacia Ridge</small></div>
+        <div class="r"><b class="mono">61</b><span class="tag amber"><i></i>1 overdue</span></div>
+      </a>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div>
+        <div class="t"><b>Bayside Liquid Haulage</b><small>2 drivers · 2 vehicles · Wynnum</small></div>
+        <div class="r"><b class="mono">47</b><span class="tag green"><i></i>0 overdue</span></div>
+      </a>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div>
+        <div class="t"><b>Northern Septic &amp; Grease</b><small>2 drivers · 1 vehicle · Strathpine</small></div>
+        <div class="r"><b class="mono">30</b><span class="tag green"><i></i>0 overdue</span></div>
+      </a>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div>
+        <div class="t"><b>Ipswich Enviro Transport</b><small>1 driver · 1 vehicle · Ipswich</small></div>
+        <div class="r"><b class="mono">18</b><span class="tag green"><i></i>0 overdue</span></div>
+      </a>
+    </div>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>一个页面六个分段：Transport / Occupiers / Drivers / Vehicles / Locations / Facilities，统一搜索。</p></section><section class="shot" id="b-A-Tickets"><h2>Ops tickets 工单</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-Me" aria-label="Back" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="display:flex;flex-direction:column;line-height:1.15"><span class="mono" style="font-size:10px;letter-spacing:.06em;color:#64748b">MONITOR</span><h1 class="head" style="margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em">Ops tickets</h1></div>
+      <span style="flex:1"></span>
+      <button type="button" aria-label="New ticket" style="width:40px;height:40px;border-radius:10px;border:0;background:#0369a1;display:grid;place-items:center;box-shadow:0 1px 2px rgba(3,105,161,.3)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="seg" role="group" aria-label="Status"><button class="on" type="button">Open 6</button><button type="button">In progress 3</button><button type="button">Resolved 41</button><button type="button">Mine 2</button></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b"><i style="width:7px;height:7px;border-radius:50%;background:#10b981"></i>Mailbox ausflowuat@ polled 19:55 · next in 4 min</div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:10px">
+    <div class="card">
+      <a href="#b-A-OccupierDetail" class="tk">
+        <div class="l1"><span class="tag rose"><i></i>Urgent</span><b>Missed service complaint · Sandgate Rd</b><time class="mono" datetime="2026-10-22">2d</time></div>
+        <small>From accounts@parksidebistro.au · "trap overflowing, third time this year"</small>
+        <div class="l3"><span class="tag slate mono">TK-0412</span><span class="tag slate">Complaint</span><span style="flex:1"></span><span class="av">PS</span><small style="font-size:11px">Priya</small></div>
+      </a>
+      <a href="#b-A-DeviceDetail" class="tk">
+        <div class="l1"><span class="tag amber"><i></i>Open</span><b>Request to change pump-out frequency</b><time class="mono" datetime="2026-10-23">1d</time></div>
+        <small>From ops@goldengrill.com.au · DV1190442 · wants every 8 weeks</small>
+        <div class="l3"><span class="tag slate mono">TK-0415</span><span class="tag slate">Schedule</span><span style="flex:1"></span><span class="tag slate">Unassigned</span></div>
+      </a>
+      <a href="#b-A-VehicleDetail" class="tk">
+        <div class="l1"><span class="tag amber"><i></i>Open</span><b>Capacity alert follow-up · 122 4SZ</b><time class="mono" datetime="2026-10-24T14:30">5h</time></div>
+        <small>Created from alert · reported 5,400 L on a 5,000 L tank</small>
+        <div class="l3"><span class="tag slate mono">TK-0418</span><span class="tag slate">Alert</span><span style="flex:1"></span><span class="av" style="background:#0e7490">KM</span><small style="font-size:11px">Karen</small></div>
+      </a>
+      <a href="#b-A-LocationDetail" class="tk">
+        <div class="l1"><span class="tag amber"><i></i>Open</span><b>New site access code · Toombul Centre</b><time class="mono" datetime="2026-10-24T09:10">10h</time></div>
+        <small>From centre.management@toombul.au · gate code changes 1 Nov</small>
+        <div class="l3"><span class="tag slate mono">TK-0419</span><span class="tag slate">Site info</span><span style="flex:1"></span><span class="tag slate">Unassigned</span></div>
+      </a>
+      <a href="#b-A-Directory" class="tk">
+        <div class="l1"><span class="tag amber"><i></i>Open</span><b>Driver onboarding · Harbour Pumping</b><time class="mono" datetime="2026-10-24T11:00">8h</time></div>
+        <small>From dispatch@harbourpumping.au · 2 new drivers need app accounts</small>
+        <div class="l3"><span class="tag slate mono">TK-0420</span><span class="tag slate">Access</span><span style="flex:1"></span><span class="av">PS</span><small style="font-size:11px">Priya</small></div>
+      </a>
+      <a href="#b-A-Devices" class="tk">
+        <div class="l1"><span class="tag amber"><i></i>Open</span><b>Device QR label damaged</b><time class="mono" datetime="2026-10-24T16:00">3h</time></div>
+        <small>From Dylan Hall (app) · DV3307781 · photo attached</small>
+        <div class="l3"><span class="tag slate mono">TK-0421</span><span class="tag slate">Device</span><span style="flex:1"></span><span class="tag slate">Unassigned</span></div>
+      </a>
+    </div>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>Open / In progress / Resolved / Mine，显示来源邮箱、分类、负责人，顶部有邮箱轮询状态。</p></section></div><h3 class="group">方向 A · 实体详情页（互相可跳转：设备 → 位置 → 占用方 → 运输公司 → 司机 → 车辆）</h3><div class="row"><section class="shot" id="b-A-DeviceDetail"><h2>Device 设备详情</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-Devices" aria-label="Back to devices" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span class="mono" style="font-size:11px;letter-spacing:.04em;color:#0369a1;font-weight:600">DV4948126</span><h1 class="head" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Parkside Bistro</h1></div>
+      <span style="flex:1"></span>
+      <button type="button" aria-label="More actions" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#334155" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag rose"><i></i>127 wk overdue</span><span class="tag green"><i></i>Active</span><span class="tag slate">Grease trap · 1,000 L</span></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="overflow:hidden">
+      <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr))">
+        <div class="kv"><small>Last service</small><b>12 Apr 2024</b></div>
+        <div class="kv" style="border-right:0"><small>Next due</small><b style="color:#be123c">12 Jul 2024</b></div>
+        <div class="kv"><small>Frequency</small><b>Every 13 weeks</b></div>
+        <div class="kv" style="border-right:0"><small>Capacity</small><b class="mono">1,000 L</b></div>
+        <div class="kv" style="border-bottom:0"><small>Transport company</small><b>Metro Liquid Waste</b></div>
+        <div class="kv" style="border-bottom:0;border-right:0"><small>Occupier</small><b>Parkside Bistro Pty</b></div>
+      </div>
+    </div>
+
+    <a href="#b-A-Directory" class="card" style="padding:12px 14px;display:flex;align-items:center;gap:12px;color:inherit">
+      <div style="width:38px;height:38px;border-radius:10px;background:#e6f0f6;display:grid;place-items:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><b style="font-size:13.5px;color:#0f172a;font-weight:600">1341 Sandgate Rd, Nundah QLD 4012</b><small style="font-size:11.5px;color:#64748b">Location LOC-2231 · 2 devices at this site · rear car park</small></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+
+    <section class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Service history</h3><span style="flex:1"></span><span style="font-size:11px;color:#64748b">Last 12 cycles</span></div>
+      <div style="display:flex;gap:4px;height:22px" role="img" aria-label="Service cycle status, oldest to newest: 8 on time, 1 late, 3 missed">
+        <i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#059669"></i><i style="flex:1;border-radius:4px;background:#d97706"></i><i style="flex:1;border-radius:4px;background:#e11d48"></i><i style="flex:1;border-radius:4px;background:#e11d48"></i><i style="flex:1;border-radius:4px;background:#e11d48"></i>
+      </div>
+      <div style="display:flex;gap:12px;font-size:11px;color:#64748b"><span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#059669;margin-right:5px"></i>On time 8</span><span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#d97706;margin-right:5px"></i>Late 1</span><span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#e11d48;margin-right:5px"></i>Missed 3</span></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Recent pump-outs</h3><span style="flex:1"></span><a href="#b-A-Records" style="font-size:12px;font-weight:600">All 14</a></div>
+      <a href="#b-A-Records" class="rec"><span class="mono" style="font-size:12px;color:#64748b;width:76px">12 Apr 24</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0f172a">Dylan Hall · 122 4SZ</span><b class="mono">1,000 L</b><span style="width:52px;text-align:right"><span class="tag green"><i></i>ok</span></span></a>
+      <a href="#b-A-Records" class="rec"><span class="mono" style="font-size:12px;color:#64748b;width:76px">09 Jan 24</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0f172a">Mia Chen · 981 TRK</span><b class="mono">950 L</b><span style="width:52px;text-align:right"><span class="tag amber"><i></i>late</span></span></a>
+      <a href="#b-A-Records" class="rec"><span class="mono" style="font-size:12px;color:#64748b;width:76px">03 Oct 23</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0f172a">Dylan Hall · 122 4SZ</span><b class="mono">1,000 L</b><span style="width:52px;text-align:right"><span class="tag green"><i></i>ok</span></span></a>
+    </section>
+
+    <section class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Photos</h3><span style="flex:1"></span><span style="font-size:11px;color:#64748b">4 · newest first</span></div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;aspect-ratio:1;border-radius:8px;background:#e2e8f0;display:grid;place-items:center;font-size:10px;color:#64748b">Before</div>
+        <div style="flex:1;aspect-ratio:1;border-radius:8px;background:#e2e8f0;display:grid;place-items:center;font-size:10px;color:#64748b">After</div>
+        <div style="flex:1;aspect-ratio:1;border-radius:8px;background:#e2e8f0;display:grid;place-items:center;font-size:10px;color:#64748b">Lid</div>
+        <div style="flex:1;aspect-ratio:1;border-radius:8px;background:#e2e8f0;display:grid;place-items:center;font-size:10px;color:#64748b">Docket</div>
+      </div>
+    </section>
+
+    <div style="display:flex;gap:8px">
+      <a href="#b-A-Tickets" class="btn sec"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg>Create ticket</a>
+      <button class="btn pri" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Schedule pump-out</button>
+    </div>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>关键字段网格、所在位置卡、12 个周期的服务历史条、最近取件、照片、Create ticket / Schedule pump-out。</p></section><section class="shot" id="b-A-LocationDetail"><h2>Location 位置详情</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-Directory" aria-label="Back to locations" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span class="mono" style="font-size:11px;letter-spacing:.04em;color:#0369a1;font-weight:600">LOC-2231 · LOCATION</span><h1 class="head" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">1341 Sandgate Rd, Nundah</h1></div>
+      <span style="flex:1"></span>
+      <button type="button" aria-label="Open in Maps" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag rose"><i></i>2 overdue</span><span class="tag slate">Property · Commercial</span><span class="tag slate">QLD 4012</span></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="overflow:hidden">
+      <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr))">
+        <div class="kv"><small>Occupier</small><a href="#b-A-OccupierDetail" style="font-size:13.5px;font-weight:600">Parkside Bistro Pty</a></div>
+        <div class="kv" style="border-right:0"><small>Property owner</small><b>Nundah Retail Trust</b></div>
+        <div class="kv"><small>Access</small><b>Rear car park · key box</b></div>
+        <div class="kv" style="border-right:0"><small>Site contact</small><b>Angela Ruiz</b></div>
+        <div class="kv" style="border-bottom:0"><small>Devices</small><b class="mono">2</b></div>
+        <div class="kv" style="border-bottom:0;border-right:0"><small>Pump-outs · 12 mo</small><b class="mono">6 · 5,950 L</b></div>
+      </div>
+    </div>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Devices at this location</h3><span style="flex:1"></span><a href="#b-A-Devices" style="font-size:12px;font-weight:600">Filter list</a></div>
+      <a href="#b-A-DeviceDetail" class="dev">
+        <div class="ic" style="background:#fff1f2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></div>
+        <div class="t"><b><span class="mono">DV4948126</span> · Grease trap</b><small>1,000 L · every 13 wk · Metro Liquid Waste</small></div>
+        <span class="tag rose"><i></i>127 wk</span>
+      </a>
+      <a href="#b-A-DeviceDetail" class="dev">
+        <div class="ic" style="background:#fff1f2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></div>
+        <div class="t"><b><span class="mono">DV7133959</span> · Grease trap</b><small>1,000 L · every 13 wk · Metro Liquid Waste</small></div>
+        <span class="tag rose"><i></i>74 wk</span>
+      </a>
+    </section>
+
+    <section class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+      <h3 class="head" style="margin:0;font-size:14px;font-weight:700">Notes</h3>
+      <p style="margin:0;font-size:13px;line-height:1.45;color:#334155">Traps are under the steel plate behind the kitchen door. Driver needs the key box code from the site contact. Do not block the loading bay before 10:00.</p>
+      <div style="display:flex;gap:8px;font-size:11px;color:#94a3b8"><span>Updated 03 Sep 2026 by ops</span></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Change log</h3><span style="flex:1"></span><span style="font-size:11px;color:#64748b">3 entries</span></div>
+      <div class="ch"><span class="mono" style="font-size:12px;color:#64748b;width:76px">03 Sep 26</span><span style="flex:1;color:#0f172a">Access notes updated</span><span class="tag slate">ops</span></div>
+      <div class="ch"><span class="mono" style="font-size:12px;color:#64748b;width:76px">14 Feb 26</span><span style="flex:1;color:#0f172a">Occupier changed from Nundah Noodles</span><span class="tag slate">admin</span></div>
+      <div class="ch"><span class="mono" style="font-size:12px;color:#64748b;width:76px">21 Jun 23</span><span style="flex:1;color:#0f172a">Location created via CSV import</span><span class="tag slate">admin</span></div>
+    </section>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>占用方、业主、进场方式、联系人；该位置的设备列表；现场备注；变更日志。</p></section><section class="shot" id="b-A-OccupierDetail"><h2>Occupier 占用方详情</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-Directory" aria-label="Back to occupiers" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:grid;place-items:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1-5h16l1 5M3 9v11h18V9M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-6h6v6"/></svg></div>
+      <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span class="mono" style="font-size:11px;letter-spacing:.04em;color:#0369a1;font-weight:600">OCCUPIER · CO-0418</span><h1 class="head" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Parkside Bistro Pty</h1></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag green"><i></i>Active</span><span class="tag slate">Food service</span><span class="tag slate">ABN 51 824 753 556</span></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:8px">
+      <a href="#b-A-Directory" class="stat"><small>Locations</small><b class="mono">3</b></a>
+      <a href="#b-A-Devices" class="stat"><small>Devices</small><b class="mono">5</b></a>
+      <a href="#b-A-Devices" class="stat"><small>Overdue</small><b class="mono" style="color:#be123c">2</b></a>
+      <a href="#b-A-Records" class="stat"><small>Pump-outs 12 mo</small><b class="mono">14</b></a>
+    </div>
+
+    <div class="card" style="overflow:hidden">
+      <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr))">
+        <div class="kv"><small>Primary contact</small><b>Angela Ruiz</b></div>
+        <div class="kv" style="border-right:0"><small>Phone</small><a class="mono" href="#" style="font-size:13px;font-weight:600">07 3266 0142</a></div>
+        <div class="kv" style="border-bottom:0"><small>Email</small><a href="#" style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">accounts@parksidebistro.au</a></div>
+        <div class="kv" style="border-bottom:0;border-right:0"><small>Billing</small><b>Monthly · PO required</b></div>
+      </div>
+    </div>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Locations</h3><span style="flex:1"></span><span style="font-size:11px;color:#64748b">devices · status</span></div>
+      <a href="#b-A-LocationDetail" class="row">
+        <div class="t"><b>1341 Sandgate Rd, Nundah</b><small>LOC-2231 · 2 grease traps</small></div>
+        <span class="tag rose"><i></i>2 overdue</span>
+      </a>
+      <a href="#b-A-LocationDetail" class="row">
+        <div class="t"><b>18 Racecourse Rd, Hamilton</b><small>LOC-2290 · 2 grease traps</small></div>
+        <span class="tag green"><i></i>Not due</span>
+      </a>
+      <a href="#b-A-LocationDetail" class="row">
+        <div class="t"><b>Shop 4, Toombul Centre</b><small>LOC-3107 · 1 grease trap</small></div>
+        <span class="tag amber"><i></i>Due 2 wk</span>
+      </a>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Transport companies serving</h3></div>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="t"><b>Metro Liquid Waste</b><small>4 devices · last job 24 Oct</small></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      <a href="#b-A-CompanyDetail" class="row">
+        <div class="t"><b>Harbour Pumping</b><small>1 device · last job 02 Oct</small></div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Open tickets</h3><span style="flex:1"></span><a href="#b-A-Tickets" style="font-size:12px;font-weight:600">All</a></div>
+      <a href="#b-A-Tickets" class="row">
+        <div class="t"><b>Missed service complaint · Sandgate Rd</b><small>From accounts@parksidebistro.au · assigned to Priya</small></div>
+        <span class="tag amber"><i></i>Open 2d</span>
+      </a>
+    </section>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>位置 / 设备 / 逾期 / 取件四个统计；联系方式和账单；名下位置列表；服务它的运输公司；未结工单。</p></section><section class="shot" id="b-A-CompanyDetail"><h2>Transport company 运输公司详情</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-Directory" aria-label="Back to companies" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="width:40px;height:40px;border-radius:10px;background:#e6f0f6;display:grid;place-items:center;flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18M7 7h2M7 11h2M7 15h2M11 7h2M11 11h2M11 15h2"/></svg></div>
+      <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span class="mono" style="font-size:11px;letter-spacing:.04em;color:#0369a1;font-weight:600">TRANSPORT COMPANY · TC-07</span><h1 class="head" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Metro Liquid Waste</h1></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag green"><i></i>Licensed to 30 Jun 2027</span><span class="tag rose"><i></i>4 overdue</span><span class="tag slate">EPA 7731-LW</span></div>
+    <div class="seg" role="group" aria-label="Section"><button class="on" type="button">Overview</button><button type="button">Drivers 6</button><button type="button">Vehicles 4</button><button type="button">Devices 142</button></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:8px">
+      <a href="#b-A-Devices" class="stat"><small>Devices</small><b class="mono">142</b></a>
+      <a href="#b-A-Devices" class="stat"><small>Overdue</small><b class="mono" style="color:#be123c">4</b></a>
+      <a href="#b-A-Records" class="stat"><small>Jobs · 7d</small><b class="mono">22</b></a>
+      <a href="#b-A-Records" class="stat"><small>Litres · 7d</small><b class="mono">26,400</b></a>
+    </div>
+
+    <section class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Compliance</h3><span style="flex:1"></span><b class="mono" style="font-size:13px;color:#047854">97.2%</b></div>
+      <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px"><i style="flex:124;background:#059669"></i><i style="flex:14;background:#d97706"></i><i style="flex:4;background:#e11d48"></i></div>
+      <div style="display:flex;gap:12px;font-size:11px;color:#64748b"><span>Not due 124</span><span>Due soon 14</span><span>Overdue 4</span></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Drivers on shift today</h3><span style="flex:1"></span><a href="#b-A-Directory" style="font-size:12px;font-weight:600">All 6</a></div>
+      <a href="#b-A-DriverDetail" class="row">
+        <div class="av" style="background:#0369a1">DH</div>
+        <div class="t"><b>Dylan Hall</b><small>122 4SZ · 5 jobs · 6,500 L · on job at Harbour Fish Market</small></div>
+        <span class="tag blue"><i></i>Active</span>
+      </a>
+      <a href="#b-A-DriverDetail" class="row">
+        <div class="av" style="background:#0e7490">MC</div>
+        <div class="t"><b>Mia Chen</b><small>981 TRK · 3 jobs · 3,500 L · finished 16:40</small></div>
+        <span class="tag slate">Done</span>
+      </a>
+      <a href="#b-A-DriverDetail" class="row">
+        <div class="av" style="background:#4f46e5">SO</div>
+        <div class="t"><b>Sam Okafor</b><small>455 LWS · 4 jobs · 5,000 L · 1 No GPS flag</small></div>
+        <span class="tag amber"><i></i>Flag</span>
+      </a>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Vehicles</h3><span style="flex:1"></span><a href="#b-A-Directory" style="font-size:12px;font-weight:600">All 4</a></div>
+      <a href="#b-A-VehicleDetail" class="row">
+        <div class="t"><b class="mono">122 4SZ</b><small>Isuzu FVZ · 5,000 L · Dylan Hall</small></div>
+        <span class="tag green"><i></i>In service</span>
+      </a>
+      <a href="#b-A-VehicleDetail" class="row">
+        <div class="t"><b class="mono">981 TRK</b><small>Hino 500 · 8,000 L · Mia Chen</small></div>
+        <span class="tag green"><i></i>In service</span>
+      </a>
+    </section>
+
+    <section class="card" style="padding:12px 14px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:10px;font-size:12.5px">
+      <div style="display:flex;flex-direction:column;gap:2px"><small style="font-size:10.5px;color:#64748b">Dispatcher</small><b style="color:#0f172a">Karen Moss</b></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><small style="font-size:10.5px;color:#64748b">Phone</small><a class="mono" href="#" style="font-weight:600">1300 442 110</a></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><small style="font-size:10.5px;color:#64748b">Depot</small><b style="color:#0f172a">Pinkenba QLD</b></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><small style="font-size:10.5px;color:#64748b">Agreement</small><b style="color:#0f172a">Council panel · 2025-27</b></div>
+    </section>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>许可证和 EPA 号；Overview / Drivers / Vehicles / Devices 分段；合规条；今天在班司机；车辆；调度联系人。</p></section><section class="shot" id="b-A-DriverDetail"><h2>Driver 司机详情</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-CompanyDetail" aria-label="Back to company" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="width:40px;height:40px;border-radius:50%;background:#0369a1;color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none">DH</div>
+      <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span class="mono" style="font-size:11px;letter-spacing:.04em;color:#0369a1;font-weight:600">DRIVER · OPS</span><h1 class="head" style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em">Dylan Hall</h1></div>
+      <span style="flex:1"></span>
+      <a href="#" aria-label="Call driver" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+      </a>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag blue"><i></i>On job · Harbour Fish Market</span><a href="#b-A-CompanyDetail" class="tag slate">Metro Liquid Waste</a><a href="#b-A-VehicleDetail" class="tag slate mono">122 4SZ</a></div>
+    <div class="seg" role="group" aria-label="Range"><button class="on" type="button">Today</button><button type="button">This week</button><button type="button">Working days</button></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:8px">
+      <div class="stat"><small>Jobs</small><b class="mono">5</b></div>
+      <div class="stat"><small>Collected</small><b class="mono">6,500 L</b></div>
+      <div class="stat"><small>On road</small><b class="mono">7h 12m</b></div>
+      <div class="stat"><small>Flags</small><b class="mono" style="color:#ae5f05">1</b></div>
+    </div>
+
+    <section class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Today's legs</h3><span style="flex:1"></span><span style="font-size:11px;color:#64748b">Started 07:48 · Pinkenba depot</span></div>
+      <div style="display:flex;flex-direction:column">
+        <div class="leg"><i class="pt" style="background:#059669"></i><div class="t"><b>Golden Grill · 2,000 L</b><small>Depot → 88 Boundary St · 32 min · 14 km</small></div><time>08:20</time></div>
+        <div class="leg"><i class="pt" style="background:#059669"></i><div class="t"><b>Montague Diner · 1,500 L</b><small>→ 3366 Moggill Rd · 41 min · 22 km</small></div><time>09:35</time></div>
+        <div class="leg"><i class="pt" style="background:#d97706"></i><div class="t"><b>Unload · Luggage Point WWTP <span class="tag amber" style="margin-left:4px"><i></i>Slow leg</span></b><small>→ facility · 1h 48m for 19 km · expected 35 min</small></div><time>12:10</time></div>
+        <div class="leg"><i class="pt" style="background:#059669"></i><div class="t"><b>Riverside Cafe · 1,000 L</b><small>→ 12 Kingsford Smith Dr · 26 min · 9 km</small></div><time>15:10</time></div>
+        <div class="leg"><i class="pt" style="background:#059669"></i><div class="t"><b>Golden Grill · 2,000 L</b><small>→ 88 Boundary St · 23 min · 11 km</small></div><time>17:42</time></div>
+        <div class="leg"><i class="pt" style="background:#0369a1;box-shadow:0 0 0 1.5px #0369a1"></i><div class="t"><b>Harbour Fish Market · in progress</b><small>→ 2 Wharf Rd · arrived 19:20 · on board 0 / 5,000 L</small></div><time>19:20</time></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Working days</h3><span style="flex:1"></span><span style="font-size:11px;color:#64748b">jobs · litres · hours</span></div>
+      <a href="#b-A-Records" class="day"><span class="mono" style="width:70px;color:#64748b;font-size:12px">Thu 23</span><span style="flex:1;color:#0f172a">8 jobs</span><b class="mono">9,800 L</b><span class="mono" style="width:56px;text-align:right;color:#475569">8h 05m</span></a>
+      <a href="#b-A-Records" class="day"><span class="mono" style="width:70px;color:#64748b;font-size:12px">Wed 22</span><span style="flex:1;color:#0f172a">6 jobs <span class="tag amber" style="margin-left:4px"><i></i>No GPS</span></span><b class="mono">7,200 L</b><span class="mono" style="width:56px;text-align:right;color:#475569">7h 40m</span></a>
+      <a href="#b-A-Records" class="day"><span class="mono" style="width:70px;color:#64748b;font-size:12px">Tue 21</span><span style="flex:1;color:#0f172a">7 jobs</span><b class="mono">8,100 L</b><span class="mono" style="width:56px;text-align:right;color:#475569">7h 55m</span></a>
+    </section>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>今日任务 / 升数 / 在途时长 / 标记；今日分段时间线（含 Slow leg 标记）；工作日列表（含 No GPS 标记）。</p></section><section class="shot" id="b-A-VehicleDetail"><h2>Vehicle 车辆详情</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px;height:40px">
+      <a href="#b-A-CompanyDetail" aria-label="Back to company" style="width:40px;height:40px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;display:grid;place-items:center;margin-left:-4px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </a>
+      <div style="width:40px;height:40px;border-radius:10px;background:#e6f0f6;display:grid;place-items:center;flex:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+      <div style="display:flex;flex-direction:column;line-height:1.15;min-width:0"><span class="mono" style="font-size:11px;letter-spacing:.04em;color:#0369a1;font-weight:600">VEHICLE · VH-0312</span><h1 class="head mono" style="margin:0;font-size:20px;font-weight:700;letter-spacing:.02em">122 4SZ</h1></div>
+      <span style="flex:1"></span>
+      <span class="tag green"><i></i>In service</span>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag slate">Isuzu FVZ 260-300 · 2021</span><a href="#b-A-CompanyDetail" class="tag slate">Metro Liquid Waste</a></div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:12px">
+    <section class="card" style="padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">On board now</h3><span style="flex:1"></span><a href="#b-A-DriverDetail" style="font-size:12px;font-weight:600">Dylan Hall · on job</a></div>
+      <div style="display:flex;align-items:baseline;gap:6px"><b class="mono" style="font-size:28px;font-weight:600;color:#0f172a">0 L</b><span style="font-size:13px;color:#64748b">of 5,000 L · unloaded 12:10 at Luggage Point</span></div>
+      <div style="height:10px;border-radius:5px;background:#f1f5f9;overflow:hidden"><i style="display:block;height:10px;width:0%;background:#0369a1;border-radius:5px"></i></div>
+      <div style="display:flex;gap:12px;font-size:11px;color:#64748b"><span>Today 6,500 L collected</span><span>1 unload</span><span>62 km</span></div>
+    </section>
+
+    <div class="card" style="overflow:hidden">
+      <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr))">
+        <div class="kv"><small>Tank capacity</small><b class="mono">5,000 L</b></div>
+        <div class="kv" style="border-right:0"><small>Waste types</small><b>Grease trap · Septic</b></div>
+        <div class="kv"><small>EPA vehicle permit</small><b class="mono">VP-20931</b></div>
+        <div class="kv" style="border-right:0"><small>Permit expires</small><b style="color:#ae5f05">14 Dec 2026</b></div>
+        <div class="kv" style="border-bottom:0"><small>Registration</small><b>QLD · to 30 Mar 2027</b></div>
+        <div class="kv" style="border-bottom:0;border-right:0"><small>Default driver</small><a href="#b-A-DriverDetail" style="font-size:13.5px;font-weight:600">Dylan Hall</a></div>
+      </div>
+    </div>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Loads · last 7 days</h3><span style="flex:1"></span><a href="#b-A-Records" style="font-size:12px;font-weight:600">Records</a></div>
+      <div style="padding:0 14px 10px">
+        <svg viewBox="0 0 330 70" width="100%" height="70" role="img" aria-label="Litres collected per day, last 7 days" style="display:block">
+          <g fill="#cde1ec"><rect x="4" y="22" width="38" height="40" rx="4"/><rect x="52" y="34" width="38" height="28" rx="4"/><rect x="100" y="62" width="38" height="0" rx="4"/><rect x="148" y="18" width="38" height="44" rx="4"/><rect x="196" y="30" width="38" height="32" rx="4"/><rect x="244" y="12" width="38" height="50" rx="4"/><rect x="292" y="26" width="38" height="36" rx="4"/></g>
+          <g fill="#0369a1"><rect x="4" y="22" width="38" height="40" rx="4"/><rect x="52" y="34" width="38" height="28" rx="4"/><rect x="148" y="18" width="38" height="44" rx="4"/><rect x="196" y="30" width="38" height="32" rx="4"/><rect x="244" y="12" width="38" height="50" rx="4"/><rect x="292" y="26" width="38" height="36" rx="4"/></g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b" text-anchor="middle"><text x="23" y="70">Sat</text><text x="71" y="70">Sun</text><text x="119" y="70">Mon</text><text x="167" y="70">Tue</text><text x="215" y="70">Wed</text><text x="263" y="70">Thu</text><text x="311" y="70">Fri</text></g>
+        </svg>
+      </div>
+      <a href="#b-A-Records" class="row"><span class="mono" style="font-size:12px;color:#64748b;width:56px">Fri 24</span><span style="flex:1;color:#0f172a">5 pump-outs · 1 unload</span><b class="mono">6,500 L</b></a>
+      <a href="#b-A-Records" class="row"><span class="mono" style="font-size:12px;color:#64748b;width:56px">Thu 23</span><span style="flex:1;color:#0f172a">8 pump-outs · 2 unloads</span><b class="mono">9,800 L</b></a>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;padding:12px 14px 6px"><h3 class="head" style="margin:0;font-size:14px;font-weight:700">Alerts for this vehicle</h3></div>
+      <a href="#b-A-Alerts" class="row"><span class="tag amber"><i></i>Warning</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0f172a">Reported 5,400 L on a 5,000 L tank</span><small class="mono" style="color:#94a3b8">5h</small></a>
+    </section>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <a href="#b-A-Me" class="tab on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+  </nav>
+</div>
+</div><p>当前载量进度条；罐容、废物类型、EPA 车辆许可及到期；近 7 天装载柱状图；该车的告警。</p></section></div><h3 class="group">方向 A · 管理员 Me 页</h3><div class="row"><section class="shot" id="b-A-Me"><h2>Me（admin）</h2><div class="phone">
+
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f8fafc;position:relative;overflow:hidden;display:flex;flex-direction:column">
+
+  <header style="padding:54px 16px 12px;background:#fff;border-bottom:1px solid #e2e8f0;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;height:40px"><h1 class="head" style="margin:0;font-size:26px;font-weight:700;letter-spacing:-.01em">Me</h1></div>
+    <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc">
+      <div style="width:48px;height:48px;border-radius:50%;background:#0369a1;color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px;flex:none">PS</div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><b class="head" style="font-size:16px;font-weight:700">Priya Shah</b><small class="mono" style="font-size:11.5px;color:#64748b">@priya · ausflow@saulxj.ggff.net</small><div style="display:flex;gap:6px"><span class="tag blue"><i></i>Admin</span><span class="tag slate">Console view</span></div></div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </header>
+
+  <main style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:8px">
+    <div class="sec">Console</div>
+    <div class="card">
+      <a href="#b-A-Directory" class="it"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M15 9h4a2 2 0 0 1 2 2v10M3 21h18"/></svg></div><div class="t"><b>Companies &amp; people</b><small>25 transport · 212 occupiers · 38 drivers · 29 vehicles</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+      <a href="#b-A-Directory" class="it"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div class="t"><b>Locations &amp; facilities</b><small>318 locations · 5 facilities</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+      <a href="#b-A-Tickets" class="it"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg></div><div class="t"><b>Ops tickets</b><small>6 open · 3 in progress</small></div><span class="cnt">6</span></a>
+      <a href="#b-A-Alerts" class="it"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="t"><b>Alerts</b><small>12 open · 5 unread</small></div><span class="cnt">5</span></a>
+      <a href="#" class="it"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="t"><b>Change log</b><small>Last change 19:41 · device moved</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+      <a href="#" class="it"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M16 11l2 2 4-4"/></svg></div><div class="t"><b>Users &amp; roles</b><small>Admin only · 44 users</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <div class="sec">Account</div>
+    <div class="card">
+      <a href="#" class="it"><div class="ic" style="background:#f1f5f9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div class="t"><b>My details</b><small>Name, email and password</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+      <a href="#" class="it"><div class="ic" style="background:#f1f5f9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div><div class="t"><b>Switch to driver view</b><small>Today / History tabs · record pickups yourself</small></div><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <div class="sec">Data</div>
+    <div class="card">
+      <div class="it"><div class="ic" style="background:#ecfdf5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg></div><div class="t"><b>Up to date</b><small>Live refresh · last change 19:58 · 400 devices · 5 facilities</small></div></div>
+      <div class="it"><div class="ic" style="background:#f1f5f9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg></div><div class="t"><b>UAT environment</b><small class="mono">uat.ausflow.saulxj.ggff.net · app 1.2.0</small></div></div>
+    </div>
+
+    <button type="button" style="height:44px;border-radius:10px;border:0;background:#fff1f2;color:#be123c;font:600 13px 'Inter',sans-serif;margin-top:4px">Sign out</button>
+  </main>
+
+  <nav aria-label="Admin tabs" style="position:absolute;left:16px;right:16px;bottom:22px;height:64px;padding:6px;box-sizing:border-box;display:flex;gap:4px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 8px 24px -8px rgba(15,23,42,.18)">
+    <a href="#b-Main" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M12 12l4-4"/><path d="M3 12h2M19 12h2"/></svg>Dashboard</a>
+    <a href="#b-A-Devices" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Devices</a>
+    <a href="#b-A-Records" class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Records</a>
+    <button class="tab on" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</button>
+  </nav>
+</div>
+</div><p>Console 分区：公司与人员、位置与设施、工单、告警、变更日志、用户与角色；Account：我的资料、切换到司机视图；Data：同步状态、环境。</p></section></div>
 </body></html>
