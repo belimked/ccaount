@@ -95,7 +95,7 @@ async function load() {
   });
   rows.sort((a, b) => a.t - b.t);
   const last = rows.length ? rows[rows.length - 1].t : null;
-  $('#meta').textContent = `共 ${rows.length} 条记录 · ${idx.months.length} 个月份 · 数据更新于 ${idx.updated ? fmt(idx.updated) : '-'}` + (last && Date.now()/1000 - last > INTERVAL * 3 ? ` · ⚠️ 最后一条记录是 ${dur(Date.now()/1000 - last)} 前，检测可能已停止` : '');
+  $('#meta').textContent = `共 ${rows.length} 条记录 · ${idx.months.length} 个月份 · 最后一次检测 ${last ? fmt(last) : '-'}` + (last && Date.now()/1000 - last > INTERVAL * 3 ? ` · ⚠️ 已 ${dur(Date.now()/1000 - last)} 没有新记录，检测可能已停止` : '');
   render();
 }
 
