@@ -1,0 +1,412 @@
+<title>AI 出图报价</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: single centered column, one hero price card, a spec grid, a quote estimator, an FAQ. */
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --fg: #1c1a17;
+    --muted: #6f6a62;
+    --line: #e4e0d7;
+    --accent: #c2410c;      /* warm burnt orange, used once at the price */
+    --accent-soft: #fbeae0;
+    --good: #15803d;
+    --shadow: 0 1px 2px rgba(28,26,23,.05), 0 8px 24px rgba(28,26,23,.06);
+    --serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+    --sans: "Noto Sans SC", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17150f;
+      --surface: #211e18;
+      --fg: #f1ede4;
+      --muted: #a39c8e;
+      --line: #322d24;
+      --accent: #fb923c;
+      --accent-soft: #3a2415;
+      --good: #4ade80;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17150f;
+    --surface: #211e18;
+    --fg: #f1ede4;
+    --muted: #a39c8e;
+    --line: #322d24;
+    --accent: #fb923c;
+    --accent-soft: #3a2415;
+    --good: #4ade80;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: clamp(32px, 6vw, 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  header { display: flex; flex-direction: column; gap: 10px; }
+  .eyebrow {
+    font-size: .8rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 5vw, 2.7rem);
+    line-height: 1.15;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lead { color: var(--muted); font-size: 1.05rem; max-width: 56ch; margin: 0; }
+
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: clamp(24px, 5vw, 40px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .price-card .tag {
+    font-size: .85rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: var(--serif);
+  }
+  .price .cur { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
+  .price .num {
+    font-size: clamp(3.4rem, 12vw, 5rem);
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .price .per { font-size: 1.1rem; color: var(--muted); font-family: var(--sans); }
+  .price-note { color: var(--muted); font-size: .95rem; margin: 2px 0 0; }
+  .flags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .flag {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--good);
+    background: color-mix(in srgb, var(--good) 12%, transparent);
+    padding: 4px 11px;
+    border-radius: 999px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .section { display: flex; flex-direction: column; gap: 16px; }
+
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .spec {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .spec .k { font-size: .82rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .spec .v { font-size: 1.15rem; font-weight: 600; }
+  .spec .d { font-size: .9rem; color: var(--muted); }
+
+  /* Estimator */
+  .calc {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: clamp(22px, 5vw, 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .calc-row { display: flex; flex-direction: column; gap: 8px; }
+  .calc label { font-weight: 600; font-size: .95rem; }
+  .input-line { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .input-line input[type="number"] {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    width: 140px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .input-line input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .total {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .total .label { color: var(--muted); font-weight: 600; }
+  .total .amount {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 8vw, 3rem);
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  details {
+    border-bottom: 1px solid var(--line);
+    padding: 14px 0;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "+"; color: var(--accent); font-size: 1.3rem; font-weight: 400; }
+  details[open] summary::after { content: "\2013"; }
+  details p { color: var(--muted); margin: 10px 0 2px; }
+
+  footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 20px; }
+
+  /* Internal-only cost block */
+  .internal {
+    border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line));
+    background: var(--accent-soft);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .int-tag {
+    align-self: flex-start;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .int-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 420px) { .int-grid { grid-template-columns: 1fr; } }
+  .int-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .int-cell .ik { font-size: .78rem; color: var(--muted); font-weight: 600; }
+  .int-cell .iv {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .int-cell .iv.good { color: var(--good); }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">AI 图像生成服务 · 报价</span>
+    <h1>一口价出图，按张计费</h1>
+    <p class="lead">基于 gpt-image-2.5-sunburst 模型，支持原生 4K、中文文案渲染与图片编辑。无套餐、无阶梯、无隐藏费用。</p>
+  </header>
+
+  <div class="price-card">
+    <span class="tag">标准费率</span>
+    <div class="price">
+      <span class="cur">¥</span>
+      <span class="num">0.6</span>
+      <span class="per">/ 张</span>
+    </div>
+    <p class="price-note">固定单价，与分辨率、画质无关。生成多少张，付多少钱。</p>
+    <div class="flags">
+      <span class="flag">无最低消费</span>
+      <span class="flag">失败不计费</span>
+      <span class="flag">开通即用</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>你能拿到什么</h2>
+    <div class="spec-grid">
+      <div class="spec">
+        <span class="k">分辨率</span>
+        <span class="v">原生 4K</span>
+        <span class="d">最高 3840px，非放大，刻字清晰</span>
+      </div>
+      <div class="spec">
+        <span class="k">中文文案</span>
+        <span class="v">标题级渲染</span>
+        <span class="d">海报、促销图中文不乱码</span>
+      </div>
+      <div class="spec">
+        <span class="k">图片编辑</span>
+        <span class="v">局部修改</span>
+        <span class="d">改细节、换元素，背景保持一致</span>
+      </div>
+      <div class="spec">
+        <span class="k">输出格式</span>
+        <span class="v">PNG 高清</span>
+        <span class="d">单张可达 15MB 以上</span>
+      </div>
+      <div class="spec">
+        <span class="k">参考图</span>
+        <span class="v">最多 16 张</span>
+        <span class="d">风格、构图可控</span>
+      </div>
+      <div class="spec">
+        <span class="k">计费方式</span>
+        <span class="v">按成功张数</span>
+        <span class="d">报错、未出图不计入</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>费用估算</h2>
+    <div class="calc">
+      <div class="calc-row">
+        <label for="qty">计划生成张数</label>
+        <div class="input-line">
+          <input type="number" id="qty" min="0" step="1" value="100" inputmode="numeric">
+          <div class="chips">
+            <button class="chip" data-q="50" type="button">50</button>
+            <button class="chip" data-q="100" type="button">100</button>
+            <button class="chip" data-q="500" type="button">500</button>
+            <button class="chip" data-q="1000" type="button">1000</button>
+          </div>
+        </div>
+      </div>
+      <div class="total">
+        <span class="label">对客报价 · 单价 ¥0.6/张</span>
+        <span class="amount" id="amount">¥60.00</span>
+      </div>
+      <div class="internal">
+        <span class="int-tag">对内 · 请勿外发</span>
+        <div class="int-grid">
+          <div class="int-cell">
+            <span class="ik">成本 ¥0.3/张</span>
+            <span class="iv" id="costAmount">¥30.00</span>
+          </div>
+          <div class="int-cell">
+            <span class="ik">毛利 ¥0.3/张</span>
+            <span class="iv good" id="profitAmount">¥30.00</span>
+          </div>
+          <div class="int-cell">
+            <span class="ik">毛利率</span>
+            <span class="iv good">50%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>常见问题</h2>
+    <div>
+      <details open>
+        <summary>为什么是固定价？</summary>
+        <p>不管出 1024 小图还是 4K 大图，单价都是 ¥0.6/张，方便你预估成本，不用按 token 换算。</p>
+      </details>
+      <details>
+        <summary>没出图也要收费吗？</summary>
+        <p>不收。只有成功返回的图片计入张数，接口报错或被安全策略拦截的请求不计费。</p>
+      </details>
+      <details>
+        <summary>图片归谁，能商用吗？</summary>
+        <p>生成结果归你使用。商用前请结合自身场景确认合规，涉及人物、品牌等内容建议自行审核。</p>
+      </details>
+      <details>
+        <summary>量大有优惠吗？</summary>
+        <p>标准费率为 ¥0.6/张。大批量或长期合作可单独商谈，欢迎联系我们。</p>
+      </details>
+    </div>
+  </div>
+
+  <footer>
+    报价以成功生成的图片张数结算。具体对接方式与结算周期以合同为准。
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var RATE = 0.6;
+    var COST = 0.3;
+    var qty = document.getElementById("qty");
+    var amount = document.getElementById("amount");
+    var costAmount = document.getElementById("costAmount");
+    var profitAmount = document.getElementById("profitAmount");
+    function render() {
+      var n = parseInt(qty.value, 10);
+      if (isNaN(n) || n < 0) n = 0;
+      amount.textContent = "¥" + (n * RATE).toFixed(2);
+      costAmount.textContent = "¥" + (n * COST).toFixed(2);
+      profitAmount.textContent = "¥" + (n * (RATE - COST)).toFixed(2);
+    }
+    qty.addEventListener("input", render);
+    Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (b) {
+      b.addEventListener("click", function () {
+        qty.value = b.getAttribute("data-q");
+        render();
+      });
+    });
+    render();
+  })();
+</script>
