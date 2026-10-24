@@ -1,26 +1,244 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ipcheck · debian</title>
+<title>ipcheck · ipip.info 监测</title>
 <style>
-:root{--bg:#fff;--fg:#1a1a1a;--mut:#666;--card:#f4f5f7;--line:#2563eb;--bad:#dc2626;--bd:#e5e7eb}
-@media(prefers-color-scheme:dark){:root{--bg:#111318;--fg:#e6e6e6;--mut:#9aa0a6;--card:#1c1f26;--line:#60a5fa;--bad:#f87171;--bd:#2a2e37}}
-body{margin:0;padding:24px 16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
-main{max-width:760px;margin:0 auto}h1{font-size:20px;margin:0 0 4px}.sub{color:var(--mut);font-size:13px;margin:0 0 16px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px}
-.stat{background:var(--card);border-radius:8px;padding:10px 12px}.stat .k{font-size:12px;color:var(--mut)}.stat .v{font-size:20px;font-weight:600}
-.cur{margin:0 0 8px}.warn{color:var(--bad);margin:0 0 8px}
-.chart{width:100%;height:auto;background:var(--card);border-radius:8px;margin-bottom:16px}
-.axis,.grid{stroke:var(--bd);stroke-width:1}.grid{stroke-dasharray:3 3}.line{fill:none;stroke:var(--line);stroke-width:2}
-.fail{stroke:var(--bad);stroke-width:2;opacity:.6}.lbl{fill:var(--mut);font-size:11px}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
-th{color:var(--mut);font-weight:500}.num{text-align:right;font-variant-numeric:tabular-nums}.bad td{color:var(--bad)}
-.wrap{overflow-x:auto}footer{color:var(--mut);font-size:12px;margin-top:16px}
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#666;--card:#f4f5f7;--line:#2563eb;--bad:#dc2626;--warn:#d97706;--ok:#16a34a;--bd:#e5e7eb;--acc:#2563eb;--accfg:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#111318;--fg:#e6e6e6;--mut:#9aa0a6;--card:#1c1f26;--line:#60a5fa;--bad:#f87171;--warn:#fbbf24;--ok:#4ade80;--bd:#2a2e37;--acc:#3b82f6}}
+*{box-sizing:border-box}
+body{margin:0;padding:20px 16px;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:980px;margin:0 auto}
+h1{font-size:20px;margin:0 0 2px}.sub{color:var(--mut);font-size:12px;margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.bar .lbl{color:var(--mut);font-size:12px;margin-right:2px}
+button.t{border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer}
+button.t.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+input.n{width:70px;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:6px;padding:4px 6px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border-radius:8px;padding:8px 10px}.stat .k{font-size:11px;color:var(--mut)}.stat .v{font-size:18px;font-weight:600;white-space:nowrap}
+.stat.bad .v{color:var(--bad)}.stat.ok .v{color:var(--ok)}
+.cur{margin:0 0 8px;font-size:13px}.warn{color:var(--bad);margin:0 0 8px;font-size:13px}
+.chartwrap{background:var(--card);border-radius:8px;padding:6px;margin-bottom:12px;position:relative}
+canvas{width:100%;height:170px;display:block}
+.tip{position:absolute;pointer-events:none;background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:4px 8px;font-size:12px;display:none;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:5px 8px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{color:var(--mut);font-weight:500;position:sticky;top:0;background:var(--bg)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.bad td{color:var(--bad)}tr.slow td.ms{color:var(--warn);font-weight:600}tr.gap td{color:var(--mut);font-style:italic}tr.ipchg td.ip{color:var(--warn);font-weight:600}
+.more{display:block;width:100%;margin:8px 0;padding:8px;border:1px dashed var(--bd);background:none;color:var(--fg);border-radius:6px;cursor:pointer}
+.empty{color:var(--mut);padding:24px;text-align:center}
+footer{color:var(--mut);font-size:12px;margin-top:14px}
+#loading{color:var(--mut);font-size:13px}
+.pill{display:inline-block;padding:0 6px;border-radius:10px;font-size:11px;background:var(--card);color:var(--mut);margin-left:4px}
+@media(max-width:600px){th,td{padding:4px 6px;font-size:12px}}
 </style></head><body><main>
-<h1>📡 ipip.info 检测报告 · debian</h1>
-<p class="sub">最近 6 小时 (自 2026-10-24 15:10:06) · 生成于 2026-10-24 21:10:06</p>
-<div class="stats"><div class='stat'><div class='k'>检测次数</div><div class='v'>28</div></div><div class='stat'><div class='k'>成功率</div><div class='v'>100%</div></div><div class='stat'><div class='k'>失败</div><div class='v'>0</div></div><div class='stat'><div class='k'>平均响应</div><div class='v'>1236 ms</div></div><div class='stat'><div class='k'>最快</div><div class='v'>505 ms</div></div><div class='stat'><div class='k'>最慢</div><div class='v'>2388 ms</div></div></div>
-<p class='cur'>当前 IP <b>65.181.3.80</b> · 澳大利亚 昆士兰州 布里斯班 spacex.com</p><svg viewBox="0 0 720 160" class="chart" role="img" aria-label="响应时间折线图"><line x1="36" y1="124" x2="684" y2="124" class="axis"/><line x1="36" y1="36" x2="684" y2="36" class="grid"/><text x="32" y="40" class="lbl" text-anchor="end">2388ms</text><text x="32" y="128" class="lbl" text-anchor="end">0</text><text x="36" y="150" class="lbl">10-24 19:09</text><text x="684" y="150" class="lbl" text-anchor="end">10-24 21:10</text><path d="M36.0,77.6 L60.0,103.7 L84.0,74.4 L108.0,80.8 L132.0,79.1 L156.0,81.7 L180.0,80.4 L204.0,80.3 L228.0,79.5 L252.0,105.4 L276.0,80.5 L300.0,78.6 L324.0,80.2 L348.0,78.3 L372.0,80.3 L396.0,76.1 L420.0,80.4 L444.0,78.5 L468.0,66.5 L492.0,82.7 L516.0,81.8 L540.0,81.3 L564.0,71.6 L588.0,74.6 L612.0,71.1 L636.0,77.7 L660.0,36.0 L684.0,77.3" class="line"/></svg>
-<div class="wrap"><table><thead><tr><th>时间</th><th class="num">耗时 (ms)</th><th>IP</th><th>位置</th></tr></thead>
-<tbody><tr><td>2026-10-24 21:10:03</td><td class='num'>1266</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 21:05:03</td><td class='num'>2388</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 21:00:03</td><td class='num'>1257</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:56:49</td><td class='num'>1436</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:55:03</td><td class='num'>1340</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:50:09</td><td class='num'>1422</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:45:03</td><td class='num'>1158</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:40:03</td><td class='num'>1146</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:35:03</td><td class='num'>1120</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:30:09</td><td class='num'>1561</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:25:03</td><td class='num'>1236</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:20:09</td><td class='num'>1183</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:15:03</td><td class='num'>1300</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:10:03</td><td class='num'>1187</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:05:03</td><td class='num'>1240</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 20:00:03</td><td class='num'>1189</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:55:03</td><td class='num'>1232</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:50:03</td><td class='num'>1181</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:45:18</td><td class='num'>505</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:45:02</td><td class='num'>1207</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:40:03</td><td class='num'>1185</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:35:03</td><td class='num'>1184</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:30:09</td><td class='num'>1149</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:25:03</td><td class='num'>1219</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:20:09</td><td class='num'>1173</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:15:03</td><td class='num'>1346</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:10:09</td><td class='num'>552</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr><tr><td>2026-10-24 19:09:56</td><td class='num'>1259</td><td>65.181.3.80</td><td>澳大利亚 昆士兰州 布里斯班 spacex.com</td></tr></tbody></table></div>
-<footer>每 5 分钟检测一次 ipip.info 并更新本页, 显示最近 6 小时。</footer>
-</main></body></html>
+<h1>📡 ipip.info 监测 <span id="host" class="pill"></span></h1>
+<p class="sub" id="meta">加载中…</p>
+
+<div class="bar"><span class="lbl">时间范围</span>
+<button class="t" data-r="6">6 小时</button><button class="t on" data-r="24">24 小时</button><button class="t" data-r="168">7 天</button><button class="t" data-r="720">30 天</button><button class="t" data-r="0">全部</button>
+</div>
+<div class="bar"><span class="lbl">视图</span>
+<button class="t on" data-v="all">全部记录</button><button class="t" data-v="fail">仅失败</button><button class="t" data-v="slow">慢响应</button><button class="t" data-v="ipchg">IP 变化</button><button class="t" data-v="outage">中断记录</button>
+<span class="lbl" style="margin-left:8px">慢响应阈值</span><input class="n" id="slowms" type="number" value="2000" min="100" step="100"> <span class="lbl">ms</span>
+</div>
+
+<div class="stats" id="stats"></div>
+<p class="cur" id="cur"></p>
+<p class="warn" id="warns"></p>
+<div class="chartwrap"><canvas id="chart"></canvas><div class="tip" id="tip"></div></div>
+<div class="wrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+<button class="more" id="more" style="display:none"></button>
+<div class="empty" id="empty" style="display:none">该范围内没有记录</div>
+<footer id="foot">每 5 分钟检测一次 ipip.info。数据按月存储，永久保留。时间按你浏览器的时区显示。</footer>
+</main>
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const DATA_DIR = 'ipcheck-data/';
+const INTERVAL = 300; // 检测间隔(秒)
+const PAGE = 200;
+let rows = [];         // 全部记录: {t, ok, ms, ip, loc, err}
+let meta = {};
+let rangeH = 24, view = 'all', shown = PAGE;
+let filtered = [], outages = [];
+
+const pad = n => String(n).padStart(2, '0');
+const fmt = t => { const d = new Date(t * 1000); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
+const fmtShort = t => { const d = new Date(t * 1000); return `${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const dur = s => s < 3600 ? `${Math.round(s/60)} 分钟` : s < 86400 ? `${(s/3600).toFixed(1)} 小时` : `${(s/86400).toFixed(1)} 天`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function getJSON(path) {
+  const r = await fetch(path + '?t=' + Date.now(), {cache: 'no-store'});
+  if (!r.ok) return null;
+  const ct = r.headers.get('content-type') || '';
+  if (!ct.includes('json')) {            // Cloudflare Pages 对不存在的路径返回首页 HTML
+    const txt = await r.text();
+    try { return JSON.parse(txt); } catch { return null; }
+  }
+  return r.json();
+}
+
+async function load() {
+  const idx = await getJSON(DATA_DIR + 'index.json');
+  if (!idx || !idx.months) { $('#meta').textContent = '没有找到数据文件 (ipcheck-data/index.json)'; return; }
+  meta = idx;
+  $('#host').textContent = idx.host || '';
+  const parts = await Promise.all(idx.months.map(m => getJSON(DATA_DIR + m + '.json')));
+  rows = [];
+  parts.forEach(p => {
+    if (!p || !p.rows) return;
+    for (const r of p.rows) rows.push({t: r[0], ok: !!r[1], ms: r[2], ip: r[3] == null ? null : p.ips[r[3]], loc: r[4] == null ? null : p.locs[r[4]], err: r[5]});
+  });
+  rows.sort((a, b) => a.t - b.t);
+  const last = rows.length ? rows[rows.length - 1].t : null;
+  $('#meta').textContent = `共 ${rows.length} 条记录 · ${idx.months.length} 个月份 · 数据更新于 ${idx.updated ? fmt(idx.updated) : '-'}` + (last && Date.now()/1000 - last > INTERVAL * 3 ? ` · ⚠️ 最后一条记录是 ${dur(Date.now()/1000 - last)} 前，检测可能已停止` : '');
+  render();
+}
+
+function inRange() {
+  if (!rangeH) return rows;
+  const from = Date.now() / 1000 - rangeH * 3600;
+  return rows.filter(r => r.t >= from);
+}
+
+// 中断记录: 连续失败段 + 记录空缺段(机器/网络离线)
+function findOutages(rs) {
+  const out = [];
+  let cur = null;
+  for (let i = 0; i < rs.length; i++) {
+    const r = rs[i], prev = rs[i - 1];
+    if (prev && r.t - prev.t > INTERVAL * 2.5) {
+      if (cur) { out.push(cur); cur = null; }
+      out.push({type: 'gap', start: prev.t, end: r.t, n: Math.round((r.t - prev.t) / INTERVAL) - 1, errs: ['无检测记录 (机器或网络离线)']});
+    }
+    if (!r.ok) {
+      if (!cur) cur = {type: 'fail', start: r.t, end: r.t, n: 0, errs: []};
+      cur.end = r.t; cur.n++;
+      if (r.err && !cur.errs.includes(r.err)) cur.errs.push(r.err);
+    } else if (cur) { cur.recover = r.t; out.push(cur); cur = null; }
+  }
+  if (cur) { cur.ongoing = true; out.push(cur); }
+  return out.reverse();
+}
+
+function render() {
+  const rs = inRange();
+  const slowMs = +$('#slowms').value || 2000;
+  const oks = rs.filter(r => r.ok);
+  const times = oks.map(r => r.ms).filter(v => v != null);
+  const ips = []; oks.forEach(r => { if (r.ip && ips[ips.length - 1] !== r.ip) ips.push(r.ip); });
+  outages = findOutages(rs);
+  const fails = outages.filter(o => o.type === 'fail');
+  const gaps = outages.filter(o => o.type === 'gap');
+  const slow = oks.filter(r => r.ms >= slowMs).length;
+  const stat = (k, v, cls = '') => `<div class="stat ${cls}"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  let st = stat('检测次数', rs.length) + stat('成功率', rs.length ? Math.round(oks.length * 1000 / rs.length) / 10 + '%' : '-', oks.length === rs.length && rs.length ? 'ok' : '') + stat('失败', rs.length - oks.length, rs.length - oks.length ? 'bad' : '') + stat('慢响应 ≥' + slowMs, slow, slow ? 'bad' : '') + stat('中断段', fails.length + gaps.length, fails.length + gaps.length ? 'bad' : '');
+  if (times.length) { const srt = [...times].sort((a, b) => a - b); st += stat('平均', Math.round(times.reduce((a, b) => a + b, 0) / times.length) + ' ms') + stat('P95', srt[Math.floor(srt.length * 0.95)] + ' ms') + stat('最快', srt[0] + ' ms') + stat('最慢', srt[srt.length - 1] + ' ms'); }
+  $('#stats').innerHTML = st;
+  const lastOk = oks[oks.length - 1];
+  $('#cur').innerHTML = lastOk ? `当前 IP <b>${esc(lastOk.ip)}</b> · ${esc(lastOk.loc || '未知')} · 最近成功 ${fmt(lastOk.t)}` : '';
+  let w = '';
+  if (ips.length > 1) w += `⚠️ 期间 IP 变化 ${ips.length - 1} 次: ${esc(ips.join(' → '))}<br>`;
+  const ongoing = fails.find(o => o.ongoing);
+  if (ongoing) w += `🔴 当前仍处于失败状态，已持续 ${dur(Date.now()/1000 - ongoing.start)}，连续失败 ${ongoing.n} 次<br>`;
+  $('#warns').innerHTML = w;
+  drawChart(rs, slowMs);
+  buildTable(rs, slowMs);
+}
+
+function buildTable(rs, slowMs) {
+  shown = PAGE;
+  if (view === 'outage') {
+    filtered = outages;
+    $('#thead').innerHTML = '<tr><th>类型</th><th>开始</th><th>结束</th><th>持续</th><th class="num">次数</th><th>原因</th></tr>';
+  } else {
+    let ipPrev = null; const chg = new Set();
+    rs.forEach(r => { if (r.ok && r.ip) { if (ipPrev && r.ip !== ipPrev) chg.add(r); ipPrev = r.ip; } });
+    const all = rs.map(r => ({...r, ipchg: chg.has(r)})).reverse();
+    filtered = view === 'fail' ? all.filter(r => !r.ok) : view === 'slow' ? all.filter(r => r.ok && r.ms >= slowMs) : view === 'ipchg' ? all.filter(r => r.ipchg) : all;
+    $('#thead').innerHTML = '<tr><th>时间</th><th class="num">耗时 (ms)</th><th>IP</th><th>位置</th></tr>';
+  }
+  renderRows(slowMs);
+}
+
+function renderRows(slowMs) {
+  const tb = $('#tbody'); const part = filtered.slice(0, shown); let h = '';
+  if (view === 'outage') {
+    for (const o of part) {
+      const span = o.type === 'gap' ? o.end - o.start : (o.recover || Date.now()/1000) - o.start;
+      h += `<tr class="${o.type === 'gap' ? 'gap' : 'bad'}"><td>${o.type === 'gap' ? '⏸ 无记录' : (o.ongoing ? '🔴 失败中' : '❌ 失败')}</td><td>${fmt(o.start)}</td><td>${o.type === 'gap' ? fmt(o.end) : (o.recover ? fmt(o.recover) + ' 恢复' : '进行中')}</td><td>${dur(span)}</td><td class="num">${o.n}</td><td>${esc(o.errs.join('; '))}</td></tr>`;
+    }
+  } else {
+    for (const r of part) {
+      if (r.ok) h += `<tr class="${r.ms >= slowMs ? 'slow' : ''}${r.ipchg ? ' ipchg' : ''}"><td>${fmt(r.t)}</td><td class="num ms">${r.ms}</td><td class="ip">${esc(r.ip)}${r.ipchg ? ' ↺' : ''}</td><td>${esc(r.loc || '-')}</td></tr>`;
+      else h += `<tr class="bad"><td>${fmt(r.t)}</td><td class="num">-</td><td colspan="2">❌ ${esc(r.err || '失败')}</td></tr>`;
+    }
+  }
+  tb.innerHTML = h;
+  $('#empty').style.display = filtered.length ? 'none' : 'block';
+  const more = $('#more');
+  more.style.display = filtered.length > shown ? 'block' : 'none';
+  more.textContent = `显示 ${Math.min(shown, filtered.length)} / ${filtered.length} 条 · 加载更多`;
+}
+
+// ---- 图表: canvas, 点多时按桶聚合 ----
+let chartPts = [];
+function drawChart(rs, slowMs) {
+  const c = $('#chart'); const dpr = window.devicePixelRatio || 1;
+  const W = c.clientWidth, H = 170; c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr); g.clearRect(0, 0, W, H);
+  const css = getComputedStyle(document.documentElement);
+  const col = k => css.getPropertyValue(k).trim();
+  chartPts = [];
+  if (rs.length < 2) return;
+  const t0 = rs[0].t, t1 = rs[rs.length - 1].t, padL = 44, padR = 10, padT = 10, padB = 24;
+  const bucketN = Math.min(rs.length, Math.floor((W - padL - padR) / 3));
+  const bw = (t1 - t0) / bucketN || 1;
+  const buckets = Array.from({length: bucketN}, () => ({sum: 0, n: 0, max: 0, fail: 0, t: 0}));
+  for (const r of rs) {
+    const b = buckets[Math.min(bucketN - 1, Math.floor((r.t - t0) / bw))];
+    b.t += r.t;
+    if (r.ok && r.ms != null) { b.sum += r.ms; b.n++; b.max = Math.max(b.max, r.ms); } else b.fail++;
+  }
+  const pts = buckets.map((b, i) => ({x: padL + (i + 0.5) * (W - padL - padR) / bucketN, avg: b.n ? b.sum / b.n : null, max: b.max, fail: b.fail, cnt: b.n + b.fail, t: b.cnt ? 0 : 0, tm: (b.n + b.fail) ? b.t / (b.n + b.fail) : t0 + (i + 0.5) * bw})).filter(p => p.cnt > 0 || true);
+  const mx = Math.max(100, ...pts.map(p => p.max || 0));
+  const Y = v => padT + (H - padT - padB) * (1 - v / mx);
+  // 网格
+  g.strokeStyle = col('--bd'); g.lineWidth = 1; g.fillStyle = col('--mut'); g.font = '11px system-ui'; g.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) { const v = mx * i / 4, y = Y(v); g.beginPath(); g.moveTo(padL, y); g.lineTo(W - padR, y); g.stroke(); g.fillText(Math.round(v) + '', padL - 4, y + 4); }
+  g.textAlign = 'left'; g.fillText(fmtShort(t0), padL, H - 6); g.textAlign = 'right'; g.fillText(fmtShort(t1), W - padR, H - 6);
+  // 慢响应阈值线
+  if (slowMs < mx) { g.strokeStyle = col('--warn'); g.setLineDash([4, 4]); g.beginPath(); g.moveTo(padL, Y(slowMs)); g.lineTo(W - padR, Y(slowMs)); g.stroke(); g.setLineDash([]); }
+  // 失败柱
+  g.fillStyle = col('--bad'); g.globalAlpha = .5;
+  for (const p of pts) if (p.fail) g.fillRect(p.x - 1.5, padT, 3, H - padT - padB);
+  g.globalAlpha = 1;
+  // 最大值淡线 + 平均线
+  const line = (key, color, lw) => { g.strokeStyle = color; g.lineWidth = lw; g.beginPath(); let pen = false; for (const p of pts) { const v = key === 'avg' ? p.avg : (p.max || null); if (v == null) { pen = false; continue; } if (!pen) { g.moveTo(p.x, Y(v)); pen = true; } else g.lineTo(p.x, Y(v)); } g.stroke(); };
+  g.globalAlpha = .35; line('max', col('--line'), 1); g.globalAlpha = 1; line('avg', col('--line'), 2);
+  chartPts = pts.map(p => ({...p, per: Math.max(1, Math.round(bw / INTERVAL))}));
+}
+$('#chart').addEventListener('mousemove', e => {
+  if (!chartPts.length) return;
+  const rect = e.target.getBoundingClientRect(), x = e.clientX - rect.left;
+  let best = chartPts[0]; for (const p of chartPts) if (Math.abs(p.x - x) < Math.abs(best.x - x)) best = p;
+  const tip = $('#tip'); tip.style.display = 'block';
+  tip.innerHTML = `${fmt(Math.round(best.tm))}${best.per > 1 ? ` (约 ${best.cnt} 次聚合)` : ''}<br>平均 ${best.avg == null ? '-' : Math.round(best.avg) + ' ms'} · 最大 ${best.max || '-'}${best.fail ? ` · <span style="color:var(--bad)">失败 ${best.fail}</span>` : ''}`;
+  tip.style.left = Math.min(x + 12, rect.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px';
+});
+$('#chart').addEventListener('mouseleave', () => $('#tip').style.display = 'none');
+
+document.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-r]').forEach(x => x.classList.remove('on')); b.classList.add('on'); rangeH = +b.dataset.r; render(); });
+document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-v]').forEach(x => x.classList.remove('on')); b.classList.add('on'); view = b.dataset.v; render(); });
+$('#slowms').onchange = render;
+$('#more').onclick = () => { shown += PAGE; renderRows(+$('#slowms').value || 2000); };
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawChart(inRange(), +$('#slowms').value || 2000), 150); });
+load();
+setInterval(load, INTERVAL * 1000); // 自动刷新
+})();
+</script>
+</body></html>
