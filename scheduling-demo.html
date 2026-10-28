@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>粘性 · 席位 · TTL · 并发 动态示意</title>
+<style>
+:root{--bg:#f6f6f3;--ink:#1f2937;--mute:#6b7280;--line:#e5e7eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+h1{font-size:20px;margin:0 0 4px}
+.sub{color:var(--mute);font-size:13px;margin-bottom:12px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.bar{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px}
+.clock{font:600 20px/1 ui-monospace,Menlo,monospace;min-width:130px;color:#111}
+.mid{flex:1}
+.say{font-size:15px;line-height:1.55;min-height:48px}
+.stepno{display:inline-block;font-size:12px;color:#fff;background:#6b7280;border-radius:6px;padding:1px 6px;margin-right:6px;vertical-align:1px}
+.dots{display:flex;gap:5px;margin-top:6px}
+.dots i{width:22px;height:5px;border-radius:3px;background:#e5e7eb;cursor:pointer}
+.dots i.on{background:#2563eb}
+.ctl{display:flex;gap:6px}
+.ctl button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13px}
+.ctl button:hover{background:#f3f4f6}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px}
+svg{display:block;width:100%;height:auto}
+.key{margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.6}
+.key b{color:#1d4ed8}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7}
+.box h3{margin:0 0 4px;font-size:14px}
+table{border-collapse:collapse;width:100%}
+td{padding:2px 6px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+td:first-child{white-space:nowrap;font-weight:600}
+/* svg */
+.tok{transition:transform .9s cubic-bezier(.4,0,.2,1),opacity .5s}
+.instant .tok{transition:none!important}
+.pulse{animation:pulse 1.3s ease-out 2}
+@keyframes pulse{0%,55%{stroke:#f59e0b;stroke-width:4}}
+.err rect{animation:shake .35s linear 3}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.t{font-size:12px;fill:#374151}
+.h{font-size:14px;font-weight:700;fill:#111827}
+.m{font-size:11px;fill:#6b7280}
+@media (max-width:820px){.grid{grid-template-columns:1fr}.bar{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>粘性 · 席位 · TTL · 并发：一家连锁餐厅</h1>
+  <div class="sub">店 = VM（一个账号）　桌 = 席位　灶 = 并发　登记本 = 粘性　半成品 = prompt 缓存。为了看得清，图里每店按 <b>6 席位 / 2 并发</b> 缩小演示；你的实际配置是 20 席位 / 2 并发 / 粘性 24h / 粘性等待 45s / 流空闲 180s。</div>
+  <div class="tabs" id="tabs"></div>
+  <div class="bar">
+    <div class="clock" id="clock">--:--</div>
+    <div class="mid"><div class="say" id="say"></div><div class="dots" id="dots"></div></div>
+    <div class="ctl">
+      <button id="prev" title="←">◀ 上一步</button>
+      <button id="play" title="空格">暂停</button>
+      <button id="next" title="→">下一步 ▶</button>
+      <button id="again">↺ 重播</button>
+    </div>
+  </div>
+  <div class="card"><svg id="stage" viewBox="0 0 1100 620" aria-label="调度示意图"></svg></div>
+  <div class="key" id="key"></div>
+  <div class="grid">
+    <div class="box"><h3>图例</h3>
+      <table>
+        <tr><td>圆形人像</td><td>一个会话（一个 Claude Code 窗口 / 子 agent）</td></tr>
+        <tr><td>彩色方块</td><td>一次请求（一道菜），在灶上 = 正在向上游执行</td></tr>
+        <tr><td>桌子</td><td>席位：请求进行中占用，结束立即释放</td></tr>
+        <tr><td>灶</td><td>并发：同一账号同时在跑的请求数</td></tr>
+        <tr><td>登记本</td><td>粘性：会话 → 店的记忆，不占桌子，每次成功续期</td></tr>
+        <tr><td>半成品</td><td>prompt 缓存：留在那家店的后厨，过 TTL 就扔</td></tr>
+      </table>
+    </div>
+    <div class="box"><h3>对应配置</h3>
+      <table>
+        <tr><td>席位上限</td><td><code>inference.session_slots</code>（默认 20，硬上限 20）</td></tr>
+        <tr><td>并发</td><td><code>concurrency.default_max_per_account</code> / 分档 / 单槽覆盖</td></tr>
+        <tr><td>粘性 TTL</td><td><code>sticky.ttl_seconds</code> = 86400，滑动续期</td></tr>
+        <tr><td>粘性等待</td><td><code>failover.sticky_wait_timeout_ms</code> = 45000</td></tr>
+        <tr><td>流空闲时间</td><td><code>failover.stream_idle_timeout_ms</code> = 180000</td></tr>
+        <tr><td>缓存 TTL</td><td>上游 prompt cache：默认 5 分钟，<code>ttl:"1h"</code> 为 1 小时</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg'
+const svg = document.getElementById('stage')
+const SEATS = 6, STOVES = 2, QSLOTS = 4
+
+const ROSTER = [
+  { id: 'zhang', name: '张三', c: '#2563eb' },
+  { id: 'li', name: '李四', c: '#16a34a' },
+  { id: 'wang', name: '王五', c: '#d97706' },
+  { id: 'zhao', name: '赵六', c: '#db2777' },
+  { id: 'sub1', name: '子1', c: '#0ea5e9', full: '张三/子1' },
+  { id: 'sub2', name: '子2', c: '#7c3aed', full: '张三/子2' },
+]
+for (let i = 1; i <= 6; i++) ROSTER.push({ id: 'x' + i, name: '客', c: '#9ca3af', filler: true, full: '其他客人' })
+const BY = Object.fromEntries(ROSTER.map((p, i) => [p.id, { ...p, idx: i }]))
+
+const SHOP = { A: { x: 520, y: 20 }, B: { x: 520, y: 320 } }
+const seatPos = (s, i) => ({ x: SHOP[s].x + 75 + (i % 3) * 85, y: SHOP[s].y + 105 + Math.floor(i / 3) * 95 })
+const stovePos = (s, i) => ({ x: SHOP[s].x + 330 + i * 60, y: SHOP[s].y + 110 })
+const qPos = (s, i) => ({ x: SHOP[s].x + 330 + (i % 2) * 60, y: SHOP[s].y + 195 + Math.floor(i / 2) * 36 })
+
+function pos(loc, idx, filler) {
+  if (!loc || loc === 'home') return filler ? { x: 75, y: 400, o: 0 } : { x: 75, y: 115 + idx * 50, o: 1 }
+  if (loc === 'router') return { x: 262 + (idx % 4) * 50, y: 128 + Math.floor(idx / 4) * 44, o: 1 }
+  const [s, w] = loc.split('.')
+  if (w === 'door') return { x: 494, y: SHOP[s].y + 110 + (idx % 3) * 40, o: 1 }
+  const n = +w.slice(1)
+  if (w[0] === 's') { const p = seatPos(s, n); return { x: p.x, y: p.y - 14, o: 1 } }
+  if (w[0] === 'k') return { ...stovePos(s, n), o: 1 }
+  if (w[0] === 'q') return { ...qPos(s, n), o: 1 }
+  return { x: 0, y: 0, o: 0 }
+}
+
+function el(tag, a = {}, p = svg) {
+  const e = document.createElementNS(NS, tag)
+  for (const k in a) k === 'text' ? (e.textContent = a[k]) : e.setAttribute(k, a[k])
+  p.appendChild(e)
+  return e
+}
+const clear = (g) => { while (g.firstChild) g.removeChild(g.firstChild) }
+const move = (e, x, y, o = 1) => { e.style.transform = `translate(${x}px,${y}px)`; e.style.opacity = o }
+
+/* ---------- 静态布局 ---------- */
+const defs = el('defs')
+const mk = el('marker', { id: 'arr', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto' }, defs)
+el('path', { d: 'M0,0L10,5L0,10z', fill: '#cbd5e1' }, mk)
+
+el('rect', { x: 20, y: 60, width: 110, height: 360, rx: 12, fill: '#f9fafb', stroke: '#e5e7eb' })
+el('text', { x: 75, y: 85, 'text-anchor': 'middle', class: 'h', text: '客户端' })
+el('text', { x: 75, y: 440, 'text-anchor': 'middle', class: 'm', text: '每个圆 = 一个会话' })
+
+el('rect', { id: 'focus-router', x: 220, y: 60, width: 250, height: 145, rx: 12, fill: '#f8fafc', stroke: '#cbd5e1' })
+el('text', { x: 236, y: 84, class: 'h', text: '调度器' })
+el('text', { x: 292, y: 84, class: 'm', text: '查登记本 → 挑店 → 占桌' })
+
+el('path', { d: 'M132,240 C170,240 180,140 218,140', fill: 'none', stroke: '#cbd5e1', 'stroke-dasharray': '4 4', 'marker-end': 'url(#arr)' })
+el('path', { d: 'M472,120 C495,120 495,100 517,100', fill: 'none', stroke: '#cbd5e1', 'stroke-dasharray': '4 4', 'marker-end': 'url(#arr)' })
+el('path', { d: 'M472,170 C500,170 495,400 517,400', fill: 'none', stroke: '#cbd5e1', 'stroke-dasharray': '4 4', 'marker-end': 'url(#arr)' })
+
+el('rect', { x: 150, y: 225, width: 320, height: 375, rx: 12, fill: '#fffdf5', stroke: '#e5e7eb' })
+el('text', { x: 166, y: 252, class: 'h', text: '粘性登记本' })
+el('text', { x: 280, y: 252, class: 'm', text: 'TTL 24h · 每次成功续期 · 不占桌' })
+;[['会话', 182], ['店', 262], ['有效到', 302], ['状态', 410]].forEach(([t, x]) => el('text', { x, y: 280, class: 'm', text: t }))
+el('line', { x1: 160, x2: 460, y1: 288, y2: 288, stroke: '#e5e7eb' })
+const ledgerG = el('g')
+
+const shopEls = {}
+for (const s of ['A', 'B']) {
+  const { x, y } = SHOP[s]
+  const box = el('rect', { x, y, width: 560, height: 280, rx: 14, fill: '#fff', stroke: '#d1d5db', 'stroke-width': 1.5 })
+  el('text', { x: x + 14, y: y + 26, class: 'h', text: `${s} 店（账号 ${s}）` })
+  const badge = el('g')
+  const badgeR = el('rect', { x: x + 128, y: y + 11, width: 70, height: 20, rx: 10 }, badge)
+  const badgeT = el('text', { x: x + 163, y: y + 25, 'text-anchor': 'middle', 'font-size': 11, fill: '#fff' }, badge)
+  const cnt = el('text', { x: x + 546, y: y + 26, 'text-anchor': 'end', class: 't' })
+
+  el('rect', { id: `focus-${s}-seats`, x: x + 25, y: y + 45, width: 265, height: 220, rx: 10, fill: '#fafafa', stroke: '#eef0f2' })
+  el('text', { x: x + 35, y: y + 62, class: 'm', text: '餐桌 = 席位' })
+  const tables = []
+  for (let i = 0; i < SEATS; i++) {
+    const p = seatPos(s, i)
+    el('circle', { cx: p.x, cy: p.y - 14, r: 17, fill: 'none', stroke: '#d1d5db', 'stroke-dasharray': '3 3' })
+    tables.push(el('rect', { x: p.x - 32, y: p.y + 8, width: 64, height: 24, rx: 6, fill: '#f3f4f6', stroke: '#d1d5db' }))
+    el('text', { x: p.x, y: p.y + 24, 'text-anchor': 'middle', class: 'm', text: '席位' + (i + 1) })
+  }
+
+  el('rect', { id: `focus-${s}-kitchen`, x: x + 297, y: y + 45, width: 126, height: 220, rx: 10, fill: '#fff7ed', stroke: '#fde3c4' })
+  el('text', { x: x + 307, y: y + 62, class: 'm', text: '后厨：灶 = 并发' })
+  for (let i = 0; i < STOVES; i++) {
+    const p = stovePos(s, i)
+    el('circle', { cx: p.x, cy: p.y, r: 22, fill: '#fff', stroke: '#fb923c', 'stroke-width': 2 })
+    el('circle', { cx: p.x, cy: p.y, r: 13, fill: 'none', stroke: '#fdba74', 'stroke-dasharray': '2 3' })
+    el('text', { x: p.x, y: p.y + 38, 'text-anchor': 'middle', class: 'm', text: '灶' + (i + 1) })
+  }
+  el('text', { x: x + 307, y: y + 172, class: 'm', text: '排队等灶' })
+  for (let i = 0; i < QSLOTS; i++) {
+    const p = qPos(s, i)
+    el('rect', { x: p.x - 17, y: p.y - 13, width: 34, height: 26, rx: 5, fill: 'none', stroke: '#fcd9b6', 'stroke-dasharray': '3 3' })
+  }
+
+  el('rect', { id: `focus-${s}-cache`, x: x + 431, y: y + 45, width: 122, height: 220, rx: 10, fill: '#f0fdf4', stroke: '#c9efd6' })
+  el('text', { x: x + 441, y: y + 62, class: 'm', text: '半成品 = 缓存' })
+  const cacheG = el('g')
+  shopEls[s] = { box, badgeR, badgeT, cnt, tables, cacheG }
+}
+
+const dishEls = {}, tokEls = {}
+for (const p of ROSTER) {
+  const g = el('g', { class: 'tok' })
+  el('rect', { x: -17, y: -12, width: 34, height: 24, rx: 5, fill: p.c, stroke: '#fff', 'stroke-width': 2 }, g)
+  el('text', { y: 4, 'text-anchor': 'middle', 'font-size': 11, fill: '#fff', text: p.name[0] + '菜' }, g)
+  move(g, 75, 400, 0)
+  dishEls[p.id] = g
+}
+for (const p of ROSTER) {
+  const g = el('g', { class: 'tok' })
+  el('circle', { r: 17, fill: p.c, stroke: '#fff', 'stroke-width': 2 }, g)
+  el('text', { y: 4, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: '#fff', text: p.name }, g)
+  tokEls[p.id] = g
+}
+const evtG = el('g', { class: 'tok' })
+const evtR = el('rect', { y: -14, height: 26, rx: 8 }, evtG)
+const evtT = el('text', { y: 4, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: '#fff' }, evtG)
+
+/* ---------- 场景 ---------- */
+const L = (shop, exp, st = 'ok') => ({ shop, exp, st })
+const SCENES = [
+  {
+    name: '① 首次来访', intro: '张三第一次打开 Claude Code。登记本是空的，A、B 两家店都空着。',
+    init: { time: '12:59' },
+    key: '<b>粘性</b>只是登记本里的一行字，不占桌子；<b>席位</b>和<b>灶</b>只在请求进行中占用，回答结束立刻释放。',
+    steps: [
+      { t: '13:00', say: '张三发出第一个请求，先到调度器。登记本里没有他，按生客处理。', set: { people: { zhang: 'router' } }, focus: ['router'] },
+      { say: '调度器挑一家空闲的店：A。张三入座（占 1 个席位），菜下锅（占 1 个灶 = 1 个并发），后厨开始备料（写缓存）。', set: { people: { zhang: 'A.s0' }, dishes: { zhang: 'A.k0' }, cache: { A: { zhang: { st: 'build' } } } }, focus: ['A:seats', 'A:kitchen'] },
+      { t: '13:01', say: '回答结束：桌子收走、灶空出来。登记本写下“张三 → A，有效 24 小时”；半成品留在 A 店后厨，1 小时后过期。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, ledger: { zhang: L('A', '明天 13:01') }, cache: { A: { zhang: { st: 'fresh', exp: '14:01' } } } }, focus: ['ledger:zhang', 'A:cache'] },
+    ],
+  },
+  {
+    name: '② 缓存内再来', intro: '13:01 张三刚问完一轮。登记本：张三 → A；A 店有他的半成品，保留到 14:01。',
+    init: { time: '13:01', ledger: { zhang: L('A', '明天 13:01') }, cache: { A: { zhang: { st: 'fresh', exp: '14:01' } } } },
+    key: '在缓存 TTL 内回来：<b>同一个号 + 命中缓存</b>，又快又省额度。两个 TTL 都是“用一次续一次”。',
+    steps: [
+      { t: '13:10', say: '张三接着问。调度器翻登记本：张三 → A。', set: { people: { zhang: 'router' } }, focus: ['router', 'ledger:zhang'] },
+      { say: '带回 A 店。半成品还在，直接下锅：命中缓存。', set: { people: { zhang: 'A.s0' }, dishes: { zhang: 'A.k0' }, cache: { A: { zhang: { st: 'hit' } } } }, focus: ['A:cache'] },
+      { t: '13:11', say: '回答结束。登记续到明天 13:11，缓存续到 14:11（都是滑动窗口）。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, ledger: { zhang: { exp: '明天 13:11' } }, cache: { A: { zhang: { st: 'fresh', exp: '14:11' } } } }, focus: ['ledger:zhang', 'A:cache'] },
+    ],
+  },
+  {
+    name: '③ 并发排队', intro: '13:19，A 店空着，2 个灶。',
+    init: { time: '13:19' },
+    key: '<b>桌子多 ≠ 做得快。</b>席位决定能接几个会话，灶（并发）决定同时向上游跑几个请求，多出来的在后厨排队。',
+    steps: [
+      { t: '13:20', say: '李四、王五、赵六几乎同时到达，都被分到 A 店。', set: { people: { li: 'router', wang: 'router', zhao: 'router' } }, focus: ['router'] },
+      { say: '三桌都坐得下（席位 3/6），三道菜一起送进后厨。', set: { people: { li: 'A.s0', wang: 'A.s1', zhao: 'A.s2' }, dishes: { li: 'A.k0', wang: 'A.k1', zhao: 'A.q0' } }, focus: ['A:seats'] },
+      { say: '可只有 2 个灶（并发 2/2）。赵六已经入座，他的菜只能排队等灶。面板上就是“并发 2/2、等待 1”。', focus: ['A:kitchen'] },
+      { t: '13:21', say: '李四的菜做完、离桌，灶空出来，赵六的菜马上下锅。', set: { people: { li: 'home' }, dishes: { li: null, zhao: 'A.k0' }, ledger: { li: L('A', '明天 13:21') } }, focus: ['A:kitchen'] },
+      { t: '13:22', say: '全部完成，席位和灶都清空，三人都在登记本里记下 A。', set: { people: { wang: 'home', zhao: 'home' }, dishes: { wang: null, zhao: null }, ledger: { wang: L('A', '明天 13:22'), zhao: L('A', '明天 13:22') } }, focus: ['ledger:wang', 'ledger:zhao'] },
+    ],
+  },
+  {
+    name: '④ 子 agent', intro: '张三粘在 A 店，A 店有他的半成品。',
+    init: { time: '13:29', ledger: { zhang: L('A', '明天 13:11') }, cache: { A: { zhang: { st: 'fresh', exp: '14:11' } } } },
+    key: '子 agent 跟父会话去同一个号（family 粘性），但<b>各占一个席位、各抢一个灶</b>。开得越多，同号排队越明显。',
+    steps: [
+      { t: '13:30', say: '张三的 Claude Code 派出 2 个子 agent，三个会话一起来。', set: { people: { zhang: 'router', sub1: 'router', sub2: 'router' } }, focus: ['router'] },
+      { say: '子 agent 跟着父会话去 A 店，但每个单独占一张桌：一家人占 3 个席位。', set: { people: { zhang: 'A.s0', sub1: 'A.s1', sub2: 'A.s2' } }, focus: ['A:seats'] },
+      { say: '三道菜抢 2 个灶，子2 的菜排队。', set: { dishes: { zhang: 'A.k0', sub1: 'A.k1', sub2: 'A.q0' } }, focus: ['A:kitchen'] },
+      { t: '13:31', say: '张三这道先做完，子2 补上灶位。', set: { people: { zhang: 'home' }, dishes: { zhang: null, sub2: 'A.k0' }, ledger: { zhang: { exp: '明天 13:31' } }, cache: { A: { zhang: { st: 'fresh', exp: '14:31' } } } } },
+      { t: '13:32', say: '都做完，各自释放。登记本里子 agent 也各有一行，都指向 A。', set: { people: { sub1: 'home', sub2: 'home' }, dishes: { sub1: null, sub2: null }, ledger: { sub1: L('A', '明天 13:32'), sub2: L('A', '明天 13:32') } }, focus: ['ledger:sub1', 'ledger:sub2'] },
+    ],
+  },
+  {
+    name: '⑤ 缓存过期·粘性仍在', intro: '张三粘在 A 店，半成品保留到 14:11。',
+    init: { time: '14:00', ledger: { zhang: L('A', '明天 13:11') }, cache: { A: { zhang: { st: 'fresh', exp: '14:11' } } } },
+    key: '两轮间隔超过缓存 TTL 后，粘性在<b>省钱</b>上已经没用了，只剩“少换号、thinking 签名稳定”的作用。',
+    steps: [
+      { t: '14:00', say: '张三去开会了，一直没发请求。' },
+      { t: '14:11', say: '14:11：半成品 1 小时没人用，过期扔掉。登记本还在（24 小时）。', set: { cache: { A: { zhang: { st: 'expired' } } } }, focus: ['A:cache', 'ledger:zhang'] },
+      { t: '16:00', say: '16:00 张三回来，登记本仍把他带回 A 店。', set: { people: { zhang: 'router' } }, focus: ['ledger:zhang'] },
+      { say: 'A 店没有半成品了，只能重新备料：缓存重建，这一轮按全价算。', set: { people: { zhang: 'A.s0' }, dishes: { zhang: 'A.k0' }, cache: { A: { zhang: { st: 'rebuild' } } } }, focus: ['A:cache'] },
+      { t: '16:01', say: '结束。登记续到明天 16:01，新缓存保留到 17:01。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, ledger: { zhang: { exp: '明天 16:01' } }, cache: { A: { zhang: { st: 'fresh', exp: '17:01' } } } }, focus: ['ledger:zhang'] },
+    ],
+  },
+  {
+    name: '⑥ 老店满·粘性溢出', intro: '张三粘在 A 店。A 店 6 张桌全被其他客人坐满。',
+    init: {
+      time: '16:29', ledger: { zhang: L('A', '明天 16:01') }, cache: { A: { zhang: { st: 'fresh', exp: '17:01' } } }, shop: { A: { st: 'full' } },
+      people: { x1: 'A.s0', x2: 'A.s1', x3: 'A.s2', x4: 'A.s3', x5: 'A.s4', x6: 'A.s5' }, dishes: { x1: 'A.k0', x2: 'A.k1', x3: 'A.q0' },
+    },
+    key: '老店满了先在门口等 <b>45 秒</b>，再溢出到别家。溢出是临时借座，登记本不改。如果老店的缓存早过期了，这 45 秒就是白等，这也是把粘性 TTL 调短的理由。',
+    steps: [
+      { t: '16:30', say: '张三再来，登记本指向 A。但 A 店 6 张桌全满。', set: { people: { zhang: 'router' } }, focus: ['ledger:zhang', 'A:seats'] },
+      { say: '先在 A 店门口等，最多 45 秒（sticky_wait_timeout_ms），盼着有人离桌。', set: { people: { zhang: 'A.door' }, evt: { at: 'A.door', text: '门口等 ≤45s', kind: 'wait' } }, focus: ['A:seats'] },
+      { t: '16:31', say: '45 秒没人走：转全局排队，哪家有空去哪家，这里是 B 店。B 店没有他的半成品，重新备料。', set: { people: { zhang: 'B.s0' }, dishes: { zhang: 'B.k0' }, cache: { B: { zhang: { st: 'rebuild' } } }, evt: null }, focus: ['B:seats', 'B:cache'] },
+      { t: '16:32', say: '结束。这次只是临时借 B 店（日志标记“粘性溢出”），登记本仍是 张三 → A，下次还先回 A。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, cache: { B: { zhang: { st: 'fresh', exp: '17:32' } } } }, focus: ['ledger:zhang'] },
+    ],
+  },
+  {
+    name: '⑦ 老店出问题·改绑', intro: '张三粘在 A 店，A 店有他的半成品。',
+    init: { time: '16:59', ledger: { zhang: L('A', '明天 16:01') }, cache: { A: { zhang: { st: 'fresh', exp: '17:01' } } } },
+    key: '老店<b>确定出问题</b>（闸线、429 冷却、凭证失效）才会清登记、改绑。代价是缓存重建，带 thinking 的历史可能出签名 400。',
+    steps: [
+      { t: '17:00', say: 'A 店主厨额度到了闸线（或 429 冷却、凭证失效），A 店暂停接客。', set: { shop: { A: { st: 'cool' } } }, focus: ['A:seats'] },
+      { t: '17:05', say: '张三来了。A 店不可调度，调度器清掉他的登记。', set: { people: { zhang: 'router' }, ledger: { zhang: { st: 'struck' } } }, focus: ['ledger:zhang'] },
+      { say: '改去 B 店，重新备料。历史里有 thinking 的话，签名可能对不上返回 400（开了“签名修复”会剥掉思考历史再重试）。', set: { people: { zhang: 'B.s0' }, dishes: { zhang: 'B.k0' }, cache: { B: { zhang: { st: 'rebuild' } } } }, focus: ['B:cache'] },
+      { t: '17:06', say: '结束。登记本改成 张三 → B，以后就粘在 B 店。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, ledger: { zhang: L('B', '明天 17:06') }, cache: { B: { zhang: { st: 'fresh', exp: '18:06' } } } }, focus: ['ledger:zhang'] },
+    ],
+  },
+  {
+    name: '⑧ 粘性过期', intro: '张三的登记到次日 13:11 为止。A 店现在有 3 桌客人。',
+    init: {
+      time: '次日 13:00', ledger: { zhang: L('A', '次日 13:11') },
+      people: { x1: 'A.s0', x2: 'A.s1', x3: 'A.s2' }, dishes: { x1: 'A.k0', x2: 'A.k1' },
+    },
+    key: '超过粘性 TTL 没来，就按生客处理，<b>自动去最空的号</b>。',
+    steps: [
+      { t: '次日 13:12', say: '张三一整天没来，登记在次日 13:11 到期。', set: { ledger: { zhang: { st: 'expired' } } }, focus: ['ledger:zhang'] },
+      { t: '次日 13:20', say: '张三再来，按生客处理。', set: { people: { zhang: 'router' } }, focus: ['router'] },
+      { say: '调度器挑更空的店：A 店 2 个灶都在忙，B 店空着，去 B。', set: { people: { zhang: 'B.s0' }, dishes: { zhang: 'B.k0' }, cache: { B: { zhang: { st: 'build' } } } }, focus: ['B:seats'] },
+      { t: '次日 13:21', say: '结束，登记本写入新的一行：张三 → B。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, ledger: { zhang: L('B', '后天 13:21') }, cache: { B: { zhang: { st: 'fresh', exp: '14:21' } } } }, focus: ['ledger:zhang'] },
+    ],
+  },
+  {
+    name: '⑨ 流空闲超时', intro: '张三粘在 A 店，A 店有他的半成品。',
+    init: { time: '14:59', ledger: { zhang: L('A', '明天 14:00') }, cache: { A: { zhang: { st: 'fresh', exp: '15:30' } } } },
+    key: '菜一旦开始上桌（流已输出）就<b>不换店</b>。连续 180 秒没动静就断开报错。把「流空闲时间」调到 10 分钟，可以避免大文件 Write 被误断。',
+    steps: [
+      { t: '15:00', say: '张三让模型写一个很长的文件。菜开始做，前几口已经上桌（流已开始输出）。', set: { people: { zhang: 'A.s0' }, dishes: { zhang: 'A.k0' }, cache: { A: { zhang: { st: 'hit' } } } }, focus: ['A:kitchen'] },
+      { t: '15:01', say: '模型开始生成大段工具参数。上游如果没开 eager_input_streaming，会把整段参数憋着不发，流上一个字节都没有……', set: { evt: { at: 'A.k0', text: '静默中…', kind: 'wait' } }, focus: ['A:kitchen'] },
+      { t: '15:04', say: '连续 3 分钟没有新事件，超过「流空闲时间」180 秒，报 slot worker idle timeout。', set: { dishes: { zhang: { at: 'A.k0', st: 'err' } }, evt: { at: 'A.k0', text: '✖ idle timeout 180s', kind: 'err' } }, focus: ['A:kitchen'] },
+      { say: '菜已经上了一半，不能换店接着做，只能把错误交给客户端。席位、灶释放，登记和缓存不受影响。', set: { people: { zhang: 'home' }, dishes: { zhang: null }, evt: null } },
+    ],
+  },
+]
+
+/* ---------- 状态 ---------- */
+const clone = (o) => JSON.parse(JSON.stringify(o))
+function apply(t, p) {
+  for (const k in p) {
+    const v = p[k]
+    if (v === null) delete t[k]
+    else if (typeof v === 'object' && !Array.isArray(v)) {
+      if (typeof t[k] !== 'object' || t[k] === null) t[k] = {}
+      apply(t[k], v)
+    } else t[k] = v
+  }
+  return t
+}
+const BASE = { time: '', people: {}, dishes: {}, ledger: {}, cache: { A: {}, B: {} }, shop: { A: { st: 'ok' }, B: { st: 'ok' } } }
+for (const sc of SCENES) {
+  const s = apply(clone(BASE), clone(sc.init))
+  sc.frames = [{ s: clone(s), say: sc.intro, focus: [] }]
+  for (const st of sc.steps) {
+    if (st.t) s.time = st.t
+    apply(s, clone(st.set || {}))
+    sc.frames.push({ s: clone(s), say: st.say, focus: st.focus || [] })
+  }
+}
+
+/* ---------- 渲染 ---------- */
+const SHOP_ST = {
+  ok: { t: '营业中', c: '#16a34a', fill: '#fff', stroke: '#d1d5db' },
+  full: { t: '席位已满', c: '#d97706', fill: '#fffbeb', stroke: '#f59e0b' },
+  cool: { t: '暂停接客', c: '#dc2626', fill: '#fef2f2', stroke: '#ef4444' },
+}
+const CACHE_ST = {
+  build: (r) => ['备料中…（新建）', '#2563eb'],
+  fresh: (r) => [`保留至 ${r.exp}`, '#4b5563'],
+  hit: (r) => ['✓ 命中，省额度', '#059669'],
+  expired: (r) => ['✗ 已过期扔掉', '#9ca3af'],
+  rebuild: (r) => ['↻ 重建（全价）', '#ea580c'],
+}
+const LEDGER_ST = { ok: ['有效', '#16a34a'], expired: ['已过期', '#9ca3af'], struck: ['已清除', '#dc2626'] }
+const dishAt = (d) => (typeof d === 'string' ? d : d && d.at)
+
+function render(f) {
+  const S = f.s
+  document.getElementById('clock').textContent = S.time || '--:--'
+
+  for (const p of ROSTER) {
+    const q = pos(S.people[p.id], BY[p.id].idx, p.filler)
+    move(tokEls[p.id], q.x, q.y, q.o)
+    const d = S.dishes[p.id], at = dishAt(d)
+    const g = dishEls[p.id]
+    g.classList.toggle('err', !!(d && d.st === 'err'))
+    g.querySelector('rect').setAttribute('fill', d && d.st === 'err' ? '#dc2626' : p.c)
+    if (at) { const r = pos(at, 0); move(g, r.x, r.y, 1) } else g.style.opacity = 0
+  }
+
+  for (const s of ['A', 'B']) {
+    const E = shopEls[s], st = SHOP_ST[S.shop[s].st] || SHOP_ST.ok
+    E.box.setAttribute('fill', st.fill); E.box.setAttribute('stroke', st.stroke)
+    E.badgeR.setAttribute('fill', st.c); E.badgeT.textContent = st.t
+    const occ = {}
+    let k = 0, q = 0
+    for (const [id, loc] of Object.entries(S.people)) if (loc.startsWith(s + '.s')) occ[+loc.slice(3)] = id
+    for (const d of Object.values(S.dishes)) { const a = dishAt(d) || ''; if (a.startsWith(s + '.k')) k++; if (a.startsWith(s + '.q')) q++ }
+    E.tables.forEach((t, i) => {
+      const id = occ[i]
+      t.setAttribute('fill', id ? BY[id].c : '#f3f4f6'); t.setAttribute('fill-opacity', id ? 0.22 : 1)
+      t.setAttribute('stroke', id ? BY[id].c : '#d1d5db')
+    })
+    E.cnt.innerHTML = ''
+    const seg = (txt, hot) => { const ts = el('tspan', { 'font-weight': hot ? 700 : 400, fill: hot ? '#dc2626' : '#374151', text: txt }, E.cnt) }
+    const n = Object.keys(occ).length
+    seg(`席位 ${n}/${SEATS}　`, n >= SEATS); seg(`并发 ${k}/${STOVES}　`, k >= STOVES); seg(`等灶 ${q}`, q > 0)
+
+    clear(E.cacheG)
+    Object.entries(S.cache[s] || {}).forEach(([id, r], i) => {
+      const y = SHOP[s].y + 88 + i * 44
+      const [txt, c] = CACHE_ST[r.st](r)
+      el('text', { x: SHOP[s].x + 441, y, 'font-size': 12, 'font-weight': 700, fill: BY[id].c, text: '● ' + (BY[id].full || BY[id].name) }, E.cacheG)
+      el('text', { x: SHOP[s].x + 441, y: y + 17, 'font-size': 11, fill: c, 'text-decoration': r.st === 'expired' ? 'line-through' : '', text: txt }, E.cacheG)
+    })
+  }
+
+  clear(ledgerG)
+  Object.entries(S.ledger).forEach(([id, r], i) => {
+    const y = 312 + i * 34, [stT, stC] = LEDGER_ST[r.st] || LEDGER_ST.ok, dead = r.st !== 'ok'
+    el('rect', { id: 'lrow-' + id, x: 160, y: y - 20, width: 300, height: 30, rx: 6, fill: i % 2 ? '#fdf8e8' : '#fffdf5', stroke: 'transparent' }, ledgerG)
+    el('circle', { cx: 172, cy: y - 5, r: 5, fill: BY[id].c }, ledgerG)
+    const deco = dead ? 'line-through' : ''
+    el('text', { x: 182, y, class: 't', 'text-decoration': deco, text: BY[id].full || BY[id].name }, ledgerG)
+    el('text', { x: 262, y, 'font-size': 13, 'font-weight': 700, fill: dead ? '#9ca3af' : '#111', 'text-decoration': deco, text: '→ ' + r.shop }, ledgerG)
+    el('text', { x: 302, y, class: 't', 'text-decoration': deco, text: r.exp }, ledgerG)
+    el('text', { x: 410, y, 'font-size': 12, 'font-weight': 700, fill: stC, text: stT }, ledgerG)
+  })
+  if (!Object.keys(S.ledger).length) el('text', { x: 310, y: 330, 'text-anchor': 'middle', class: 'm', text: '（空）' }, ledgerG)
+
+  if (S.evt) {
+    const at = S.evt.at, isDoor = at.endsWith('door'), p = pos(at, 0)
+    const w = S.evt.text.length * 12 + 20
+    evtR.setAttribute('x', -w / 2); evtR.setAttribute('width', w)
+    evtR.setAttribute('fill', S.evt.kind === 'err' ? '#dc2626' : '#d97706')
+    evtT.textContent = S.evt.text
+    move(evtG, isDoor ? p.x - 10 : p.x + 10, p.y - (isDoor ? 34 : 48), 1)
+  } else evtG.style.opacity = 0
+
+  for (const fx of f.focus) {
+    const id = fx.startsWith('ledger:') ? 'lrow-' + fx.slice(7) : fx === 'router' ? 'focus-router' : `focus-${fx.replace(':', '-')}`
+    const e = document.getElementById(id)
+    if (e) { e.classList.remove('pulse'); void e.getBoundingClientRect(); e.classList.add('pulse') }
+  }
+}
+
+/* ---------- 播放器 ---------- */
+let si = 0, step = 0, timer = null
+const tabs = document.getElementById('tabs')
+SCENES.forEach((sc, i) => {
+  const b = document.createElement('button')
+  b.textContent = sc.name
+  b.onclick = () => { go(i, 0, true); play() }
+  tabs.appendChild(b)
+})
+function go(i, j, instant) {
+  si = i; step = j
+  const sc = SCENES[si], f = sc.frames[step]
+  if (instant) svg.classList.add('instant')
+  render(f)
+  if (instant) { void svg.getBoundingClientRect(); requestAnimationFrame(() => requestAnimationFrame(() => svg.classList.remove('instant'))) }
+  ;[...tabs.children].forEach((b, k) => b.classList.toggle('on', k === si))
+  document.getElementById('say').innerHTML = `<span class="stepno">${step + 1}/${sc.frames.length}</span>` + f.say
+  document.getElementById('key').innerHTML = '<b>要点：</b>' + sc.key
+  const dots = document.getElementById('dots')
+  dots.innerHTML = ''
+  sc.frames.forEach((_, k) => { const d = document.createElement('i'); if (k <= step) d.className = 'on'; d.onclick = () => { pause(); go(si, k) }; dots.appendChild(d) })
+}
+function next() {
+  const sc = SCENES[si]
+  if (step < sc.frames.length - 1) go(si, step + 1)
+  else if (si < SCENES.length - 1) go(si + 1, 0, true)
+  else pause()
+}
+function prev() { if (step > 0) go(si, step - 1); else if (si > 0) go(si - 1, SCENES[si - 1].frames.length - 1, true) }
+function play() { clearInterval(timer); timer = setInterval(next, 3400); document.getElementById('play').textContent = '暂停' }
+function pause() { clearInterval(timer); timer = null; document.getElementById('play').textContent = '播放' }
+document.getElementById('play').onclick = () => (timer ? pause() : play())
+document.getElementById('next').onclick = () => { pause(); next() }
+document.getElementById('prev').onclick = () => { pause(); prev() }
+document.getElementById('again').onclick = () => { go(si, 0, true); play() }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') { pause(); next() }
+  else if (e.key === 'ArrowLeft') { pause(); prev() }
+  else if (e.key === ' ') { e.preventDefault(); timer ? pause() : play() }
+})
+const qs = new URLSearchParams(location.search)
+const qS = Math.min(SCENES.length, Math.max(1, +qs.get('s') || 1)) - 1
+const qF = Math.min(SCENES[qS].frames.length, Math.max(1, +qs.get('f') || 1)) - 1
+go(qS, qF, true)
+if (qs.has('f')) pause(); else play()
+</script>
+</body>
+</html>
