@@ -30,6 +30,7 @@ tr.bad td{color:var(--bad)}tr.slow td.ms{color:var(--warn);font-weight:600}tr.ga
 .empty{color:var(--mut);padding:24px;text-align:center}
 footer{color:var(--mut);font-size:12px;margin-top:14px}
 #loading{color:var(--mut);font-size:13px}
+.diag{display:inline-block;padding:0 6px;border-radius:4px;font-size:11px;font-style:normal;color:#fff;margin-right:4px}.diag.svc{background:var(--warn)}.diag.net{background:var(--bad)}
 .pill{display:inline-block;padding:0 6px;border-radius:10px;font-size:11px;background:var(--card);color:var(--mut);margin-left:4px}
 @media(max-width:600px){th,td{padding:4px 6px;font-size:12px}}
 </style></head><body><main>
@@ -91,7 +92,7 @@ async function load() {
   rows = [];
   parts.forEach(p => {
     if (!p || !p.rows) return;
-    for (const r of p.rows) rows.push({t: r[0], ok: !!r[1], ms: r[2], ip: r[3] == null ? null : p.ips[r[3]], loc: r[4] == null ? null : p.locs[r[4]], err: r[5]});
+    for (const r of p.rows) rows.push({t: r[0], ok: !!r[1], ms: r[2], ip: r[3] == null ? null : p.ips[r[3]], loc: r[4] == null ? null : p.locs[r[4]], err: r[5], src: r[6] || null});
   });
   rows.sort((a, b) => a.t - b.t);
   const last = rows.length ? rows[rows.length - 1].t : null;
@@ -165,17 +166,32 @@ function buildTable(rs, slowMs) {
   renderRows(slowMs);
 }
 
+// 位置来源标签: ipip (默认) 不显示; 备用接口 / 沿用旧记录显示灰色小标签
+function srcTag(src) {
+  if (!src) return '';
+  const c = src.startsWith('cached:');
+  const name = c ? src.slice(7) : src;
+  return `<span class="pill" title="位置来源: ${esc(src)}">${c ? '沿用 ' + esc(name) : esc(name)}</span>`;
+}
+// 失败原因: 把 "| 诊断: xxx" 拆成醒目标签放在前面
+function errHtml(err) {
+  const m = /^(.*?)\s*\|\s*诊断:\s*(.+)$/.exec(err || '');
+  if (!m) return esc(err);
+  const net = m[2].includes('本机');
+  return `<span class="diag ${net ? 'net' : 'svc'}">${net ? '本机网络' : 'ipip.info 故障'}</span> ${esc(m[1])}`;
+}
+
 function renderRows(slowMs) {
   const tb = $('#tbody'); const part = filtered.slice(0, shown); let h = '';
   if (view === 'outage') {
     for (const o of part) {
       const span = o.type === 'gap' ? o.end - o.start : (o.recover || Date.now()/1000) - o.start;
-      h += `<tr class="${o.type === 'gap' ? 'gap' : 'bad'}"><td>${o.type === 'gap' ? '⏸ 无记录' : (o.ongoing ? '🔴 失败中' : '❌ 失败')}</td><td>${fmt(o.start)}</td><td>${o.type === 'gap' ? fmt(o.end) : (o.recover ? fmt(o.recover) + ' 恢复' : '进行中')}</td><td>${dur(span)}</td><td class="num">${o.n}</td><td>${esc(o.errs.join('; '))}</td></tr>`;
+      h += `<tr class="${o.type === 'gap' ? 'gap' : 'bad'}"><td>${o.type === 'gap' ? '⏸ 无记录' : (o.ongoing ? '🔴 失败中' : '❌ 失败')}</td><td>${fmt(o.start)}</td><td>${o.type === 'gap' ? fmt(o.end) : (o.recover ? fmt(o.recover) + ' 恢复' : '进行中')}</td><td>${dur(span)}</td><td class="num">${o.n}</td><td>${o.errs.map(errHtml).join('; ')}</td></tr>`;
     }
   } else {
     for (const r of part) {
-      if (r.ok) h += `<tr class="${r.ms >= slowMs ? 'slow' : ''}${r.ipchg ? ' ipchg' : ''}"><td>${fmt(r.t)}</td><td class="num ms">${r.ms}</td><td class="ip">${esc(r.ip)}${r.ipchg ? ' ↺' : ''}</td><td>${esc(r.loc || '-')}</td></tr>`;
-      else h += `<tr class="bad"><td>${fmt(r.t)}</td><td class="num">-</td><td colspan="2">❌ ${esc(r.err || '失败')}</td></tr>`;
+      if (r.ok) h += `<tr class="${r.ms >= slowMs ? 'slow' : ''}${r.ipchg ? ' ipchg' : ''}"><td>${fmt(r.t)}</td><td class="num ms">${r.ms}</td><td class="ip">${esc(r.ip)}${r.ipchg ? ' ↺' : ''}</td><td>${esc(r.loc || '-')}${srcTag(r.src)}</td></tr>`;
+      else h += `<tr class="bad"><td>${fmt(r.t)}</td><td class="num">-</td><td colspan="2">❌ ${errHtml(r.err || '失败')}</td></tr>`;
     }
   }
   tb.innerHTML = h;
