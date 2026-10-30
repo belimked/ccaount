@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VPO 增值服务 · AI 可以协助的地方</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+    --pri:#1d4ed8; --pri-soft:#e8efff; --ok:#047857; --ok-soft:#e6f6ef;
+    --warn:#b45309; --warn-soft:#fff4e0; --bad:#b91c1c; --bad-soft:#fdecec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.65 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(120deg,#0f2b6b,#1d4ed8);color:#fff;padding:40px 24px 32px}
+  header .wrap{max-width:1180px;margin:0 auto}
+  header h1{margin:0 0 6px;font-size:28px}
+  header p{margin:0;opacity:.85}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  nav{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:5}
+  nav .wrap{display:flex;gap:18px;overflow-x:auto;padding:10px 24px}
+  nav a{color:var(--muted);text-decoration:none;white-space:nowrap;font-size:14px}
+  nav a:hover{color:var(--pri)}
+  section{margin:32px 0}
+  h2{font-size:21px;margin:0 0 14px;padding-left:10px;border-left:4px solid var(--pri)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:-22px}
+  .kpi{background:var(--card);border-radius:10px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .kpi b{display:block;font-size:26px;color:var(--pri)}
+  .kpi span{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column}
+  .card h3{margin:0 0 4px;font-size:17px}
+  .card .src{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .card dl{margin:0;display:grid;grid-template-columns:64px 1fr;gap:6px 10px;font-size:14px}
+  .card dt{color:var(--muted)}
+  .card dd{margin:0}
+  .tags{margin-top:auto;padding-top:12px;display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-size:12px;padding:2px 8px;border-radius:99px}
+  .p1{background:var(--ok-soft);color:var(--ok)}
+  .p2{background:var(--pri-soft);color:var(--pri)}
+  .p3{background:var(--warn-soft);color:var(--warn)}
+  .t{background:#f3f4f6;color:#374151}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#f9fafb;color:#374151;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  .note{background:var(--warn-soft);border:1px solid #f5d9a8;border-radius:10px;padding:14px 18px;font-size:14px}
+  .no{background:var(--bad-soft);border:1px solid #f3c2c2;border-radius:10px;padding:14px 18px}
+  .no li{margin:4px 0}
+  .flow{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+  .step{flex:1;min-width:200px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .step b{color:var(--pri)}
+  code{background:#f3f4f6;padding:1px 5px;border-radius:4px;font-size:13px}
+  footer{color:var(--muted);font-size:13px;text-align:center;padding:30px 0 40px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>VPO 增值服务 · AI 可以协助的地方</h1>
+    <p>基于 B1–B5 业务分析（生产备份库快照 2026-10-29）整理：哪些环节适合引入 AI，怎么做，边界在哪里。</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><b>9,354</b><span>不可提交预结算单（B1）</span></div>
+    <div class="kpi"><b>~4,870</b><span>真实供应商待补录单价的单据</span></div>
+    <div class="kpi"><b>3,692</b><span>预结算待提交积压（B2）</span></div>
+    <div class="kpi"><b>~60%</b><span>钢制件行被"超基准"高亮（B3）</span></div>
+    <div class="kpi"><b>143</b><span>未审核合同单价审核单（B4）</span></div>
+  </div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a href="#map">场景总览</a>
+    <a href="#ops">业务侧</a>
+    <a href="#dev">研发 / 运维侧</a>
+    <a href="#roadmap">落地顺序</a>
+    <a href="#boundary">边界与风险</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<section id="map">
+  <h2>场景总览</h2>
+  <table>
+    <tr><th>#</th><th>场景</th><th>对应问题</th><th>AI 做什么</th><th>优先级</th></tr>
+    <tr><td>1</td><td>不可提交原因说明</td><td>B1 / C1</td><td>把原因代码组合翻成一句话说明和下一步操作</td><td><span class="tag p1">P1 快速见效</span></td></tr>
+    <tr><td>2</td><td>补录催办与消息文案</td><td>B1 / B2 / B5</td><td>按合同、角色生成催办和周报内容</td><td><span class="tag p1">P1 快速见效</span></td></tr>
+    <tr><td>3</td><td>合同价格录入辅助</td><td>B1"从未录入价格"</td><td>从合同附件抽取单价和调价规则，预填后人工确认</td><td><span class="tag p2">P2 价值最大</span></td></tr>
+    <tr><td>4</td><td>成本审核风险提示</td><td>B3</td><td>区分"疑似单位填错"和"真实超重"</td><td><span class="tag p2">P2</span></td></tr>
+    <tr><td>5</td><td>单价审核单摘要</td><td>B4</td><td>与历史价格对比，生成变更摘要辅助审核</td><td><span class="tag p2">P2</span></td></tr>
+    <tr><td>6</td><td>积压清理分类</td><td>B2</td><td>给积压单据打标签，生成待业务确认清单</td><td><span class="tag p1">P1</span></td></tr>
+    <tr><td>7</td><td>工作台自然语言查询</td><td>工作台 / 看板</td><td>"辅材待提交超一年有多少"→ 只读查询 + 结果</td><td><span class="tag p3">P3 探索</span></td></tr>
+    <tr><td>8</td><td>文档与代码一致性核对</td><td>B3 齐头工艺图等</td><td>对照需求文档与代码，列出差异</td><td><span class="tag p1">P1 研发</span></td></tr>
+    <tr><td>9</td><td>数据核查与修复脚本</td><td>预结算明细缺失等</td><td>生成核查 SQL、回填脚本草稿，人工审核后执行</td><td><span class="tag p1">P1 研发</span></td></tr>
+  </table>
+</section>
+
+<section id="ops">
+  <h2>业务侧场景</h2>
+  <div class="grid">
+
+    <div class="card">
+      <h3>① 不可提交原因说明</h3>
+      <div class="src">B1 · C1 "显示不可提交原因"</div>
+      <dl>
+        <dt>现状</dt><dd>原因已在 <code>oftb_notification_pre_handle.on_type</code>（0–11），但供应商只看到"不可提交"，不知道缺什么、找谁。</dd>
+        <dt>AI 做</dt><dd>把"缺单价 + 缺工艺图价 + 缺调价规则"组合转成一句话：<i>"该合同从未录入任何钢材价格，请联系采购 XXX 录入合同单价和调价规则"</i>。</dd>
+        <dt>实现</dt><dd>原因组合有限，可先让 AI 生成模板库，<b>上线时用固定模板</b>，不必实时调用模型。</dd>
+      </dl>
+      <div class="tags"><span class="tag p1">P1</span><span class="tag t">文案生成</span><span class="tag t">低风险</span></div>
+    </div>
+
+    <div class="card">
+      <h3>② 补录催办与提醒文案</h3>
+      <div class="src">B1 前 50 合同 · B4 等待天数提醒 · B5 超期未结算</div>
+      <dl>
+        <dt>现状</dt><dd>223 个合同占了 80% 的不可提交单；B4、B5 都建议做"每周汇总提醒"。</dd>
+        <dt>AI 做</dt><dd>按接收人（采购、BLK、成本、供应商）汇总：涉及哪些合同、影响多少单、最老的等了几天、建议先处理哪几个。</dd>
+        <dt>实现</dt><dd>夜间任务出结构化数据 → AI 写成周报正文 → 写入现有消息表（<code>hstb_notification_*</code>）。</dd>
+      </dl>
+      <div class="tags"><span class="tag p1">P1</span><span class="tag t">汇总</span><span class="tag t">低风险</span></div>
+    </div>
+
+    <div class="card">
+      <h3>③ 合同价格录入辅助</h3>
+      <div class="src">B1 · "缺单价 + 缺调价规则"同时出现</div>
+      <dl>
+        <dt>现状</dt><dd>真实供应商约 4,870 张卡在"不可提交"，根源是合同<b>从未录入价格</b>：钢材 136 个合同什么都没录，铝型材、玻璃以"缺单价+缺调价规则"为主。</dd>
+        <dt>AI 做</dt><dd>读取合同 PDF/扫描件，抽取材料、单价、调价公式、基准行情价，<b>预填</b>到录入表单，标出原文出处。</dd>
+        <dt>实现</dt><dd>OCR + 大模型抽取 → 预填 → 采购核对后提交 → 仍走原有成本审核。</dd>
+      </dl>
+      <div class="tags"><span class="tag p2">P2</span><span class="tag t">文档抽取</span><span class="tag t">需人工确认</span></div>
+    </div>
+
+    <div class="card">
+      <h3>④ 成本审核风险提示</h3>
+      <div class="src">B3 · 钢制件"基准单件重量"</div>
+      <dl>
+        <dt>现状</dt><dd>待审核 2,532 行里 1,324 行高亮；12,075 条的比值正好是"板厚 × 7.85"——设计填的是面积而不是重量，高亮已失去作用。</dd>
+        <dt>AI 做</dt><dd>在高亮之外另加一个提示：<i>"疑似基准为面积（比值≈板厚×7.85）"</i>或<i>"真实超重 xx%"</i>，帮成本先看真正异常的行。</dd>
+        <dt>注意</dt><dd>已确定<b>不改现有判断逻辑</b>，这里只做旁注提示；规则部分用代码算，AI 负责解释和排序。</dd>
+      </dl>
+      <div class="tags"><span class="tag p2">P2</span><span class="tag t">异常识别</span><span class="tag t">只提示不拦截</span></div>
+    </div>
+
+    <div class="card">
+      <h3>⑤ 合同单价审核单摘要</h3>
+      <div class="src">B4 · 143 张，最老 1,382 天</div>
+      <dl>
+        <dt>现状</dt><dd>审核单长期积压，部分是修改历史区间，审核人需要自己对比新旧价格。</dd>
+        <dt>AI 做</dt><dd>生成摘要："共 N 个材料调价，平均 +x%，最大变动 xxx；生效日为历史日期，会影响已结算单据 M 张"。</dd>
+        <dt>实现</dt><dd>后端算差异数据，AI 只组织成可读结论，附在审核页顶部。</dd>
+      </dl>
+      <div class="tags"><span class="tag p2">P2</span><span class="tag t">审核辅助</span></div>
+    </div>
+
+    <div class="card">
+      <h3>⑥ 积压单据清理分类</h3>
+      <div class="src">B1 / B2 · 约 4,060–4,480 张"死单"</div>
+      <dl>
+        <dt>现状</dt><dd>隐藏项目、工厂/甲供系统合同的单据永远不会变；铝型材、玻璃的系统合同目前是按供应商名称判断，未逐一核实。</dd>
+        <dt>AI 做</dt><dd>根据供应商名称、合同编号、录入历史给每张单打标签（系统合同 / 隐藏项目 / 长期无人处理 / 正常积压），输出待确认清单。</dd>
+        <dt>注意</dt><dd>AI 只出清单，<b>是否弃用由业务拍板</b>，执行仍用 SQL/定时任务。</dd>
+      </dl>
+      <div class="tags"><span class="tag p1">P1</span><span class="tag t">分类</span><span class="tag t">需业务确认</span></div>
+    </div>
+
+    <div class="card">
+      <h3>⑦ 工作台自然语言查询</h3>
+      <div class="src">工作台 / Dashboard 设计</div>
+      <dl>
+        <dt>场景</dt><dd>运维、方大用户问："辅材待提交超过一年的有多少？哪个供应商最多？"</dd>
+        <dt>AI 做</dt><dd>把问题转成预定义的统计查询（白名单视图），返回表格和一句结论。</dd>
+        <dt>注意</dt><dd>只读账号、只开放统计视图、按角色限制数据范围；供应商只能看到自己的数据。</dd>
+      </dl>
+      <div class="tags"><span class="tag p3">P3</span><span class="tag t">问答</span><span class="tag t">需权限设计</span></div>
+    </div>
+
+  </div>
+</section>
+
+<section id="dev">
+  <h2>研发 / 运维侧场景</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>⑧ 需求文档与代码一致性核对</h3>
+      <div class="src">B3 已有成功案例</div>
+      <dl>
+        <dt>案例</dt><dd>B3 核对钢材 v2.0 文档 5 条规则，发现"齐头工艺图加工单价为 0"代码有、文档没有；B5 提醒功能文档有、代码没有。</dd>
+        <dt>AI 做</dt><dd>对其他材料（铝型材、玻璃、不锈钢、辅材）的规则文档做同样核对，输出"规则 → 代码位置 → 数据验证 → 结论"表。</dd>
+      </dl>
+      <div class="tags"><span class="tag p1">P1</span><span class="tag t">代码分析</span></div>
+    </div>
+
+    <div class="card">
+      <h3>⑨ 数据核查与修复</h3>
+      <div class="src">预结算明细缺失回填等历史问题</div>
+      <dl>
+        <dt>AI 做</dt><dd>根据现象定位相关表和代码，生成"先查 → 只补缺失 → 复核"三段式 SQL 草稿，并扫出同类问题单据。</dd>
+        <dt>注意</dt><dd>先在备份库/测试库跑，人工审核后再上生产。</dd>
+      </dl>
+      <div class="tags"><span class="tag p1">P1</span><span class="tag t">SQL</span><span class="tag t">需审核</span></div>
+    </div>
+
+    <div class="card">
+      <h3>⑩ 新功能开发提效</h3>
+      <div class="src">B5 超期提醒（估 后端 2.5 + 前端 1 人天）</div>
+      <dl>
+        <dt>AI 做</dt><dd>按设计稿生成 Flyway 脚本、9 处赋值修改、定时任务和单元测试的初稿；生成前端页面原型（已用 Stitch 出工作台稿）。</dd>
+        <dt>效果</dt><dd>开发集中在评审和联调上，预计可以省下 30–50% 的编码时间。</dd>
+      </dl>
+      <div class="tags"><span class="tag p1">P1</span><span class="tag t">编码辅助</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <h2>建议落地顺序</h2>
+  <div class="flow">
+    <div class="step"><b>第 1 步 · 不碰业务数据</b><br>⑧ 文档核对、⑨ 数据核查、⑩ 开发提效；① 原因说明模板。</div>
+    <div class="step"><b>第 2 步 · 配合清理</b><br>⑥ 积压分类清单 → 业务确认 → 清理；随后上线 ② 催办/周报和 B5 提醒。</div>
+    <div class="step"><b>第 3 步 · 进入审核流程</b><br>④ 风险提示、⑤ 审核摘要，只做提示，不改判断。</div>
+    <div class="step"><b>第 4 步 · 源头减负</b><br>③ 合同价格录入辅助；⑦ 自然语言查询（权限方案确定后）。</div>
+  </div>
+  <p class="note" style="margin-top:14px">先做 B2 清理再上提醒：否则 B5 首日会一次推出约 145 条（按 30 天），AI 周报也会被死单淹没。</p>
+</section>
+
+<section id="boundary">
+  <h2>边界与风险</h2>
+  <div class="no">
+    <b>AI 不做的事</b>
+    <ul>
+      <li>不直接修改价格、重量、结算金额，所有结果都要人确认。</li>
+      <li>不自动弃用、不自动隐藏单据，清理规则由业务拍板（见 B1–B5 决策清单）。</li>
+      <li>不替代成本审核，只做提示和排序。</li>
+      <li>不直连生产库写操作，查询只用只读账号和白名单视图。</li>
+    </ul>
+  </div>
+  <table style="margin-top:14px">
+    <tr><th>风险</th><th>应对</th></tr>
+    <tr><td>合同抽取结果错误（单价、公式抄错）</td><td>标出原文位置，必须人工核对；仍走原有成本审核</td></tr>
+    <tr><td>供应商 / 合同数据外泄</td><td>优先用私有部署模型或脱敏后调用；按角色限制数据范围</td></tr>
+    <tr><td>提示太多又被忽略（同 B3 高亮问题）</td><td>只提示少量高置信度异常，并统计提示被采纳的比例</td></tr>
+    <tr><td>依赖未确认的业务口径</td><td>先确认决策清单 1–5，再做对应的 AI 功能</td></tr>
+  </table>
+</section>
+
+</div>
+
+<footer>数据来源：docs/analysis/B1-B5_业务分析.md、B5_货单超期未结算提醒_设计.md、docs/ui/工作台_功能清单_for_stitch.md</footer>
+</body>
+</html>
