@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Rex 接口需求清单</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* layout: a reference manual. sticky section bar, one reading column, wide tables scroll inside their own box */
+:root{
+  --bg:#F6F7FA; --surface:#FFFFFF; --panel:#EEF1F5; --line:#E4E8EF; --line2:#C9D0DB;
+  --fg:#13233F; --fg2:#5B6475; --honey:#FFB02E; --honey-bg:#FFF8E6; --honey-fg:#7A5010;
+  --read:#1670C2; --read-bg:#EAF5FF; --write:#C9501F; --write-bg:#FFF2EC; --sess:#5B6475; --sess-bg:#EEF1F5;
+  --ok:#0E7A45; --ok-bg:#E6F7EE; --warn:#7A5010; --warn-bg:#FFF0CC; --cand:#6B4BB8; --cand-bg:#F0EBFB;
+  --code-bg:#F1F3F8;
+  --head:"Montserrat","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1626; --surface:#162136; --panel:#1C2942; --line:#293854; --line2:#3A4B6B;
+  --fg:#E8EDF6; --fg2:#A3AEC2; --honey:#FFB02E; --honey-bg:#3A2C10; --honey-fg:#FFD27A;
+  --read:#6DB6FF; --read-bg:#14304F; --write:#FF9466; --write-bg:#44241A; --sess:#A3AEC2; --sess-bg:#243352;
+  --ok:#5FD79A; --ok-bg:#123524; --warn:#FFD27A; --warn-bg:#3A2C10; --cand:#B9A2F5; --cand-bg:#2B2247;
+  --code-bg:#101A2E; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0E1626; --surface:#162136; --panel:#1C2942; --line:#293854; --line2:#3A4B6B;
+  --fg:#E8EDF6; --fg2:#A3AEC2; --honey:#FFB02E; --honey-bg:#3A2C10; --honey-fg:#FFD27A;
+  --read:#6DB6FF; --read-bg:#14304F; --write:#FF9466; --write-bg:#44241A; --sess:#A3AEC2; --sess-bg:#243352;
+  --ok:#5FD79A; --ok-bg:#123524; --warn:#FFD27A; --warn-bg:#3A2C10; --cand:#B9A2F5; --cand-bg:#2B2247;
+  --code-bg:#101A2E; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(56px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+a{color:var(--read)} a:focus-visible{outline:2px solid var(--honey);outline-offset:2px;border-radius:3px}
+code,pre,.mono{font-family:var(--mono);font-size:.86em}
+code{overflow-wrap:anywhere}
+p,li,.no,.note,.meta span{overflow-wrap:anywhere;min-width:0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .in{max-width:1180px;margin:0 auto;display:flex;gap:4px 14px;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar b{font-family:var(--head);font-weight:700;white-space:nowrap;margin-right:6px}
+.bar a{font-family:var(--head);font-weight:600;font-size:13px;color:var(--fg2);text-decoration:none;white-space:nowrap;padding:4px 2px}
+.bar a:hover{color:var(--fg)}
+.bar a i{font-style:normal;font-family:var(--mono);color:var(--honey-fg);margin-right:4px;font-size:12px}
+main{max-width:1180px;margin:0 auto;padding-block:28px 80px;display:flex;flex-direction:column;gap:56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+h1,h2,h3,h4{font-family:var(--head);margin:0;text-wrap:balance;line-height:1.3}
+h1{font-size:30px;font-weight:700}
+h2{font-size:22px;font-weight:700;display:flex;gap:12px;align-items:baseline;padding-bottom:10px;border-bottom:2px solid var(--fg)}
+h2 i{font-style:normal;font-family:var(--mono);font-size:15px;color:var(--honey-fg);background:var(--honey-bg);padding:1px 8px;border-radius:4px}
+h3{font-size:17px;font-weight:700}
+h4{font-size:14px;font-weight:600}
+p{margin:0;max-width:78ch} .lead{color:var(--fg2);max-width:82ch}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--fg2);font-size:13px}
+.meta b{color:var(--fg);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.tile .v{font-family:var(--head);font-weight:700;font-size:30px;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .l{font-size:13px;color:var(--fg2)}
+.tile.r .v{color:var(--read)} .tile.w .v{color:var(--write)} .tile.c .v{color:var(--cand)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;line-height:1.5}
+th,td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+tr:last-child>td{border-bottom:0}
+th{font-family:var(--head);font-weight:600;font-size:12px;color:var(--fg2);background:var(--panel);white-space:nowrap;position:sticky;top:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.n{font-family:var(--mono)} .z{color:var(--line2)}
+tr.tot td{font-weight:700;background:var(--panel)}
+tr.grp td{background:var(--panel);font-family:var(--head);font-weight:700;font-size:13px}
+tr.grp td a{color:var(--fg);text-decoration:none} tr.grp td a:hover{text-decoration:underline}
+.k{display:inline-block;font-family:var(--head);font-weight:700;font-size:11.5px;line-height:1;padding:4px 7px;border-radius:4px;white-space:nowrap}
+.k.r{color:var(--read);background:var(--read-bg)} .k.w{color:var(--write);background:var(--write-bg)} .k.a{color:var(--sess);background:var(--sess-bg)}
+.st{display:inline-block;font-size:11.5px;line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
+.st.ok{color:var(--ok);background:var(--ok-bg)} .st.doc{color:var(--fg2);background:var(--panel)}
+.st.test{color:var(--warn);background:var(--warn-bg)} .st.cand{color:var(--cand);background:var(--cand-bg)}
+.el{text-decoration:none} .el code{color:var(--read)} .el:hover code{text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:4px 10px}
+.none{color:var(--fg2)}
+.pg{display:flex;flex-direction:column;gap:14px;padding-top:6px}
+.pg>header{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.pg>header .proto{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--panel);padding:2px 8px;border-radius:4px}
+.pg>header .cnt{margin-left:auto;font-size:13px;color:var(--fg2);white-space:nowrap}
+.ft{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ft h4{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.ft h4 .c{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--fg2)}
+.ft .note,.ep .note{font-size:13px;color:var(--fg2);border-left:3px solid var(--honey);padding-left:10px;max-width:90ch}
+.ft .no{font-size:13.5px;color:var(--fg2);background:var(--panel);border-radius:6px;padding:8px 12px;max-width:90ch}
+td.arg{font-family:var(--mono);font-size:12.5px;min-width:260px} td.exp{min-width:220px}
+.eps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
+.ep{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ep>header{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ep>header code{font-size:14.5px;font-weight:600;overflow-wrap:anywhere}
+.ep .path{font-family:var(--mono);font-size:12.5px;color:var(--fg2);overflow-wrap:anywhere}
+.ep .ret{font-size:13.5px;overflow-wrap:anywhere} .ep .ret b,.ep .used b{font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px}
+.ep .used{font-size:12.5px;color:var(--fg2)}
+.ep table{font-size:12.5px} .ep td:first-child{font-family:var(--mono);white-space:nowrap} .ep td:nth-child(2){white-space:nowrap;color:var(--fg2);font-family:var(--mono)}
+.req{color:var(--write);font-weight:700}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto;line-height:1.5;font-size:12px}
+.ex{display:flex;flex-direction:column;gap:6px} .ex span{font-family:var(--head);font-size:12px;color:var(--fg2)}
+.sub{font-family:var(--head);font-weight:700;font-size:15px;display:flex;gap:10px;align-items:center;margin-top:8px}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:90ch;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--fg2)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px}
+.two>div{display:flex;flex-direction:column;gap:10px;min-width:0}
+
+.pd{font-size:12px;color:var(--fg2);margin-top:4px;max-width:60ch}
+.cls{display:inline-block;font-family:var(--mono);font-weight:600;font-size:12px;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.cls.c1{color:var(--ok);background:var(--ok-bg)} .cls.c2{color:var(--write);background:var(--write-bg)} .cls.c3{color:var(--fg2);background:var(--panel)}
+.cls.ck{color:var(--cand);background:var(--cand-bg)}
+.tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))} .tile{min-width:0} .tile .l{overflow-wrap:anywhere}
+.tile.g .v{color:var(--ok)} .tile.cfl .v{color:var(--cand)}
+#c1 td:nth-child(2){min-width:240px} #c1 td:nth-child(2) code{overflow-wrap:normal} #c1 td:nth-child(3){min-width:170px}
+.it{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.it.c2{border-left:4px solid var(--write)} .it.ck{border-left:4px solid var(--cand)}
+.it>header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.it>header h3{font-size:17px}
+.rows{display:grid;grid-template-columns:minmax(96px,150px) minmax(0,1fr);gap:12px 16px}
+.rows>b{font-family:var(--head);font-size:12.5px;color:var(--fg2);font-weight:600;padding-top:2px}
+.rows>div{min-width:0;display:flex;flex-direction:column;gap:8px;font-size:14px;overflow-wrap:anywhere}
+@media (max-width:640px){.rows{grid-template-columns:minmax(0,1fr);gap:4px 0} .rows>div{margin-bottom:10px}}
+.has{font-size:11.5px;line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap}
+.has.y{color:var(--ok);background:var(--ok-bg)} .has.n{color:var(--warn);background:var(--warn-bg)}
+.cf{display:inline-block;font-size:11.5px;line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap;color:var(--cand);background:var(--cand-bg);text-decoration:none;margin-top:4px}
+td.q{min-width:200px;color:var(--warn)} td.sr{min-width:190px;font-size:12.5px;color:var(--fg2)}
+.srcs{font-size:13px;color:var(--fg2)} .srcs b{font-family:var(--head);font-size:12px;color:var(--fg);margin-right:6px}
+.who{font-family:var(--head);font-size:12px;color:var(--fg2);font-weight:600}
+.bar .lang{color:var(--read)}
+.it pre{max-height:260px;overflow:auto;overscroll-behavior:contain}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:2px solid var(--line);margin-top:8px}
+.tabs button{font:600 14px var(--head);color:var(--fg2);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;border-radius:6px 6px 0 0}
+.tabs button span{font:600 11.5px var(--mono);padding:2px 7px;border-radius:999px;background:var(--panel);color:var(--fg2)}
+.tabs button:hover{color:var(--fg);background:var(--panel)}
+.tabs button:focus-visible{outline:2px solid var(--read);outline-offset:-2px}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--write)}
+main:not(.js) .tabs{display:none} main.js .panel:not(.on){display:none}
+@media (max-width:640px){.tabs button{padding:9px 10px;font-size:13px}}
+</style>
+<div class="bar"><div class="in"><b>Rex 接口需求清单</b>
+<a href="#sum">分类和数量</a><a href="#src">出处</a><a href="#conf">资料冲突</a><a href="#c1"><i>01</i>必须，Rex 已有</a><a href="#c2"><i>02</i>必须，Rex 没有或不够</a><a href="#c3"><i>03</i>非必要</a><a href="#own">不向 Rex 提的</a><a class="lang" href="rex-api-requirements-en.html">English</a>
+</div></div>
+<main>
+<section id="top">
+<h1>AxleoCollect 对 Rex 的接口需求清单</h1>
+<p class="lead">把 AxleoCollect 要从 Rex 得到的东西分成三类：必须有而且 Rex 已经有的；必须有但 Rex 没有或不够的；没有也能上线的。第二类写明了要什么、为什么要，并附上我们可以直接导入的 JSON 结构。01 和 02 的每一条都注明了出处；不同资料说法不一致的地方单独列出，请 Rex 说明以哪份为准。</p>
+<div class="meta">
+<span><b>整理日期</b> 2026-11-13</span>
+<span><b>状态</b> 只对照过文档，还没有在真实的 Rex 账户上调用过</span>
+</div></section>
+
+<section id="sum"><h2>分类和数量</h2>
+<div class="tiles">
+<div class="tile g"><span class="v">27</span><span class="l">01 必须，Rex 已有，届时会用</span></div>
+<div class="tile w"><span class="v">5 + 12</span><span class="l">02 必须，Rex 没有或不够（5 项 Rex 没有，12 个接口返回结构没写或不完整）</span></div>
+<div class="tile"><span class="v">11</span><span class="l">03 非必要（Rex 已有 7 项，没有 4 项）</span></div>
+<div class="tile cfl"><span class="v">3</span><span class="l">处资料冲突，请 Rex 澄清</span></div>
+</div>
+<div class="scroll"><table><thead><tr><th>类别</th><th>判断标准</th><th>是否阻拦上线</th><th>希望 Rex 做什么</th><th class="n">数量</th></tr></thead><tbody>
+<tr><td><span class="cls c1">01</span></td><td>我们必须要有；Rex 文档里有这个接口，参数完整，返回值有示例（或简单到不需要示例），和我们的需求对得上。</td><td>阻拦。缺任何一个，对应页面不能用。</td><td>确认集成账号有权限调用。其中 4 个接口各有一个细节请 Rex 回答。</td><td class="n">27 个接口</td></tr>
+<tr><td><span class="cls c2">02</span></td><td>我们必须要有；Rex 没有，或者有类似的接口但不够用。接口在文档里、但返回结构没写或不完整的，也归在这里。</td><td>阻拦。</td><td>提供接口，或者按我们给的 JSON 结构把数据导出给我们；返回结构没写的，请按我们给的期望结构确认或更正。</td><td class="n">5 项需求，12 个接口</td></tr>
+<tr><td><span class="cls c3">03</span></td><td>有了更好，没有我们也有替代做法。</td><td>不阻拦。</td><td>已有的请确认能否开放；没有的看是否愿意提供，接口、参数、返回值已写明。</td><td class="n">11 项需求（涉及 Rex 现有接口 13 个）</td></tr>
+</tbody></table></div>
+<p class="lead" style="font-size:13px">01 里的“满足”指的是文档写明的参数和返回示例与功能对得上；原型每个页面显示的每个字段还没有和返回字段逐一对过。“必须”按原型第一阶段的页面判断：Home、DK mode、OFI、Enquiry 以及它们用到的联系人、房产、To-do 页面。</p>
+</section>
+<section id="src"><h2>出处说明</h2>
+<p class="lead">01 和 02 的每一条都有两类出处：需求从哪来，Rex 的情况依据什么。下面是所引用的资料。</p>
+<div class="scroll"><table><thead><tr><th>类型</th><th>引用时的写法</th><th>是什么</th><th>在哪里</th></tr></thead><tbody>
+<tr><td rowspan="3"><b>需求出处</b></td><td>原型 v13 › 页面 › 功能</td><td>AxleoCollect 手机原型 v13，按下面两份客户文档做出来的。出处标到页面和功能这一层。</td><td>项目内部的原型站点</td></tr>
+<tr><td>客户文档 Draft 2</td><td>AxleoCollect 手机 App 反馈 Draft 2，2026-11-07。</td><td>客户提供的 PDF</td></tr>
+<tr><td>客户文档 10 Nov</td><td>AxleoCollect Change Requests 10 Nov（9 项修改需求和界面示意）。</td><td>客户提供的 PDF</td></tr>
+<tr><td rowspan="3"><b>Rex 出处</b></td><td>API 文档 › 服务 › 方法</td><td>Rex 官方 API 文档，2026-11-12 取回的版本。方法的参数和返回来自 Service::describe（include_detail=1）；“describeModel”指该服务的数据结构和可搜索字段；“文章”指文档里的说明文章（Authentication、Integrations、Rate Limits 等）。</td><td><a href="https://apibrowser.rexsoftware.com/">apibrowser.rexsoftware.com</a></td></tr>
+<tr><td>Rex 邮件 2026-11-06</td><td>Rex API 团队（Christian Tanpoco）答复 Ping Han 的邮件，主题 “Write or read data / data entry”。</td><td>邮件原文由 Ping 转来</td></tr>
+<tr><td>Rex API Integration Guide</td><td>客户提供的 Word 文档（2026-11-04），是 Rex 文档 Integrations 文章的摘要，讲接入流程和费用。</td><td>Rex_API_Integration_Guide.docx</td></tr>
+</tbody></table></div>
+<p class="lead" style="font-size:13px">需求出处没有标到客户 PDF 的具体页码。写了“客户文档”的地方，是核对过文档里有这项要求的；其余只标原型页面。</p>
+</section>
+<div class="tabs" id="tabs" role="tablist"><button type="button" role="tab" id="t-conf" data-p="conf" aria-controls="conf">资料冲突<span>3</span></button><button type="button" role="tab" id="t-c1" data-p="c1" aria-controls="c1">Rex 已有并满足<span>27</span></button><button type="button" role="tab" id="t-c2" data-p="c2" aria-controls="c2">Rex 未满足 · 必要<span>17</span></button><button type="button" role="tab" id="t-c3" data-p="c3" aria-controls="c3">Rex 未满足 · 非必要<span>11</span></button></div>
+<section id="conf" class="panel" role="tabpanel" aria-labelledby="t-conf"><h2>资料之间的冲突，请 Rex 澄清以哪份为准</h2>
+<p class="lead">共 3 处。都是 Rex 邮件和 API 文档（含 Integration Guide）说法不一致，并且影响全部接口。每处都写了我们目前按哪种做。具体接口上的不一致（地址写法、返回字段、标签字段）归在“Rex 未满足 · 必要”里。</p>
+<article class="it ck" id="k1"><header><span class="cls ck">K1</span><h3>是否按公司账户收费，以及对应的限制</h3></header><div class="rows">
+<b>涉及接口</b><div>全部接口（接入前提和调用限额）</div>
+<b>说法一</b><div><span class="who">Rex 邮件 2026-11-06</span>专用的集成账号不计费，API 访问免费；限额是每个账户每小时 3,600 次。</div>
+<b>说法二</b><div><span class="who">API 文档 › Integrations 文章、Rate Limits 文章；Rex API Integration Guide</span>集成账号会占用中介公司的一个用户席位，可能增加月费；只有成为 Verified Integrator 才不占席位，而申请的前提是集成已经在至少一个正式账户上运行。限额是每个中介公司账户每小时 3,600 次，目前是软限制，文档说以后会严格执行。</div>
+<b>我们目前的做法</b><div>按邮件理解：不计费；后端按每小时 3,600 次排队限速。</div>
+<b>请 Rex 澄清</b><div>收费是否按中介公司（Place Sunnybank）的账户计算：集成账号从第一天起就不占席位、不收费，还是要先按席位付费，等 Verified Integrator 批准后才免？对应的限制是否也按公司账户计算：每小时 3,600 次是整个公司账户（包括办公室同事自己使用 Rex 和其他集成）共用，还是集成账号单独一份？超出后会怎样（拒绝、延迟、停用）？除此之外还有没有按账户计的限制，例如每天上限或并发数？</div>
+</div></article>
+<article class="it ck" id="k2"><header><span class="cls ck">K2</span><h3>测试环境能否使用</h3></header><div class="rows">
+<b>涉及接口</b><div>全部接口（上线前验证）</div>
+<b>说法一</b><div><span class="who">Rex 邮件 2026-11-06</span>API 写入会触发 Rex 自动化，请先在共享沙盒里测试。</div>
+<b>说法二</b><div><span class="who">API 文档 › Authentication 文章</span>沙盒账户只提供给 Verified Integrators。（同一份文档的 Integrations 文章又说可以通过咨询表申请测试账户。）</div>
+<b>我们目前的做法</b><div>还没有测试账号，所以本清单只对照过文档。</div>
+<b>请 Rex 澄清</b><div>我们现在能否拿到测试 / 沙盒账户？通过什么途径申请？</div>
+</div></article>
+<article class="it ck" id="k3"><header><span class="cls ck">K3</span><h3>X-App-Identifier 里写谁的名字</h3></header><div class="rows">
+<b>涉及接口</b><div>全部接口（每个请求的请求头）</div>
+<b>说法一</b><div><span class="who">Rex 邮件 2026-11-06</span>示例值是 Integration:PlaceSunnybank:Portal，公司名一段写的是中介公司。</div>
+<b>说法二</b><div><span class="who">API 文档 › Integrations 文章；Rex API Integration Guide</span>格式是 Integration:AcmeCorp:ServiceName，AcmeCorp 是集成方（开发公司）的名称。</div>
+<b>我们目前的做法</b><div>按邮件用 Integration:PlaceSunnybank:Portal。</div>
+<b>请 Rex 澄清</b><div>公司名一段应该写中介公司（PlaceSunnybank）还是集成方（Axleo）？这个值也是申请 Verified Integrator 的依据，请给出最终写法。</div>
+</div></article>
+<p class="lead" style="font-size:13px">token 的有效期不在此列：邮件说 token_lifetime 最长 1 周，API 文档建议不要连续多天用同一个 token。这一点不需要 Rex 回答，我们在沙盒里验证每次登录都能拿到新 token 即可，后端按天重新登录。</p>
+</section>
+<section id="c1" class="panel" role="tabpanel" aria-labelledby="t-c1"><h2><i>01</i>必须要有，Rex 已有并满足需求</h2>
+<p class="lead">共 27 个接口，都是 <code>POST https://api.rexsoftware.com/v1/rex/{Service}/{method}</code>。参数后带 <span class="req">*</span> 的为必填。这些接口文档里都有返回示例，只有 <code>Authentication::login</code>（返回字符串）和 <code>Properties::findPossibleDuplicate</code>（返回 id 或 false）除外。“请 Rex 确认”一列有内容的，是接口能用、但有一个细节文档没写。</p>
+<div class="ft"><h3>登录与会话 · 3</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k a">会话</span></td><td><code>Authentication::login</code><div></div></td><td>集成账号登录，换取 token</td><td class="exp"><code>email</code><span class=req>*</span> <code>password</code><span class=req>*</span> <code>account_id</code> <code>token_lifetime</code></td><td class="exp">result 为字符串 token。之后每个请求带 Authorization: Bearer &lt;token&gt;</td><td class="sr">登录与后台会话</td><td class="sr">API 文档 › Authentication › login；Rex 邮件 2026-11-06</td><td class="q"></td></tr>
+<tr><td><span class="k a">会话</span></td><td><code>UserProfile::getAccessibleAccounts</code><div></div></td><td>列出集成账号能进入的 Rex 账户</td><td class="exp"><code>limit_to_current_application</code> <code>return_account_ids_only</code></td><td class="exp">账户数组（id 和名称等）。用来确定 Place Sunnybank 的 account_id</td><td class="sr">登录与后台会话</td><td class="sr">API 文档 › UserProfile › getAccessibleAccounts</td><td class="q"></td></tr>
+<tr><td><span class="k a">会话</span></td><td><code>UserProfile::read</code><div></div></td><td>读取当前登录用户（集成账号）资料</td><td class="exp"><code>id</code> <code>fields</code> <code>extra_fields</code></td><td class="exp">当前用户资料对象。用来确认 token 有效、账号身份正确</td><td class="sr">登录与后台会话 · Me</td><td class="sr">API 文档 › UserProfile › read</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>用户与团队 · 1</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>AccountUsers::search</code><div></div></td><td>读取 Rex 账户里的用户</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[用户…], total}。可按 first_name、last_name、email、status 筛选</td><td class="sr">登录与后台会话 · Add enquiry · 后台</td><td class="sr">API 文档 › AccountUsers › search</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>查重与合并 · 1</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Contacts::findMatchingContacts</code><div></div></td><td>按手机号 / 邮箱 / 姓名判定是否已有联系人</td><td class="exp"><code>contact_type</code> <code>name_first</code> <code>name_last</code> <code>company_name</code> <code>email</code> <code>phones</code> <code>min_user_relationship_to_contact</code> <code>limit</code></td><td class="exp">{verdict: unique | multiple | none, truncated: bool, contacts:[{id, type, name, email_address, phone_number}], employer}</td><td class="sr">Offline voice captures · DK mode · Add contact · OFI check-in · Add enquiry</td><td class="sr">API 文档 › Contacts › findMatchingContacts；Rex 邮件 2026-11-06</td><td class="q">地址写法见 02-2</td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>联系人 · 4</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Contacts::search</code><div></div></td><td>搜索联系人</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, name, email_address, phone_number, contact_by_*, interest_level, last_contacted_date, system_owner_user…}], total}</td><td class="sr">My patch · 后台</td><td class="sr">API 文档 › Contacts › search</td><td class="q"></td></tr>
+<tr><td><span class="k r">读</span></td><td><code>Contacts::read</code><div></div></td><td>读取一个联系人的完整记录</td><td class="exp"><code>id</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code></td><td class="exp">联系人对象：address、is_dnd、contact_by_email/sms/phone/letter、interest_level、last_contacted_date、system_owner_user、system_modified_user、system_modtime、etag、security_user_rights，以及 related.contact_names / contact_phones / contact_emails / contact_tags / contact_relationships / contact_reln_property / contact_reln_listing / contact_mailing_lists</td><td class="sr">Property page · Contact record · Communication preferences · Add contact · Add enquiry</td><td class="sr">API 文档 › Contacts › read</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Contacts::create</code><div></div></td><td>新建联系人</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code> <code>options</code><div class="pd">data：type（person）、address、interest_level（hot|warm|cold）、contact_by_email / contact_by_sms / contact_by_phone / contact_by_letter（布尔）、marketing_enquiry_source{id}；related.contact_names[{name_first, name_last}]、related.contact_phones[{phone_type, phone_number, phone_primary, phone_primary_sms}]、related.contact_emails[{email_address, email_primary}]、related.contact_tags[{tag}]、related.contact_reln_property[{reln_type{id}, property{id}}]、related.contact_relationships[{relationship_type{id}, related_contact{id}}]</div></td><td class="exp">新记录 id（return_id=true）或完整记录</td><td class="sr">Offline voice captures · DK mode · Add contact · OFI check-in · Add enquiry</td><td class="sr">API 文档 › Contacts › create；Rex 邮件 2026-11-06</td><td class="q">related.contact_tags 里发一个账户里还没有的 tag 文本，是否自动建标签；标签写在哪个字段见 02-6</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Contacts::update</code><div></div></td><td>修改联系人（支持只发改动的部分）</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data：必须含 id；其余只发要改的字段。related 里的行：带 id 为修改，不带 id 为新增，加 destroy:true 为删除；没发的行不动</div></td><td class="exp">更新后的联系人记录（按 fields 裁剪）</td><td class="sr">Offline voice captures · Market monitor · My patch · DK mode · Property page · Contact record · Communication preferences · Add contact · OFI check-in · Edit + more info · Add enquiry · Enquiry 详情</td><td class="sr">API 文档 › Contacts › update；Rex 邮件 2026-11-06</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>询盘 Lead · 4</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Leads::read</code><div></div></td><td>读取一条 Lead</td><td class="exp"><code>id</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code></td><td class="exp">Lead 对象：note / body_snippet、contact、listing、property、assignee、lead_type、lead_source、完成时间</td><td class="sr">Enquiry 详情</td><td class="sr">API 文档 › Leads › read</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Leads::create</code><div></div></td><td>新建 Lead（询盘、开放参观签到）</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：note（必填内容）、contact{id}、listing{id} 或 property{id}、assignee{id}（Rex 用户 id）、lead_type{id}（值列表 lead_type，如 appraisal_request）、lead_source{id}（值列表 enquiry_source）</div></td><td class="exp">新 Lead 的 id 或完整记录（含 body_snippet、contact、listing、assignee、security_user_rights）</td><td class="sr">OFI check-in · Add enquiry</td><td class="sr">API 文档 › Leads › create；Rex 邮件 2026-11-06</td><td class="q">assignee{id} 直接指定经纪人时，集成账号是否需要 leads.assign_to_anyone 权限；只传 listing{id}、不传 assignee 时，Lead 会不会自动指派给该挂牌的经纪人（文档只写了 ::assign_round_robin 的轮派规则）。地址写法见 02-2</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Leads::update</code><div></div></td><td>修改 Lead（如改指派人）</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data：含 id；如 assignee{id}、note</div></td><td class="exp">更新后的 Lead 记录</td><td class="sr">Enquiry 详情</td><td class="sr">API 文档 › Leads › update</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Leads::toggleCompletionState</code><div></div></td><td>把 Lead 标为完成 / 未完成</td><td class="exp"><code>id</code><span class=req>*</span> <code>is_completed</code> <code>dry_run</code></td><td class="exp">更新后的 Lead 记录</td><td class="sr">Enquiry 详情</td><td class="sr">API 文档 › Leads › toggleCompletionState</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>备注与沟通记录 · 2</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Notes::search</code><div></div></td><td>读取联系人或房产的备注</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, note, note_type{id,text}, system_ctime, system_created_user, related.note_contacts, related.note_properties}], total}</td><td class="sr">Property page · Contact record</td><td class="sr">API 文档 › Notes › search</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Notes::create</code><div></div></td><td>新建备注</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：note（正文）、note_type{id}（值列表 note_type，如 phonecall）、update_last_contacted（true 时刷新联系人的最后联系日期）、related.note_contacts[{contact_id}]、related.note_properties[{property_id}]</div></td><td class="exp">新备注 id 或完整记录（含 etag、note_type、related）</td><td class="sr">Offline voice captures · Market monitor · DK mode · Full-screen map · Property page · Contact record · Communication preferences · OFI check-in · Edit + more info · Me · Talk to me 翻译</td><td class="sr">API 文档 › Notes › create；Rex 邮件 2026-11-06</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>To-do 提醒 · 2</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k w">写</span></td><td><code>Reminders::create</code><div></div></td><td>新建提醒（To-do）</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：reminder_type{id}（phone | appointment | email | letter | sms | task）、remindee{type, id}（type: user | user_group | system；system 时 id 为 record_owner 或 all_users）、reminder_description、reminder_date（YYYY-MM-DD）、reminder_time、contact{id}、property{id}、listing{id}、priority{id}</div></td><td class="exp">新提醒 id 或完整记录（含 etag、remindee、security_user_rights）</td><td class="sr">Offline voice captures · DK mode · Property page · Contact record · To-dos · OFI check-in · Edit + more info</td><td class="sr">API 文档 › Reminders › create</td><td class="q">指派给同事后，Rex 是否推送手机通知</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Reminders::update</code><div></div></td><td>修改提醒（内容、日期、转交）</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data：含 id；如 remindee{type,id}、reminder_date、reminder_time、reminder_description</div></td><td class="exp">更新后的提醒记录</td><td class="sr">To-dos</td><td class="sr">API 文档 › Reminders › update</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>预约估价与日历 · 3</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Appraisals::search</code><div></div></td><td>搜索估价记录</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, appraisal_date, property, agent_1, price_min, price_max, interest_level, appraisal_state}], total}</td><td class="sr">Home · My activity 清单</td><td class="sr">API 文档 › Appraisals › search</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Appraisals::create</code><div></div></td><td>新建估价（Book appraisal）</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：property{id}、appraisal_date、agent_1{id}、agent_2{id}、price_min、price_max、price_asking、price_rent、interest_level</div></td><td class="exp">新估价 id 或完整记录（含 appraisal_state、property、agent）</td><td class="sr">Property page</td><td class="sr">API 文档 › Appraisals › create</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>CalendarEvents::create</code><div></div></td><td>在 Rex 日历里建预约</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：calendar{id}、title、description、starts_at{time, tzid}、ends_at{time, tzid}、event_location{description, latitude, longitude}、appointment_type{id}、organiser_user{id}、records[{id, service}]（关联 Properties 和 Contacts）、followup_reminder</div></td><td class="exp">新事件 id（字符串 UUID）或完整记录</td><td class="sr">Property page</td><td class="sr">API 文档 › CalendarEvents › create</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>买家匹配档案 · 2</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k w">写</span></td><td><code>MatchProfiles::create</code><div></div></td><td>新建买家匹配档案</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：profile_name、category（如 residential_sale）、contact{id}、price{min,max}、price_match{min,max}、attr_bedrooms{min,max}、attr_bathrooms{min,max}、related.suburbs[{suburb_or_town, state_or_region, postcode, country}]</div></td><td class="exp">新档案记录（id、profile_name、category、contact、price、attr_*、related.suburbs）</td><td class="sr">Contact record · Edit + more info</td><td class="sr">API 文档 › MatchProfiles › create</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>MatchProfiles::update</code><div></div></td><td>修改买家匹配档案</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data：含 id；其余同 create</div></td><td class="exp">更新后的档案记录</td><td class="sr">Contact record · Edit + more info</td><td class="sr">API 文档 › MatchProfiles › update</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>房产与地图 · 4</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Properties::search</code><div></div></td><td>搜索房产</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, system_search_key（完整地址）, adr_*, adr_latitude, adr_longitude, attr_bedrooms…, system_owner_user}], total}</td><td class="sr">My patch · DK mode · Full-screen map · Add enquiry · 后台</td><td class="sr">API 文档 › Properties › search</td><td class="q"></td></tr>
+<tr><td><span class="k r">读</span></td><td><code>Properties::read</code><div></div></td><td>读取一处房产</td><td class="exp"><code>id</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code></td><td class="exp">房产对象：adr_*、attr_bedrooms / attr_bathrooms / attr_garages / attr_landarea、title_number、is_dnd、related.contact_reln_property（业主等关系人）、related.property_tags</td><td class="sr">Market monitor · DK mode · Full-screen map · Property page</td><td class="sr">API 文档 › Properties › read</td><td class="q"></td></tr>
+<tr><td><span class="k r">读</span></td><td><code>Properties::findPossibleDuplicate</code><div></div></td><td>新建房产前按地址查重</td><td class="exp"><code>adr_unit_number</code> <code>adr_street_number</code> <code>adr_street_name</code> <code>adr_suburb_or_town</code> <code>adr_state_or_region</code> <code>adr_postcode</code> <code>property_category_id</code> <code>order_by_most_recent</code></td><td class="exp">已有房产的 id；没有则 false</td><td class="sr">Market monitor · Add enquiry</td><td class="sr">API 文档 › Properties › findPossibleDuplicate</td><td class="q"></td></tr>
+<tr><td><span class="k w">写</span></td><td><code>Properties::create</code><div></div></td><td>新建房产（Rex 里还没有的地址）</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data：property_category{id}（residential）、adr_unit_number、adr_street_number、adr_street_name、adr_suburb_or_town、adr_state_or_region、adr_postcode、adr_country、adr_latitude、adr_longitude、attr_bedrooms / attr_bathrooms / attr_garages / attr_landarea</div></td><td class="exp">新房产 id 或完整记录</td><td class="sr">Add enquiry</td><td class="sr">API 文档 › Properties › create</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>挂牌与开放参观 · 1</h3><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>我们用它做什么</th><th>参数</th><th>期望返回</th><th>需求出处（原型 v13 页面）</th><th>Rex 出处</th><th>请 Rex 确认</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>Listings::search</code><div></div></td><td>搜索本公司挂牌</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, property{…地址}, listing_category, system_listing_state, price_advertise_as, listing_agent_1…}], total}</td><td class="sr">Full-screen map · OFI · Add enquiry</td><td class="sr">API 文档 › Listings › search</td><td class="q"></td></tr>
+</tbody></table></div></div>
+</section>
+<section id="c2" class="panel" role="tabpanel" aria-labelledby="t-c2"><h2><i>02</i>必须要有，Rex 没有或不够用</h2>
+<p class="lead">按业务功能分组，共 17 条，分两种情况，每条标题后有标记。</p>
+<p class="lead"><span class="has n">Rex 没有或不够用</span> 5 条。写明：要什么、为什么要、Rex 现在的情况、希望的接口，以及接口做不了时希望导出的 JSON 结构。JSON 里的值是示意，字段名可以按 Rex 的习惯改，告诉我们对应关系即可。标了“名称仅示意”的接口是我们示意的，Rex 现在没有。</p>
+<p class="lead"><span class="has n">返回结构没写或不完整</span> 12 条。这些接口我们必须用，参数也都核对过，但 Rex 文档对返回值只写了“array”或一句话，没有字段（Reminders::search 有示例但缺字段）。“期望返回结构”是我们按功能需要和 Rex 的数据模型写的，不是 Rex 给的。请 Rex 逐个确认或给出实际的返回示例；字段名不同没关系，告诉我们对应关系即可。</p>
+<h3 id="c2-init">初始化数据 · 1</h3>
+<article class="it c2" id="m3"><header><span class="cls c2">02-1</span><h3>初始化数据：全部联系人、房产，以及两者的关系</h3><span class="has n">Rex 没有或不够用</span></header><div class="rows">
+<b>我们需要什么</b><div>上线前一次性取得三部分数据：账户里的全部联系人、片区内的全部房产、联系人和房产的关系（谁是哪处房产的业主、租客等）。之后每天增量更新。房产如果 Rex 不提供，我们用 Pricefinder 导出的数据，这时需要把每条 Pricefinder 房产对应到 Rex 的房产 id。</div>
+<b>为什么需要</b><div><ul><li>DK mode、My patch、地图和房产页一打开就要显示这处房子的业主是谁、上次联系是什么时候。现场信号不稳定，也有每小时 3,600 次的限额，不能每次都去 Rex 现查，所以 AxleoCollect 要有一份本地副本。</li><li>三部分缺一不可：只有联系人没有关系，就不知道业主住在哪处房子；只有房产没有联系人，敲门时看不到业主。</li><li>Pricefinder 导出的房产可能不带 Rex 的房产 id。对不上的话，同一处房子会出现两条，业主关系也挂不到 Pricefinder 那一条上，之后写回 Rex 时也不知道该写到哪条房产。</li></ul></div>
+<b>Rex 现在的情况</b><div><ul><li>Contacts::search 默认格式每页最多 100 条，可以用 extra_options 带出 related.contact_reln_property（联系人和房产的关系）、related.contact_tags、电话和邮箱。按每小时 3,600 次算，分页全量每小时最多约 36 万条。文档没有说是否允许这样全量拉取，也没有说集成账号能否看到账户里的全部联系人。</li><li>Properties::search 同样每页最多 100 条，extra_options 里有 contact_reln_property；etags 格式每页 50,000 条，可用于之后的增量对账。</li><li>有 Export::queueExport(service_name, criteria, options, output_format)，返回一个异步任务的 token。文档没有写支持哪些服务、有哪些输出格式、结果文件怎么取。</li><li>Rex 里可以存 “Rex 房产 ↔ Pricefinder 房产 id” 的关联：ThirdPartyServicePriceFinderPropertyV2::setPropertyRemoteId(connection_id, local_property_id, remote_property_id)。但 Properties 的数据结构和可搜索字段里看不到这个关联 id，文档里没有读出它的办法。</li><li>按地址找 Rex 房产有 Properties::findPossibleDuplicate，一次只能查一处。</li><li>ThirdPartyServicePriceFinderImportV2::queuePropertyImport 在文档里写明 Refused：Domain 的数据协议只允许手工逐条把 Pricefinder 房产导入 Rex。所以 Pricefinder 里有、Rex 里没有的房产，我们不会批量建到 Rex 里，只存在 AxleoCollect。</li></ul></div>
+<b>希望的接口</b><div><div>沿用现有接口，请 Rex 回答下面三点</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>Contacts::search · Properties::search</code></td><td>是否允许集成账号分页拉取全量（limit 100，带 related.*）；集成账号能否看到全部联系人和房产</td><td>全量</td></tr><tr><td><code>Export::queueExport</code></td><td>是否对集成账号开放；支持的 service_name 和 output_format；结果文件怎么取</td><td>全量</td></tr><tr><td><code>Properties::read · Properties::search</code></td><td>返回每处房产关联的 Pricefinder 房产 id（setPropertyRemoteId 写入的值），用于和 Pricefinder 导出的数据对应</td><td>匹配</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>联系人、房产、关系三份数据，字段见下面的 JSON</div></div>
+<b>或者导出数据</b><div>如果接口不适合全量拉取：请一次性导出这三份数据（JSON 或 CSV 都可以），结构如下。房产如果 Rex 不提供，请至少给出 “Rex 房产 id、地址、Pricefinder 房产 id” 的对照表，我们用它把 Pricefinder 导出的数据对应到 Rex。<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;contacts&quot;: [
+    {
+      &quot;rex_contact_id&quot;: 678,
+      &quot;type&quot;: &quot;person&quot;,
+      &quot;name_first&quot;: &quot;Mary&quot;,
+      &quot;name_last&quot;: &quot;Chen&quot;,
+      &quot;phones&quot;: [
+        {
+          &quot;type&quot;: &quot;mobile&quot;,
+          &quot;number&quot;: &quot;0412 778 201&quot;,
+          &quot;primary&quot;: true
+        }
+      ],
+      &quot;emails&quot;: [
+        {
+          &quot;address&quot;: &quot;mary@example.com&quot;,
+          &quot;primary&quot;: true
+        }
+      ],
+      &quot;contact_by_sms&quot;: true,
+      &quot;contact_by_phone&quot;: true,
+      &quot;contact_by_email&quot;: true,
+      &quot;contact_by_letter&quot;: true,
+      &quot;tags&quot;: [
+        &quot;Seller lead&quot;,
+        &quot;Area: Gager West&quot;
+      ],
+      &quot;interest_level&quot;: &quot;warm&quot;,
+      &quot;last_contacted_date&quot;: &quot;2026-10-30&quot;,
+      &quot;owner_user&quot;: {
+        &quot;id&quot;: 12,
+        &quot;name&quot;: &quot;Natalie Wong&quot;
+      },
+      &quot;etag&quot;: &quot;678-1794500000&quot;
+    }
+  ],
+  &quot;properties&quot;: [
+    {
+      &quot;rex_property_id&quot;: 5,
+      &quot;pricefinder_property_id&quot;: &quot;12345678&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;8&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5812,
+      &quot;longitude&quot;: 153.0571,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 4,
+      &quot;bathrooms&quot;: 2,
+      &quot;car_spaces&quot;: 2,
+      &quot;land_area_m2&quot;: 607,
+      &quot;etag&quot;: &quot;5-1794400000&quot;
+    }
+  ],
+  &quot;relationships&quot;: [
+    {
+      &quot;rex_contact_id&quot;: 678,
+      &quot;rex_property_id&quot;: 5,
+      &quot;reln_type&quot;: &quot;owner&quot;
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td><code>pricefinder_property_id</code></td><td>Rex 里有关联就给，没有给 null。有它我们按 id 对应；没有时按规范化后的地址对应，对不上的交给人工确认</td></tr><tr><td><code>relationships.reln_type</code></td><td>owner、tenant 等，Rex 的关系类型 id</td></tr><tr><td><code>etag</code></td><td>之后做增量对账用</td></tr></tbody></table></div></div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>项目方要求（2026-11-13）：初始化需要联系人、房产、两者关系三部分数据；房产可能来自 Pricefinder 导出，需要和 Rex 的 id 对应</li><li>原型 v13：DK mode › 业主卡；My patch；Full-screen map；Property page；Contact record；后台的夜间对账</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Contacts › describeModel（search_result_formats、search_extra_options）；Properties › describeModel（同上）</li><li>API 文档 › Rate Limits 文章（每小时 3,600 次）；E-tags Sync 文章</li><li>API 文档 › Export › queueExport</li><li>API 文档 › ThirdPartyServicePriceFinderPropertyV2 › setPropertyRemoteId；ThirdPartyServicePriceFinderImportV2 › queuePropertyImport；Properties › findPossibleDuplicate</li></ul></div>
+</div></article>
+<h3 id="c2-auth">登录与会话 · 1</h3>
+<article class="it c2" id="m5"><header><span class="cls c2">02-2</span><h3>接口地址的写法</h3><span class="has n">Rex 没有或不够用</span></header><div class="rows">
+<b>我们需要什么</b><div>请确认调用接口时地址用哪种写法，两种是否都有效。</div>
+<b>为什么需要</b><div><ul><li>每一次调用都要用到地址；写法不对，所有接口都调不通。</li><li>邮件点名的两个接口（建 Lead、联系人查重）是询盘和签到的核心，上线前必须确定。</li></ul></div>
+<b>Rex 现在的情况</b><div><ul><li>Rex 邮件写的是 leads/create、contacts/find-matching-contacts（小写加连字符）。</li><li>API 文档写的是 /v1/rex/Leads/create、/v1/rex/Contacts/findMatchingContacts（服务名大写开头，方法名驼峰）。</li><li>我们目前按 API 文档的写法。</li></ul></div>
+<b>希望的接口</b><div><div>请 Rex 确认以哪一种为准</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>POST /v1/rex/Leads/create</code></td><td>API 文档的写法</td><td>目前采用</td></tr><tr><td><code>POST …/leads/create</code></td><td>邮件的写法；完整地址是什么</td><td>待确认</td></tr><tr><td><code>POST /v1/rex/Contacts/findMatchingContacts</code></td><td>API 文档的写法</td><td>目前采用</td></tr><tr><td><code>POST …/contacts/find-matching-contacts</code></td><td>邮件的写法；完整地址是什么</td><td>待确认</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>不涉及返回值</div></div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>全部接口的调用前提</li></ul><div><b>Rex</b></div><ul><li>Rex 邮件 2026-11-06</li><li>API 文档 › Leads › create；Contacts › findMatchingContacts；Authentication 文章</li></ul></div>
+</div></article>
+<h3 id="c2-user">用户与团队 · 1</h3>
+<article class="it c2" id="b-remindees"><header><span class="cls c2">02-3</span><h3><code>Reminders::getRemindeeList</code></h3><span class="k r">读</span><span>可被指派提醒的人和用户组</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>To-do 的指派人下拉要列出可指派的同事和用户组。</div>
+<b>参数（已核对）</b><div><div><span class="none">无参数</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array An array of users...”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;type&quot;: &quot;user&quot;,
+      &quot;id&quot;: 12,
+      &quot;name&quot;: &quot;Natalie Wong&quot;
+    },
+    {
+      &quot;type&quot;: &quot;user_group&quot;,
+      &quot;id&quot;: 3,
+      &quot;name&quot;: &quot;Sales team&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>返回里每一项是否带 type、id 和显示名。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Property page · To-dos</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Reminders › getRemindeeList（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Reminders › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-dedupe">查重与合并 · 2</h3>
+<article class="it c2" id="b-dupes"><header><span class="cls c2">02-4</span><h3><code>Dedupe::findPossibleDuplicates</code></h3><span class="k r">读</span><span>找出某条记录的疑似重复</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>联系人页的“疑似重复”卡要显示和哪条记录重复，并把两条记录的 id 交给合并接口。</div>
+<b>参数（已核对）</b><div><div><code>service_name</code><span class=req>*</span> <span class="none">string，Contacts</span><br><code>match_fields</code><span class=req>*</span> <span class="none">array，要求相同的字段，可选 email / phone / names；全部相同才算</span><br><code>company_or_person</code> <span class="none">string，person | company</span><br><code>record_id</code> <span class="none">int，只查这条记录的重复项</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array Returns an array of possible duplicates where each entry is an object in the form {winning_id, losing_ids, number_of_dupes, name, email_address, phone_number, contact_image}”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;winning_id&quot;: 678,
+      &quot;losing_ids&quot;: [
+        912
+      ],
+      &quot;number_of_dupes&quot;: 1,
+      &quot;name&quot;: &quot;Mary Chen&quot;,
+      &quot;email_address&quot;: &quot;mary@example.com&quot;,
+      &quot;phone_number&quot;: &quot;0412 778 201&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>每组重复是否给出保留和被并入的 id，以及用于显示的姓名、手机、邮箱。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Contact record</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Dedupe › findPossibleDuplicates（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Dedupe › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<article class="it c2" id="b-merge"><header><span class="cls c2">02-5</span><h3><code>Dedupe::combineRecords</code></h3><span class="k w">写</span><span>合并重复记录</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>Compare and merge：经纪人选好保留哪些值后，把两条联系人合成一条。</div>
+<b>参数（已核对）</b><div><div><code>service_name</code><span class=req>*</span> <span class="none">string，Contacts（也支持 Properties）</span><br><code>winning_id</code><span class=req>*</span> <span class="none">int，保留的记录 id</span><br><code>losing_ids</code><span class=req>*</span> <span class="none">int[]，被并入的记录 id；其内容并入保留记录</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;winning_id&quot;: 678,
+    &quot;merged_ids&quot;: [
+      912
+    ],
+    &quot;record&quot;: {
+      &quot;id&quot;: 678,
+      &quot;etag&quot;: &quot;…&quot;
+    }
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>集成账号需要什么权限；两条记录字段冲突时保留哪边；合并后备注、Lead、标签、关系是否全部并到保留的记录上；返回什么。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Contact record</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Dedupe › combineRecords（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Dedupe › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-tag">标签 · 2</h3>
+<article class="it c2" id="m4"><header><span class="cls c2">02-6</span><h3>联系人标签：写在哪个字段，以及按使用场景分组（DK、OFI、Enquiry）</h3><span class="has n">Rex 没有或不够用</span></header><div class="rows">
+<b>我们需要什么</b><div>每个联系人标签带一个“场景”属性，或者 Rex 指定一种约定，让我们知道哪些标签在 DK mode 里用、哪些在 OFI 里用、哪些在 Enquiry 里用。并请确认联系人标签应该写在哪个字段、这种写法长期有效。</div>
+<b>为什么需要</b><div><ul><li>标签和联系人所处的场景相关：敲门（DK）时用和 DK 相关的标签，开放参观（OFI）时用和 OFI 相关的标签，录询盘时又是另一组。每个页面只应该列出本场景的标签。</li><li>办公室在 Rex 里新建的标签，也要能自动进到对应场景的清单里，不用再到 AxleoCollect 里配一遍。</li><li>这几个页面保存时都靠 Contacts::create / update 写标签，所以标签的写法不能失效。</li></ul></div>
+<b>Rex 现在的情况</b><div><ul><li>AdminTags 的记录只有 id、tag、object_type、cached_count，没有分组或类别字段；object_type 只区分联系人标签和房产标签。</li><li>标签字段在文档里说法不一：Contacts 的 describeModel 把 contact_tags 标为 “(Deprecated) Tags associated with the contact”，同一份清单里的 related.contact_tags 没有标 Deprecated。</li><li>Contacts::create 和 update 的请求示例把标签写在 data.related.contact_tags；但参数定义的 related 下只列了 contact_emails、contact_phones、contact_names，没有 contact_tags。Rex 邮件说标签用 related.contact_tags。</li><li>我们目前读写都用 related.contact_tags，不用顶层的 contact_tags。</li></ul></div>
+<b>希望的接口</b><div><div>在现有接口上加一个字段（名称仅示意）</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>Contacts::create · update · read</code></td><td>请确认：被弃用的只是顶层的 contact_tags，related.contact_tags 长期保留；如果标签功能本身要下线，请告知替代方案</td><td>确认</td></tr><tr><td><code>AdminTags::search</code></td><td>返回行增加 group：dk | ofi | enquiry | 空</td><td>读</td></tr><tr><td><code>AdminTags::create</code></td><td>data:{tag, object_type, group}</td><td>写</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>{rows:[{id, tag, object_type, group, cached_count}], total}</div></div>
+<b>或者导出数据</b><div>如果 Rex 不加字段：“标签 → 场景”的对照由 AxleoCollect 自己维护。这时请导出账户现有的联系人标签清单，由中介公司标好场景后我们导入。<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;tags&quot;: [
+    {
+      &quot;id&quot;: 31,
+      &quot;tag&quot;: &quot;Seller lead&quot;,
+      &quot;object_type&quot;: &quot;contact&quot;,
+      &quot;scenarios&quot;: [
+        &quot;enquiry&quot;,
+        &quot;dk&quot;
+      ],
+      &quot;use_count&quot;: 214
+    },
+    {
+      &quot;id&quot;: 47,
+      &quot;tag&quot;: &quot;Neighbour&quot;,
+      &quot;object_type&quot;: &quot;contact&quot;,
+      &quot;scenarios&quot;: [
+        &quot;ofi&quot;
+      ],
+      &quot;use_count&quot;: 96
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td><code>scenarios</code></td><td>dk | ofi | enquiry，可以多个；导出时可以留空，由中介公司填</td></tr><tr><td><code>use_count</code></td><td>标签已用的次数，用来排序</td></tr></tbody></table></div></div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>项目方要求（2026-11-13）：标签和联系人的场景相关，DK 有 DK 的标签，OFI 有 OFI 的标签</li><li>原型 v13：DK mode › 保存时的标签；OFI › 签到标签（如 Neighbour）；Add enquiry › 标签（如 Seller lead）；Contact record › 标签</li></ul><div><b>Rex</b></div><ul><li>API 文档 › AdminTags › describeModel（数据结构）</li><li>API 文档 › Contacts › describeModel；Contacts › create 的请求示例</li><li>Rex 邮件 2026-11-06（标签用 related.contact_tags）</li></ul></div>
+</div></article>
+<article class="it c2" id="b-tags"><header><span class="cls c2">02-7</span><h3><code>AdminTags::search</code></h3><span class="k r">读</span><span>读取账户里的标签清单</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>联系人页和 Add enquiry 的标签清单、标签搜索。</div>
+<b>参数（已核对）</b><div><div><code>criteria</code> <span class="none">array，条件数组，每项 {name, type, value}；type 默认 =，可用 in / between / &gt;= 等</span><br><code>order_by</code> <span class="none">object，{字段名: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int，跳过的行数，默认 0</span><br><code>limit</code> <span class="none">int，返回行数，默认 20；default 格式上限 100</span><br><code>result_format</code> <span class="none">string，default | ids | etags（各服务另有扩展格式）</span><br><code>extra_options</code> <span class="none">array，个别服务才支持</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 31,
+        &quot;tag&quot;: &quot;Seller lead&quot;,
+        &quot;object_type&quot;: &quot;contact&quot;,
+        &quot;cached_count&quot;: 214
+      }
+    ],
+    &quot;total&quot;: 58
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>search 的返回行是否就是这四个字段。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Contact record · Add enquiry</li></ul><div><b>Rex</b></div><ul><li>API 文档 › AdminTags › search（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › AdminTags › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-lead">询盘 Lead · 1</h3>
+<article class="it c2" id="b-leadsearch"><header><span class="cls c2">02-8</span><h3><code>Leads::search</code></h3><span class="k r">读</span><span>搜索 Lead</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>Enquiry 清单、OFI 到场者清单、联系人页的询盘历史。</div>
+<b>参数（已核对）</b><div><div><code>criteria</code> <span class="none">array，条件数组，每项 {name, type, value}；type 默认 =，可用 in / between / &gt;= 等</span><br><code>order_by</code> <span class="none">object，{字段名: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int，跳过的行数，默认 0</span><br><code>limit</code> <span class="none">int，返回行数，默认 20；default 格式上限 100</span><br><code>result_format</code> <span class="none">string，default | ids | etags（各服务另有扩展格式）</span><br><code>extra_options</code> <span class="none">array，个别服务才支持</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 2051,
+        &quot;contact&quot;: {
+          &quot;id&quot;: 678,
+          &quot;name&quot;: &quot;Mary Chen&quot;
+        },
+        &quot;listing&quot;: {
+          &quot;id&quot;: 77,
+          &quot;property&quot;: {
+            &quot;system_search_key&quot;: &quot;8 Gager Street, Sunnybank QLD 4109&quot;
+          }
+        },
+        &quot;property&quot;: null,
+        &quot;assignee&quot;: {
+          &quot;id&quot;: 12,
+          &quot;name&quot;: &quot;Natalie Wong&quot;
+        },
+        &quot;lead_type&quot;: {
+          &quot;id&quot;: &quot;appraisal_request&quot;,
+          &quot;text&quot;: &quot;Appraisal request&quot;
+        },
+        &quot;lead_source&quot;: {
+          &quot;id&quot;: 1,
+          &quot;text&quot;: &quot;Open home&quot;
+        },
+        &quot;body_snippet&quot;: &quot;Thinking of selling next year…&quot;,
+        &quot;system_ctime&quot;: 1794500000,
+        &quot;system_completed_time&quot;: null
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>search 的返回行是否带联系人、挂牌 / 房产、指派人的名称（不只是 id），以及摘要和时间。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Contact record · OFI 详情与到场者 · Enquiry</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Leads › search（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Leads › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-todo">To-do 提醒 · 2</h3>
+<article class="it c2" id="b-remsearch"><header><span class="cls c2">02-9</span><h3><code>Reminders::search</code></h3><span class="k r">读</span><span>读取提醒（To-do）</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>Home 的到期待办和 To-do 页的 Mine、Assigned by me、Completed 三个清单都靠它，每条要显示日期和时间。</div>
+<b>参数（已核对）</b><div><div><code>criteria</code> <span class="none">array，条件数组，每项 {name, type, value}；type 默认 =，可用 in / between / &gt;= 等</span><br><code>order_by</code> <span class="none">object，{字段名: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int，跳过的行数，默认 0</span><br><code>limit</code> <span class="none">int，返回行数，默认 20；default 格式上限 100</span><br><code>result_format</code> <span class="none">string，default | ids | etags（各服务另有扩展格式）</span><br><code>extra_options</code> <span class="none">array，个别服务才支持</span></div></div>
+<b>文档对返回的说明</b><div>文档有返回示例，但示例里没有 reminder_time；数据结构和可搜索字段里有这个字段。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 40117,
+        &quot;reminder_description&quot;: &quot;Call back about appraisal&quot;,
+        &quot;reminder_date&quot;: &quot;2026-11-14&quot;,
+        &quot;reminder_time&quot;: &quot;09:30:00&quot;,
+        &quot;reminder_type&quot;: {
+          &quot;id&quot;: &quot;call&quot;,
+          &quot;text&quot;: &quot;Call&quot;
+        },
+        &quot;remindee&quot;: {
+          &quot;type&quot;: &quot;user&quot;,
+          &quot;id&quot;: 12,
+          &quot;display&quot;: &quot;Natalie Wong&quot;
+        },
+        &quot;contact&quot;: {
+          &quot;id&quot;: 678,
+          &quot;name&quot;: &quot;Mary Chen&quot;
+        },
+        &quot;property&quot;: {
+          &quot;id&quot;: 5,
+          &quot;system_search_key&quot;: &quot;8 Gager Street, Sunnybank QLD 4109&quot;
+        },
+        &quot;system_created_user&quot;: {
+          &quot;id&quot;: 12,
+          &quot;name&quot;: &quot;Natalie Wong&quot;
+        },
+        &quot;system_completed_time&quot;: null
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>search 和 read 的返回是否带 reminder_time，要不要额外请求某个字段组；“指派给我”的条件用 remindee_user_id，还是 remindee_type 加 remindee_id；“未完成”是否就是 system_completed_time 为空。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Home · To-dos</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Reminders › search（参数；返回示例缺 reminder_time）</li><li>期望结构的依据：API 文档 › Reminders › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<article class="it c2" id="b-remdone"><header><span class="cls c2">02-10</span><h3><code>Reminders::toggleCompletionState</code></h3><span class="k w">写</span><span>完成 / 重新打开提醒</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>To-do 勾选完成 / 重新打开；客户要求完成时在 Rex 留一条记录。</div>
+<b>参数（已核对）</b><div><div><code>id</code><span class=req>*</span> <span class="none">int，提醒 id</span><br><code>is_completed</code> <span class="none">bool，true 完成，false 重新打开</span><br><code>create_activity_entry</code> <span class="none">bool，true 时在 Rex 活动记录里留一条</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array A read after the update”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;id&quot;: 40117,
+    &quot;reminder_description&quot;: &quot;Call back about appraisal&quot;,
+    &quot;reminder_date&quot;: &quot;2026-11-14&quot;,
+    &quot;reminder_time&quot;: &quot;09:30:00&quot;,
+    &quot;remindee&quot;: {
+      &quot;type&quot;: &quot;user&quot;,
+      &quot;id&quot;: 12
+    },
+    &quot;system_completed_time&quot;: 1794533000,
+    &quot;system_completed_user&quot;: {
+      &quot;id&quot;: 12,
+      &quot;name&quot;: &quot;Natalie Wong&quot;
+    }
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>返回是否就是更新后的提醒；create_activity_entry=true 是否等于在联系人上记一条备注。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Home · To-dos</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Reminders › toggleCompletionState（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Reminders › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-match">买家匹配档案 · 1</h3>
+<article class="it c2" id="b-mpsearch"><header><span class="cls c2">02-11</span><h3><code>MatchProfiles::search</code></h3><span class="k r">读</span><span>读取联系人的买家匹配档案</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>联系人页和 OFI 的 Edit + more info 要先读出买家已有的匹配档案，再决定新建还是修改。</div>
+<b>参数（已核对）</b><div><div><code>criteria</code> <span class="none">array，条件数组，每项 {name, type, value}；type 默认 =，可用 in / between / &gt;= 等</span><br><code>order_by</code> <span class="none">object，{字段名: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int，跳过的行数，默认 0</span><br><code>limit</code> <span class="none">int，返回行数，默认 20；default 格式上限 100</span><br><code>result_format</code> <span class="none">string，default | ids | etags（各服务另有扩展格式）</span><br><code>extra_options</code> <span class="none">array，个别服务才支持</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 902,
+        &quot;profile_name&quot;: &quot;Runcorn 3 bed&quot;,
+        &quot;category&quot;: &quot;residential_sale&quot;,
+        &quot;contact&quot;: {
+          &quot;id&quot;: 678
+        },
+        &quot;price&quot;: {
+          &quot;min&quot;: 900000,
+          &quot;max&quot;: 1100000
+        },
+        &quot;attr_bedrooms&quot;: {
+          &quot;min&quot;: 3,
+          &quot;max&quot;: null
+        },
+        &quot;attr_bathrooms&quot;: {
+          &quot;min&quot;: 2,
+          &quot;max&quot;: null
+        },
+        &quot;related&quot;: {
+          &quot;suburbs&quot;: [
+            {
+              &quot;suburb_or_town&quot;: &quot;Runcorn&quot;,
+              &quot;state_or_region&quot;: &quot;QLD&quot;,
+              &quot;postcode&quot;: &quot;4113&quot;
+            }
+          ]
+        }
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>按联系人筛选的条件怎么写；返回行是否带价格、卧室、浴室、区。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Contact record</li></ul><div><b>Rex</b></div><ul><li>API 文档 › MatchProfiles › search（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › MatchProfiles › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-prop">房产与地图 · 2</h3>
+<article class="it c2" id="b-phist"><header><span class="cls c2">02-12</span><h3><code>Properties::getHistory</code></h3><span class="k r">读</span><span>房产历史（其他中介挂牌、估价、本公司挂牌）</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>房产页显示这处房产在 Rex 里的挂牌和估价历史。</div>
+<b>参数（已核对）</b><div><div><code>id</code><span class=req>*</span> <span class="none">int，房产 id</span><br><code>limit</code> <span class="none">int，条数</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;type&quot;: &quot;listing&quot;,
+      &quot;id&quot;: 77,
+      &quot;date&quot;: &quot;2024-05-02&quot;,
+      &quot;state&quot;: &quot;sold&quot;,
+      &quot;price&quot;: 880000,
+      &quot;agent&quot;: {
+        &quot;id&quot;: 12,
+        &quot;name&quot;: &quot;Natalie Wong&quot;
+      }
+    },
+    {
+      &quot;type&quot;: &quot;appraisal&quot;,
+      &quot;id&quot;: 311,
+      &quot;date&quot;: &quot;2023-11-20&quot;,
+      &quot;price_min&quot;: 820000,
+      &quot;price_max&quot;: 880000
+    },
+    {
+      &quot;type&quot;: &quot;oab&quot;,
+      &quot;id&quot;: 1204,
+      &quot;date&quot;: &quot;2022-08-15&quot;,
+      &quot;agency_name&quot;: &quot;Other Agency Sunnybank&quot;,
+      &quot;price_text&quot;: &quot;Offers over $800,000&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>返回数组里每条的类型、日期、价格、经办人字段。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Property page</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Properties › getHistory（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Properties › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<article class="it c2" id="b-oabs"><header><span class="cls c2">02-13</span><h3><code>Oabs::search</code></h3><span class="k r">读</span><span>其他中介公司的挂牌记录</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>DK mode 小地图和全屏地图上，“挂在其他中介”的房子要标成橙色。</div>
+<b>参数（已核对）</b><div><div><code>criteria</code> <span class="none">array，条件数组，每项 {name, type, value}；type 默认 =，可用 in / between / &gt;= 等</span><br><code>order_by</code> <span class="none">object，{字段名: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int，跳过的行数，默认 0</span><br><code>limit</code> <span class="none">int，返回行数，默认 20；default 格式上限 100</span><br><code>result_format</code> <span class="none">string，default | ids | etags（各服务另有扩展格式）</span><br><code>extra_options</code> <span class="none">array，个别服务才支持</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 1204,
+        &quot;property_id&quot;: 5,
+        &quot;oab_state&quot;: &quot;current&quot;,
+        &quot;oab_date&quot;: &quot;2026-10-28&quot;,
+        &quot;first_seen_date&quot;: &quot;2026-10-28&quot;,
+        &quot;agency&quot;: {
+          &quot;id&quot;: 44,
+          &quot;name&quot;: &quot;Other Agency Sunnybank&quot;
+        },
+        &quot;price&quot;: null,
+        &quot;price_text&quot;: &quot;Offers over $950,000&quot;
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>search 的返回行字段；按 property_id 批量筛选和按在售状态筛选的条件怎么写。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：DK mode · Full-screen map</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Oabs › search（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › Oabs › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-listing">挂牌与开放参观 · 1</h3>
+<article class="it c2" id="b-levents"><header><span class="cls c2">02-14</span><h3><code>ListingEvents::search</code></h3><span class="k r">读</span><span>挂牌的开放参观场次</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>OFI 页列出今天和接下来的开放参观场次。</div>
+<b>参数（已核对）</b><div><div><code>criteria</code> <span class="none">array，条件数组，每项 {name, type, value}；type 默认 =，可用 in / between / &gt;= 等</span><br><code>order_by</code> <span class="none">object，{字段名: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int，跳过的行数，默认 0</span><br><code>limit</code> <span class="none">int，返回行数，默认 20；default 格式上限 100</span><br><code>result_format</code> <span class="none">string，default | ids | etags（各服务另有扩展格式）</span><br><code>extra_options</code> <span class="none">array，个别服务才支持</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 5501,
+        &quot;listing_id&quot;: 77,
+        &quot;event_type&quot;: {
+          &quot;id&quot;: &quot;open_home&quot;,
+          &quot;text&quot;: &quot;Open home&quot;
+        },
+        &quot;event_date&quot;: &quot;2026-11-15&quot;,
+        &quot;event_time_start&quot;: &quot;10:00:00&quot;,
+        &quot;event_time_end&quot;: &quot;10:30:00&quot;,
+        &quot;event_agent_id&quot;: 12
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>search 的返回行是否有开始和结束时间；event_type 里哪个值代表开放参观。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：OFI</li></ul><div><b>Rex</b></div><ul><li>API 文档 › ListingEvents › search（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › ListingEvents › describeModel，加上功能需要</li></ul></div>
+</div></article>
+<h3 id="c2-market">市场数据 Pricefinder · 2</h3>
+<article class="it c2" id="m1"><header><span class="cls c2">02-15</span><h3>片区内每天的新成交和新挂牌</h3><span class="has n">Rex 没有或不够用</span></header><div class="rows">
+<b>我们需要什么</b><div>给定一个片区（一个或多个多边形，或 suburb 清单）和一个日期范围，返回范围内新成交的房产和新挂牌的房产，每条带地址、坐标、日期、价格、经办中介。</div>
+<b>为什么需要</b><div><ul><li>Home 的 Needs your approval 里有 Market monitor 数量，点进去是逐条 Yes / No 的清单。客户文档写的是每天用 Pricefinder 检查片区。</li><li>没有这份数据，Market monitor 整页是空的，Home 上对应的数字也没有来源。</li><li>经纪人确认 Yes 之后，我们才把结果写回 Rex（备注、调整原业主关系），所以这里只需要读。</li></ul></div>
+<b>Rex 现在的情况</b><div><ul><li>Rex 的房产记录（Properties）没有成交日期、成交价字段，也没有按坐标范围查询的条件。</li><li>Rex 有 Pricefinder 转接接口：ThirdPartyServicePriceFinderSearchV2::polygonSearch(connection_id, coordinates) 和 ::propertySearch。文档没有写返回结构、能否按日期筛选、每天能调多少次，并且要求账户已开通 Rex 内置的 Pricefinder 连接。</li><li>Oabs::search 只有 Rex 里已录入的其他中介挂牌，不是市场全量。</li></ul></div>
+<b>希望的接口</b><div><div>（名称仅示意）MarketEvents::search</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>polygons</code></td><td>GeoJSON Polygon 数组，1–20 个，经度在前</td><td>二选一</td></tr><tr><td><code>suburbs</code></td><td>[{suburb_or_town, postcode}]</td><td>二选一</td></tr><tr><td><code>event_types</code></td><td>[&quot;sold&quot;, &quot;new_listing&quot;]</td><td>必填</td></tr><tr><td><code>date_from / date_to</code></td><td>YYYY-MM-DD</td><td>必填</td></tr><tr><td><code>limit / offset</code></td><td>分页</td><td>可选</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>{rows:[事件…], total}，每条事件的字段见下面的 JSON</div></div>
+<b>或者导出数据</b><div>如果做不了接口：每天一份 JSON 文件（或推送到我们提供的地址），内容是前一天片区内的全部事件。<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;area&quot;: {
+    &quot;suburbs&quot;: [
+      {
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      }
+    ]
+  },
+  &quot;events&quot;: [
+    {
+      &quot;event_id&quot;: &quot;pf-88213491&quot;,
+      &quot;event_type&quot;: &quot;sold&quot;,
+      &quot;event_date&quot;: &quot;2026-11-08&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;8&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5812,
+      &quot;longitude&quot;: 153.0571,
+      &quot;rex_property_id&quot;: 5,
+      &quot;price&quot;: 1020000,
+      &quot;price_text&quot;: &quot;$1,020,000&quot;,
+      &quot;agency_name&quot;: &quot;Other Agency Sunnybank&quot;,
+      &quot;agent_name&quot;: &quot;J. Smith&quot;,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 4,
+      &quot;bathrooms&quot;: 2,
+      &quot;car_spaces&quot;: 2,
+      &quot;land_area_m2&quot;: 607,
+      &quot;source&quot;: &quot;pricefinder&quot;,
+      &quot;source_property_id&quot;: &quot;12345678&quot;
+    },
+    {
+      &quot;event_id&quot;: &quot;pf-88213502&quot;,
+      &quot;event_type&quot;: &quot;new_listing&quot;,
+      &quot;event_date&quot;: &quot;2026-11-12&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;14&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5809,
+      &quot;longitude&quot;: 153.0575,
+      &quot;rex_property_id&quot;: null,
+      &quot;price&quot;: null,
+      &quot;price_text&quot;: &quot;Offers over $950,000&quot;,
+      &quot;agency_name&quot;: &quot;Other Agency Sunnybank&quot;,
+      &quot;agent_name&quot;: &quot;A. Lee&quot;,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 3,
+      &quot;bathrooms&quot;: 1,
+      &quot;car_spaces&quot;: 1,
+      &quot;land_area_m2&quot;: 556,
+      &quot;source&quot;: &quot;pricefinder&quot;,
+      &quot;source_property_id&quot;: &quot;12345702&quot;
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td><code>event_type</code></td><td>sold | new_listing</td></tr><tr><td><code>rex_property_id</code></td><td>Rex 里有这处房产就给 id，没有给 null</td></tr><tr><td><code>price / price_text</code></td><td>成交价或挂牌价；不公开时 price 为 null，price_text 给原文</td></tr><tr><td><code>source / source_property_id</code></td><td>数据来源和来源方的房产 id，用于去重</td></tr></tbody></table></div></div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Home › Needs your approval › Market monitor；Market monitor 页（每日取片区内的新成交和新挂牌）；My patch 页</li><li>客户文档 Draft 2（2026-11-07）：Market monitor / Pricefinder 每日检查</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Properties › describeModel（数据结构和可搜索字段里没有成交、坐标条件）</li><li>API 文档 › ThirdPartyServicePriceFinderSearchV2 › polygonSearch、propertySearch（返回只写 array）</li><li>API 文档 › Oabs › describeModel</li></ul></div>
+</div></article>
+<article class="it c2" id="m2"><header><span class="cls c2">02-16</span><h3>每处房产的上次成交和登记业主</h3><span class="has n">Rex 没有或不够用</span></header><div class="rows">
+<b>我们需要什么</b><div>按 Rex 房产 id 或地址，返回这处房产的上次成交日期、成交价、登记业主姓名、地块信息。</div>
+<b>为什么需要</b><div><ul><li>原型房产页有 Purchased / Last sale 一行。</li><li>地图上 No contact yet 的房子，经纪人敲门前要知道登记业主是谁；Market monitor 也要对比“原业主是谁”。</li><li>没有这份数据，这两处只能留空，经纪人要另开 Pricefinder 查。</li></ul></div>
+<b>Rex 现在的情况</b><div><ul><li>Rex 的 Properties 记录里没有上次成交、登记业主字段。</li><li>有 ThirdPartyServicePriceFinderPropertyV2::getPropertyDetails(connection_id, local_property_id | remote_property_id)，但文档只写“返回数组”，没有字段；connection_id 从哪取也没写；只能一处一处查。</li></ul></div>
+<b>希望的接口</b><div><div>沿用 ThirdPartyServicePriceFinderPropertyV2::getPropertyDetails，请 Rex 补全说明</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>connection_id</code></td><td>请说明集成账号如何取得</td><td>必填</td></tr><tr><td><code>local_property_id</code></td><td>Rex 房产 id</td><td>二选一</td></tr><tr><td><code>remote_property_id</code></td><td>Pricefinder 房产 id</td><td>二选一</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>一个对象，字段见下面的 JSON；并请说明每小时 / 每天的调用上限</div></div>
+<b>或者导出数据</b><div>如果接口不能给集成账号用：一次性导出片区内全部房产的这份数据，之后每月更新一次。<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;properties&quot;: [
+    {
+      &quot;rex_property_id&quot;: 5,
+      &quot;source_property_id&quot;: &quot;12345678&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;8&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5812,
+      &quot;longitude&quot;: 153.0571,
+      &quot;lot&quot;: &quot;12&quot;,
+      &quot;plan&quot;: &quot;RP123456&quot;,
+      &quot;land_area_m2&quot;: 607,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 4,
+      &quot;bathrooms&quot;: 2,
+      &quot;car_spaces&quot;: 2,
+      &quot;last_sale&quot;: {
+        &quot;date&quot;: &quot;2019-03-22&quot;,
+        &quot;price&quot;: 780000,
+        &quot;sale_type&quot;: &quot;private_treaty&quot;
+      },
+      &quot;registered_owners&quot;: [
+        {
+          &quot;name&quot;: &quot;Mary Chen&quot;
+        },
+        {
+          &quot;name&quot;: &quot;David Chen&quot;
+        }
+      ],
+      &quot;owner_occupied&quot;: true
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td><code>last_sale</code></td><td>没有成交记录时为 null</td></tr><tr><td><code>registered_owners</code></td><td>登记业主姓名；只要姓名，不需要联系方式</td></tr><tr><td><code>lot / plan</code></td><td>地块号，房产页的 Land · Lot 一行用</td></tr></tbody></table></div></div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Property page › Purchased / Last sale；Full-screen map › No contact yet 标记；Market monitor › 把提醒对应到 Rex 里的房产</li></ul><div><b>Rex</b></div><ul><li>API 文档 › Properties › describeModel（没有成交、登记业主字段）</li><li>API 文档 › ThirdPartyServicePriceFinderPropertyV2 › getPropertyDetails（返回只写 array）</li></ul></div>
+</div></article>
+<h3 id="c2-sys">值列表与后台 · 1</h3>
+<article class="it c2" id="b-values"><header><span class="cls c2">02-17</span><h3><code>SystemValues::getCategoryValues</code></h3><span class="k r">读</span><span>读取值列表</span><span class="has n">返回结构没写或不完整</span></header><div class="rows">
+<b>为什么需要</b><div>写 Lead、备注、关系时要用值列表里的 id（来源、类型、关系类型）。</div>
+<b>参数（已核对）</b><div><div><code>list_name</code><span class=req>*</span> <span class="none">string，如 enquiry_source、lead_type、note_type、contact_reln_listing</span><br><code>ids_only</code> <span class="none">bool</span><br><code>labels_only</code> <span class="none">bool</span></div></div>
+<b>文档对返回的说明</b><div>文档原文：“array An associative array of arrays containing a &quot;value&quot; key and a &quot;text&quot; key (if string passed in) or an array like that described keyed by each list_name passed in in the first argument”。没有返回示例。</div>
+<b>我们期望的返回结构</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;text&quot;: &quot;Open home&quot;
+    },
+    {
+      &quot;id&quot;: 2,
+      &quot;text&quot;: &quot;Website&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>请 Rex 确认</b><div>每一项的键是 id / text 还是 value / text：文档的返回说明写 value 和 text，各记录的返回示例（如 Notes 的 note_type、Leads 的 lead_type）写的是 {id, text}，我们目前按 {id, text} 处理；联系人关系类型的列表名是什么。</div>
+<b>出处</b><div class="srcs"><div><b>需求</b></div><ul><li>原型 v13：Contact record · Add enquiry · 后台</li></ul><div><b>Rex</b></div><ul><li>API 文档 › SystemValues › getCategoryValues（参数；返回值无示例）</li><li>期望结构的依据：API 文档 › SystemValues › describeModel，加上功能需要</li></ul></div>
+</div></article>
+</section>
+<section id="c3" class="panel" role="tabpanel" aria-labelledby="t-c3"><h2><i>03</i>非必要，没有也不影响上线</h2>
+<p class="lead">共 11 项。前 7 项 Rex 文档里已有接口，请确认能否对集成账号开放；后 4 项 Rex 没有，写明了我们希望的接口、参数和返回值。每项都有“没有时我们怎么做”。</p>
+<article class="it" id="n1"><header><span class="cls c3">03-1</span><h3>按多边形一次取回片区内的房产</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>画区域和全屏地图时，一次请求拿到多边形内全部房产的坐标和状态，以及点标记时的预览数据。</div>
+<b>Rex 现在的情况</b><div>Rex 有 ProspectingMap 的这两个接口，文档里是试点功能，可能要单独的席位。请确认是否对集成账号开放。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>ProspectingMap::searchPropertyPinsInArea</code><div class="pd">多边形内的全部房产（地图标记）</div></td><td class="exp"><code>polygon</code> <span class="none">GeoJSON，一个 Polygon，经度在前</span><br><code>polygons</code> <span class="none">array，1–20 个 Polygon，取并集</span><br><code>filters</code> <span class="none">object，owner_status、property_status、locality、min_bedrooms、tags、last_contacted 等</span></td><td class="exp">{rows:[{id, lat, lng, status, is_ai_prospect}], truncated}</td></tr>
+<tr><td><span class="k r">读</span></td><td><code>ProspectingMap::propertyPreview</code><div class="pd">地图标记的预览卡数据</div></td><td class="exp"><code>property_id</code><span class=req>*</span> <span class="none">int，房产 id</span></td><td class="exp">地址、市场状态、户型、上次成交、在售天数、全部业主、负责人、图片</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>用 Properties::search 按 suburb 取回（result_format=map，一次最多 50,000 条），在我们后端按多边形过滤并缓存。</div>
+</div></article>
+<article class="it" id="n2"><header><span class="cls c3">03-2</span><h3>预约估价：空闲时段、确认短信、提前一天提醒</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>Book appraisal 时显示经纪人的空闲时段；建好后由 Rex 给业主发确认短信，并在前一天发提醒。</div>
+<b>Rex 现在的情况</b><div>三个接口都在文档里，但 times 和 alerts 两个参数的结构没写。请 Rex 给出这两个参数的示例，并说明短信从哪个号码发、怎么计费。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>CalendarAvailabilities::getAvailability</code><div class="pd">查经纪人的空闲时段</div></td><td class="exp"><code>user_ids</code><span class=req>*</span> <span class="none">int[]，Rex 用户 id</span><br><code>times</code><span class=req>*</span> <span class="none">array，要查询的时间段（结构文档未说明）</span></td><td class="exp">数组（结构文档未说明）</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>CalendarEvents::sendConfirmationMessages</code><div class="pd">给业主发预约确认短信 / 邮件</div></td><td class="exp"><code>id</code><span class=req>*</span> <span class="none">string，事件 id</span><br><code>data_overrides</code> <span class="none">object，自定义内容：vendor_sms_body、vendor_email_subject、vendor_email_body 等</span><br><code>vendor_confirmations</code> <span class="none">bool，给业主发</span><br><code>guest_confirmations</code> <span class="none">bool，给来宾发</span><br><code>vendor_contact_ids</code> <span class="none">array，只发给这些业主</span></td><td class="exp">{guests, vendors, tenants}，各含 sent_totals（email 和 sms 条数）</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>CalendarEvents::scheduleAlertMessages</code><div class="pd">安排预约前一天的提醒短信</div></td><td class="exp"><code>id</code><span class=req>*</span> <span class="none">string，事件 id</span><br><code>alerts</code><span class=req>*</span> <span class="none">array，提醒定义（结构文档未说明）</span></td><td class="exp">数组</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>估价和日历事件照常写入（01 里的 Appraisals::create、CalendarEvents::create）；确认短信从经纪人自己的手机发，提醒用 Reminders::create。</div>
+</div></article>
+<article class="it" id="n3"><header><span class="cls c3">03-3</span><h3>开放参观的原生到场记录</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>签到时除了建 Lead，再写一条 Rex 原生的到场记录，这样到场人数会进业主报告。</div>
+<b>Rex 现在的情况</b><div>接口在文档里。Rex 邮件只要求建 Lead；请确认同时写 Feedback 会不会造成重复。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k w">写</span></td><td><code>Feedback::create</code><div class="pd">写一条开放参观到场 / 看房反馈</div></td><td class="exp"><code>data</code><span class=req>*</span> <span class="none">object，date_of、listing{id}、agent{id}、note、interest_level{id}、enquiry_source{id}、feedback_type{id}（如 inspection）、number_of_people、related.feedback_contacts[{contact_id}]</span><br><code>return_id</code> <span class="none">bool</span></td><td class="exp">新反馈 id 或完整记录</td></tr>
+<tr><td><span class="k r">读</span></td><td><code>Feedback::searchOpenHomeAttendance</code><div class="pd">开放参观到场记录（按联系人）</div></td><td class="exp"><code>suburb</code> <span class="none">string</span><br><code>postcode</code> <span class="none">string</span><br><code>date_from</code> <span class="none">string，YYYY-MM-DD</span><br><code>date_to</code> <span class="none">string，YYYY-MM-DD</span><br><code>interest_level</code> <span class="none">string，warm | hot | cold</span><br><code>limit</code> <span class="none">int，默认 500，最大 2000</span><br><code>offset</code> <span class="none">int</span></td><td class="exp">{rows:[到场记录…], truncated}</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>只建 Lead，到场者清单用 Leads::search 按挂牌和日期取。</div>
+</div></article>
+<article class="it" id="n4"><header><span class="cls c3">03-4</span><h3>自定义字段：同意方式、DNCR 核查日期</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>在联系人上记录“同意是怎么取得的”和“上次核查 Do Not Call Register 的日期”。</div>
+<b>Rex 现在的情况</b><div>CustomFields 接口在文档里；字段定义要先用 AdminCustomFields::createField 建一次。请确认集成账号有没有权限建字段。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>CustomFields::getValuesKeyedByFieldName</code><div class="pd">读取联系人的自定义字段值</div></td><td class="exp"><code>service_name</code><span class=req>*</span> <span class="none">string，Contacts</span><br><code>service_object_id</code><span class=req>*</span> <span class="none">int，联系人 id</span><br><code>limit_to</code> <span class="none">array，只取指定字段</span><br><code>simple_values</code> <span class="none">bool</span></td><td class="exp">{&quot;Tab.Group.Field&quot;: 值, …}</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>CustomFields::setFieldValues</code><div class="pd">写入联系人的自定义字段值</div></td><td class="exp"><code>service_name</code><span class=req>*</span> <span class="none">string，Contacts</span><br><code>service_object_id</code><span class=req>*</span> <span class="none">int，联系人 id</span><br><code>value_map</code><span class=req>*</span> <span class="none">object，{字段: 值}</span></td><td class="exp">数组（写入后的值）</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>这两项存在 AxleoCollect 自己的库里，同时在 Rex 记一条备注。</div>
+</div></article>
+<article class="it" id="n5"><header><span class="cls c3">03-5</span><h3>批量请求</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>片区标签批量写入、To-do 多选时，把多个调用合成一次请求。</div>
+<b>Rex 现在的情况</b><div>接口在文档里。请确认一次批量在每小时 3,600 次的限额里算一次还是按里面的调用数算。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k w">写</span></td><td><code>BatchRequests::execute</code><div class="pd">一次请求里执行多个调用</div></td><td class="exp"><code>requests</code><span class=req>*</span> <span class="none">array，[{method:&quot;Contacts::update&quot;, args:{…}}, …]，可带键名</span><br><code>shared_args</code> <span class="none">object，所有请求共用的参数</span></td><td class="exp">按顺序（或键名）返回每个调用的结果</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>逐条调用，后端排队限速。</div>
+</div></article>
+<article class="it" id="n6"><header><span class="cls c3">03-6</span><h3>Webhook 订阅</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>办公室同事在 Rex 里直接改了联系人、房产、Lead 时，我们一分钟内知道。</div>
+<b>Rex 现在的情况</b><div>接口在文档里，需要 Manage Webhooks 权限。请确认集成账号可以拿到这个权限。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k r">读</span></td><td><code>AdminWebhooks::getEventsAndCategories</code><div class="pd">可订阅的 webhook 事件清单</div></td><td class="exp"><span class="none">无参数</span></td><td class="exp">事件和分类数组（50 多个，覆盖常用记录的 create / update）</td></tr>
+<tr><td><span class="k w">写</span></td><td><code>AdminWebhooks::create</code><div class="pd">订阅 webhook</div></td><td class="exp"><code>data</code><span class=req>*</span> <span class="none">object，name、url、is_enabled（必须 true）、send_format_id（v1_context_only 只发 id | v1_full_change_detail）、events[{event_id}]</span></td><td class="exp">新订阅的 id</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>每晚用 search 的 etags 格式对账，白天打开记录时再读一次。</div>
+</div></article>
+<article class="it" id="n7"><header><span class="cls c3">03-7</span><h3>修改房产资料和房产标签</h3><span class="has y">Rex 文档里有</span></header><div class="rows">
+<b>我们需要什么</b><div>在手机上改卧室数等房产资料，或给房产打标签（03-11 如果定为房产标签就会用到）。</div>
+<b>Rex 现在的情况</b><div>接口在文档里，参数完整。</div>
+<b>接口、参数、返回</b><div><div class="scroll"><table><thead><tr><th>读写</th><th>接口</th><th>参数</th><th>期望返回</th></tr></thead><tbody>
+<tr><td><span class="k w">写</span></td><td><code>Properties::update</code><div class="pd">修改房产资料</div></td><td class="exp"><code>data</code><span class=req>*</span> <span class="none">object，含 id；只发要改的字段，如 attr_bedrooms、related.property_tags[{tag}]</span><br><code>fields</code> <span class="none">array，更新后只返回这些部分，减小响应</span><br><code>extra_fields</code> <span class="none">array，更新后附带返回的附加数据</span></td><td class="exp">更新后的房产记录</td></tr>
+</tbody></table></div></div>
+<b>没有时我们怎么做</b><div>第一阶段房产资料只读，不提供修改。</div>
+</div></article>
+<article class="it" id="n8"><header><span class="cls c3">03-8</span><h3>记录一条外部发出的短信 / 邮件</h3><span class="has n">Rex 没有</span></header><div class="rows">
+<b>我们需要什么</b><div>经纪人从自己手机发出短信或邮件后，在 Rex 联系人的沟通记录里留一条“已发送”的记录，和 Rex 自己发的消息显示在一起。</div>
+<b>Rex 现在的情况</b><div>MessageSends 只有 search，只能查 Rex 自己发出的消息，没有写入方法。</div>
+<b>希望的接口</b><div><div>（名称仅示意）MessageSends::create</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>data.channel</code></td><td>sms | email</td><td>必填</td></tr><tr><td><code>data.contact{id}</code></td><td>联系人 id</td><td>必填</td></tr><tr><td><code>data.sent_at</code></td><td>发送时间</td><td>必填</td></tr><tr><td><code>data.body</code></td><td>正文</td><td>必填</td></tr><tr><td><code>data.subject</code></td><td>邮件主题</td><td>可选</td></tr><tr><td><code>data.sent_by_user{id}</code></td><td>发送的经纪人（Rex 用户 id）</td><td>可选</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>新记录的 id；并刷新联系人的 last_contacted_date</div></div>
+<b>没有时我们怎么做</b><div>记成 Notes::create（update_last_contacted=true），正文写明渠道和内容。</div>
+</div></article>
+<article class="it" id="n9"><header><span class="cls c3">03-9</span><h3>买家匹配档案的更多条件</h3><span class="has n">Rex 没有</span></header><div class="rows">
+<b>我们需要什么</b><div>买家档案里除了价格、区、卧室、浴室，还要车位数、土地面积、必须有的条件、贷款状态。</div>
+<b>Rex 现在的情况</b><div>MatchProfiles 的文档示例只有 price、attr_bedrooms、attr_bathrooms、related.suburbs。其余字段是否存在，文档看不出来。</div>
+<b>希望的接口</b><div><div>沿用 MatchProfiles::create / update，请 Rex 说明这些字段名</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>data.attr_garages{min,max}</code></td><td>车位数</td><td>可选</td></tr><tr><td><code>data.attr_landarea{min,max}</code></td><td>土地面积（平方米）</td><td>可选</td></tr><tr><td><code>data.must_haves</code></td><td>必须有的条件，文字数组</td><td>可选</td></tr><tr><td><code>data.finance_status</code></td><td>贷款状态</td><td>可选</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>更新后的档案记录，含上述字段</div></div>
+<b>没有时我们怎么做</b><div>这几项写进档案名称或一条备注。</div>
+</div></article>
+<article class="it" id="n10"><header><span class="cls c3">03-10</span><h3>以经纪人的名义写入</h3><span class="has n">Rex 没有</span></header><div class="rows">
+<b>我们需要什么</b><div>集成账号写入备注、Lead、提醒时，Rex 里的创建人显示为实际操作的经纪人，而不是集成账号。</div>
+<b>Rex 现在的情况</b><div>Rex 邮件要求全公司只用一个集成账号。文档里没有“代某个用户写入”的参数；system_created_user 是只读的。</div>
+<b>希望的接口</b><div><div>在现有写接口上加一个可选项（名称仅示意）</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>X-Act-As-User 请求头，或 options.on_behalf_of_user_id</code></td><td>Rex 用户 id</td><td>可选</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>写入的记录里 system_created_user 为该用户</div></div>
+<b>没有时我们怎么做</b><div>备注正文末尾写明经纪人姓名；Lead 和提醒用 assignee / remindee 指到本人；完整的操作人记录存在 AxleoCollect 的审计日志里。</div>
+</div></article>
+<article class="it" id="n11"><header><span class="cls c3">03-11</span><h3>Junk mail / NO JUNK MAIL 标记</h3><span class="has n">Rex 没有</span></header><div class="rows">
+<b>我们需要什么</b><div>在 Rex 里有一个固定的位置记录“这户不收投递的宣传品”，可读、可写、可按它筛选。原型的 Communication preferences 页有 Junk mail 一项，房产页和地图显示 NO JUNK MAIL，My patch 的区域卡片统计 NO JUNK MAIL 的户数。</div>
+<b>Rex 现在的情况</b><div>联系人只有 contact_by_email / contact_by_sms / contact_by_phone / contact_by_letter 四个开关，contact_by_letter 指的是写了收件人的信，不是投递的宣传品；Properties 没有对应字段；is_dnd 不能用（Rex 邮件：会把四个开关一起重置）。</div>
+<b>希望的接口</b><div><div>在现有接口上加一个字段（Rex 指定放在联系人还是房产上）</div><div class="scroll"><table><thead><tr><th>参数 / 接口</th><th>内容</th><th></th></tr></thead><tbody><tr><td><code>Properties::read / search</code></td><td>返回 no_junk_mail（bool）</td><td>读</td></tr><tr><td><code>Properties::update</code></td><td>data:{id, no_junk_mail}</td><td>写</td></tr><tr><td><code>Properties::search</code></td><td>criteria: no_junk_mail = true</td><td>筛选</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">期望返回</b>布尔值。如果 Rex 不加字段，请指定一种官方推荐的做法（例如固定的标签 “No junk mail”）</div></div>
+<b>没有时我们怎么做</b><div>标记存在 AxleoCollect 自己的库里，同时给联系人打一个固定标签 “No junk mail”（01 里的 Contacts::update），在 Rex 里也能按标签筛出来。</div>
+</div></article>
+</section>
+<section id="own"><h2>不向 Rex 提需求的部分</h2><p class="lead">这些功能不依赖 Rex，列出来是为了说明三类清单没有漏项。</p><div class="scroll"><table><thead><tr><th>功能</th><th>怎么解决</th></tr></thead><tbody>
+<tr><td><b>自定义标签归哪位经纪人所有</b></td><td>Rex 的标签是账户级的。创建人由 AxleoCollect 记录。</td></tr>
+<tr><td><b>My activity 的 Voice converted、Records updated</b></td><td>取自 AxleoCollect 的审计日志。Appraisals booked 用 01 里的 Appraisals::search。</td></tr>
+<tr><td><b>片区范围（多边形、半径、suburb）</b></td><td>范围定义存 AxleoCollect；按客户要求，以 “Area: 名称” 标签写进 Rex（Contacts::update）。</td></tr>
+<tr><td><b>GPS 定位到门牌地址、整条街的地块</b></td><td>用地址库（G-NAF / QLD 地籍），不是 Rex。</td></tr>
+<tr><td><b>Do Not Call Register 核查</b></td><td>走 ACMA 的服务。结果存哪见 03-4。</td></tr>
+<tr><td><b>语音转文字、字段拆分、翻译、截图识别</b></td><td>语音和大模型服务，不经过 Rex。</td></tr>
+<tr><td><b>离线语音草稿、Pinned by you、水印</b></td><td>不属于 CRM 数据，存 AxleoCollect。</td></tr>
+</tbody></table></div></section>
+</main>
+<script>
+(function(){
+  var main=document.querySelector('main'),tabs=[].slice.call(document.querySelectorAll('#tabs button'));
+  if(!main||!tabs.length)return;
+  function show(id){
+    tabs.forEach(function(b){var on=b.dataset.p===id;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;
+      var p=document.getElementById(b.dataset.p);if(p)p.classList.toggle('on',on);});
+  }
+  function go(hash,scroll){
+    var el=hash&&document.getElementById(hash.replace(/^#/,''));if(!el)return false;
+    var p=el.closest('.panel');if(p)show(p.id);
+    if(scroll){(p&&el===p?document.getElementById('tabs'):el).scrollIntoView({block:'start'});}
+    return true;
+  }
+  main.classList.add('js');show(tabs[0].dataset.p);
+  tabs.forEach(function(b,i){
+    b.addEventListener('click',function(){show(b.dataset.p);try{history.replaceState(null,'','#'+b.dataset.p)}catch(e){}});
+    b.addEventListener('keydown',function(e){var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!d)return;
+      var n=tabs[(i+d+tabs.length)%tabs.length];n.focus();n.click();e.preventDefault();});
+  });
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    if(go(a.getAttribute('href'),true)){e.preventDefault();try{history.replaceState(null,'',a.getAttribute('href'))}catch(x){}}
+  });
+  if(location.hash)go(location.hash,true);
+})();
+</script>
+</body>
+</html>

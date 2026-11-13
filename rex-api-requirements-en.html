@@ -1,0 +1,984 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Rex API Requirements</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* layout: a reference manual. sticky section bar, one reading column, wide tables scroll inside their own box */
+:root{
+  --bg:#F6F7FA; --surface:#FFFFFF; --panel:#EEF1F5; --line:#E4E8EF; --line2:#C9D0DB;
+  --fg:#13233F; --fg2:#5B6475; --honey:#FFB02E; --honey-bg:#FFF8E6; --honey-fg:#7A5010;
+  --read:#1670C2; --read-bg:#EAF5FF; --write:#C9501F; --write-bg:#FFF2EC; --sess:#5B6475; --sess-bg:#EEF1F5;
+  --ok:#0E7A45; --ok-bg:#E6F7EE; --warn:#7A5010; --warn-bg:#FFF0CC; --cand:#6B4BB8; --cand-bg:#F0EBFB;
+  --code-bg:#F1F3F8;
+  --head:"Montserrat","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1626; --surface:#162136; --panel:#1C2942; --line:#293854; --line2:#3A4B6B;
+  --fg:#E8EDF6; --fg2:#A3AEC2; --honey:#FFB02E; --honey-bg:#3A2C10; --honey-fg:#FFD27A;
+  --read:#6DB6FF; --read-bg:#14304F; --write:#FF9466; --write-bg:#44241A; --sess:#A3AEC2; --sess-bg:#243352;
+  --ok:#5FD79A; --ok-bg:#123524; --warn:#FFD27A; --warn-bg:#3A2C10; --cand:#B9A2F5; --cand-bg:#2B2247;
+  --code-bg:#101A2E; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0E1626; --surface:#162136; --panel:#1C2942; --line:#293854; --line2:#3A4B6B;
+  --fg:#E8EDF6; --fg2:#A3AEC2; --honey:#FFB02E; --honey-bg:#3A2C10; --honey-fg:#FFD27A;
+  --read:#6DB6FF; --read-bg:#14304F; --write:#FF9466; --write-bg:#44241A; --sess:#A3AEC2; --sess-bg:#243352;
+  --ok:#5FD79A; --ok-bg:#123524; --warn:#FFD27A; --warn-bg:#3A2C10; --cand:#B9A2F5; --cand-bg:#2B2247;
+  --code-bg:#101A2E; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(56px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+a{color:var(--read)} a:focus-visible{outline:2px solid var(--honey);outline-offset:2px;border-radius:3px}
+code,pre,.mono{font-family:var(--mono);font-size:.86em}
+code{overflow-wrap:anywhere}
+p,li,.no,.note,.meta span{overflow-wrap:anywhere;min-width:0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .in{max-width:1180px;margin:0 auto;display:flex;gap:4px 14px;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar b{font-family:var(--head);font-weight:700;white-space:nowrap;margin-right:6px}
+.bar a{font-family:var(--head);font-weight:600;font-size:13px;color:var(--fg2);text-decoration:none;white-space:nowrap;padding:4px 2px}
+.bar a:hover{color:var(--fg)}
+.bar a i{font-style:normal;font-family:var(--mono);color:var(--honey-fg);margin-right:4px;font-size:12px}
+main{max-width:1180px;margin:0 auto;padding-block:28px 80px;display:flex;flex-direction:column;gap:56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+h1,h2,h3,h4{font-family:var(--head);margin:0;text-wrap:balance;line-height:1.3}
+h1{font-size:30px;font-weight:700}
+h2{font-size:22px;font-weight:700;display:flex;gap:12px;align-items:baseline;padding-bottom:10px;border-bottom:2px solid var(--fg)}
+h2 i{font-style:normal;font-family:var(--mono);font-size:15px;color:var(--honey-fg);background:var(--honey-bg);padding:1px 8px;border-radius:4px}
+h3{font-size:17px;font-weight:700}
+h4{font-size:14px;font-weight:600}
+p{margin:0;max-width:78ch} .lead{color:var(--fg2);max-width:82ch}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--fg2);font-size:13px}
+.meta b{color:var(--fg);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.tile .v{font-family:var(--head);font-weight:700;font-size:30px;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile .l{font-size:13px;color:var(--fg2)}
+.tile.r .v{color:var(--read)} .tile.w .v{color:var(--write)} .tile.c .v{color:var(--cand)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;line-height:1.5}
+th,td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+tr:last-child>td{border-bottom:0}
+th{font-family:var(--head);font-weight:600;font-size:12px;color:var(--fg2);background:var(--panel);white-space:nowrap;position:sticky;top:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.n{font-family:var(--mono)} .z{color:var(--line2)}
+tr.tot td{font-weight:700;background:var(--panel)}
+tr.grp td{background:var(--panel);font-family:var(--head);font-weight:700;font-size:13px}
+tr.grp td a{color:var(--fg);text-decoration:none} tr.grp td a:hover{text-decoration:underline}
+.k{display:inline-block;font-family:var(--head);font-weight:700;font-size:11.5px;line-height:1;padding:4px 7px;border-radius:4px;white-space:nowrap}
+.k.r{color:var(--read);background:var(--read-bg)} .k.w{color:var(--write);background:var(--write-bg)} .k.a{color:var(--sess);background:var(--sess-bg)}
+.st{display:inline-block;font-size:11.5px;line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
+.st.ok{color:var(--ok);background:var(--ok-bg)} .st.doc{color:var(--fg2);background:var(--panel)}
+.st.test{color:var(--warn);background:var(--warn-bg)} .st.cand{color:var(--cand);background:var(--cand-bg)}
+.el{text-decoration:none} .el code{color:var(--read)} .el:hover code{text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:4px 10px}
+.none{color:var(--fg2)}
+.pg{display:flex;flex-direction:column;gap:14px;padding-top:6px}
+.pg>header{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.pg>header .proto{font-family:var(--mono);font-size:12px;color:var(--fg2);background:var(--panel);padding:2px 8px;border-radius:4px}
+.pg>header .cnt{margin-left:auto;font-size:13px;color:var(--fg2);white-space:nowrap}
+.ft{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ft h4{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.ft h4 .c{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--fg2)}
+.ft .note,.ep .note{font-size:13px;color:var(--fg2);border-left:3px solid var(--honey);padding-left:10px;max-width:90ch}
+.ft .no{font-size:13.5px;color:var(--fg2);background:var(--panel);border-radius:6px;padding:8px 12px;max-width:90ch}
+td.arg{font-family:var(--mono);font-size:12.5px;min-width:260px} td.exp{min-width:220px}
+.eps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
+.ep{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ep>header{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ep>header code{font-size:14.5px;font-weight:600;overflow-wrap:anywhere}
+.ep .path{font-family:var(--mono);font-size:12.5px;color:var(--fg2);overflow-wrap:anywhere}
+.ep .ret{font-size:13.5px;overflow-wrap:anywhere} .ep .ret b,.ep .used b{font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px}
+.ep .used{font-size:12.5px;color:var(--fg2)}
+.ep table{font-size:12.5px} .ep td:first-child{font-family:var(--mono);white-space:nowrap} .ep td:nth-child(2){white-space:nowrap;color:var(--fg2);font-family:var(--mono)}
+.req{color:var(--write);font-weight:700}
+pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto;line-height:1.5;font-size:12px}
+.ex{display:flex;flex-direction:column;gap:6px} .ex span{font-family:var(--head);font-size:12px;color:var(--fg2)}
+.sub{font-family:var(--head);font-weight:700;font-size:15px;display:flex;gap:10px;align-items:center;margin-top:8px}
+ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:90ch;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--fg2)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px}
+.two>div{display:flex;flex-direction:column;gap:10px;min-width:0}
+
+.pd{font-size:12px;color:var(--fg2);margin-top:4px;max-width:60ch}
+.cls{display:inline-block;font-family:var(--mono);font-weight:600;font-size:12px;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.cls.c1{color:var(--ok);background:var(--ok-bg)} .cls.c2{color:var(--write);background:var(--write-bg)} .cls.c3{color:var(--fg2);background:var(--panel)}
+.cls.ck{color:var(--cand);background:var(--cand-bg)}
+.tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))} .tile{min-width:0} .tile .l{overflow-wrap:anywhere}
+.tile.g .v{color:var(--ok)} .tile.cfl .v{color:var(--cand)}
+#c1 td:nth-child(2){min-width:240px} #c1 td:nth-child(2) code{overflow-wrap:normal} #c1 td:nth-child(3){min-width:170px}
+.it{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.it.c2{border-left:4px solid var(--write)} .it.ck{border-left:4px solid var(--cand)}
+.it>header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.it>header h3{font-size:17px}
+.rows{display:grid;grid-template-columns:minmax(96px,150px) minmax(0,1fr);gap:12px 16px}
+.rows>b{font-family:var(--head);font-size:12.5px;color:var(--fg2);font-weight:600;padding-top:2px}
+.rows>div{min-width:0;display:flex;flex-direction:column;gap:8px;font-size:14px;overflow-wrap:anywhere}
+@media (max-width:640px){.rows{grid-template-columns:minmax(0,1fr);gap:4px 0} .rows>div{margin-bottom:10px}}
+.has{font-size:11.5px;line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap}
+.has.y{color:var(--ok);background:var(--ok-bg)} .has.n{color:var(--warn);background:var(--warn-bg)}
+.cf{display:inline-block;font-size:11.5px;line-height:1;padding:4px 7px;border-radius:999px;white-space:nowrap;color:var(--cand);background:var(--cand-bg);text-decoration:none;margin-top:4px}
+td.q{min-width:200px;color:var(--warn)} td.sr{min-width:190px;font-size:12.5px;color:var(--fg2)}
+.srcs{font-size:13px;color:var(--fg2)} .srcs b{font-family:var(--head);font-size:12px;color:var(--fg);margin-right:6px}
+.who{font-family:var(--head);font-size:12px;color:var(--fg2);font-weight:600}
+.bar .lang{color:var(--read)}
+.it pre{max-height:260px;overflow:auto;overscroll-behavior:contain}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:2px solid var(--line);margin-top:8px}
+.tabs button{font:600 14px var(--head);color:var(--fg2);background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;border-radius:6px 6px 0 0}
+.tabs button span{font:600 11.5px var(--mono);padding:2px 7px;border-radius:999px;background:var(--panel);color:var(--fg2)}
+.tabs button:hover{color:var(--fg);background:var(--panel)}
+.tabs button:focus-visible{outline:2px solid var(--read);outline-offset:-2px}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--write)}
+main:not(.js) .tabs{display:none} main.js .panel:not(.on){display:none}
+@media (max-width:640px){.tabs button{padding:9px 10px;font-size:13px}}
+</style>
+<div class="bar"><div class="in"><b>Rex API Requirements</b>
+<a href="#sum">Classes and counts</a><a href="#src">Sources</a><a href="#conf">Conflicts</a><a href="#c1"><i>01</i>Required, Rex has it</a><a href="#c2"><i>02</i>Required, missing or not enough</a><a href="#c3"><i>03</i>Optional</a><a class="lang" href="rex-api-requirements.html">中文</a>
+</div></div>
+<main>
+<section id="top">
+<h1>API requirements for Rex</h1>
+<p class="lead">What we need from Rex, in three classes: required and already available in Rex; required but missing or not sufficient in Rex; not required for launch. The second class states what we need and why, with a JSON structure we can import directly. Every entry in 01 and 02 names its sources; points where the sources disagree are listed separately so Rex can say which one prevails.</p>
+<div class="meta">
+<span><b>Date</b> 2026-11-13</span>
+<span><b>Status</b> Checked against the documentation only; nothing has been called on a real Rex account yet</span>
+</div></section>
+
+<section id="sum"><h2>Classes and counts</h2>
+<div class="tiles">
+<div class="tile g"><span class="v">27</span><span class="l">01 Required, Rex has it, we will use it</span></div>
+<div class="tile w"><span class="v">5 + 12</span><span class="l">02 Required, missing or not enough (5 items Rex lacks, 12 methods with no or an incomplete documented response)</span></div>
+<div class="tile"><span class="v">11</span><span class="l">03 Optional (7 exist in Rex, 4 do not)</span></div>
+<div class="tile cfl"><span class="v">3</span><span class="l">conflicts between sources for Rex to clarify</span></div>
+</div>
+<div class="scroll"><table><thead><tr><th>Class</th><th>Criterion</th><th>Blocks launch?</th><th>What we ask of Rex</th><th class="n">Count</th></tr></thead><tbody>
+<tr><td><span class="cls c1">01</span></td><td>We must have it; the method is in the Rex docs with complete parameters and a response example (or a response too simple to need one), and it matches our need.</td><td>Yes. Without any one of them the related page does not work.</td><td>Confirm the integration account may call them. 4 of them carry one question each for Rex.</td><td class="n">27 methods</td></tr>
+<tr><td><span class="cls c2">02</span></td><td>We must have it; Rex does not have it, or has something similar that is not enough. Methods that are documented with no response structure, or an incomplete one, are also here.</td><td>Yes.</td><td>Provide a method, or export the data in the JSON structure we give; where the response is undocumented, confirm or correct the structure we expect.</td><td class="n">5 items, 12 methods</td></tr>
+<tr><td><span class="cls c3">03</span></td><td>Good to have; we have a fallback without it.</td><td>No.</td><td>For those that exist, confirm whether they can be opened to us; for those that do not, consider providing them. Method, parameters and return are stated.</td><td class="n">11 items (13 existing Rex methods involved)</td></tr>
+</tbody></table></div>
+<p class="lead" style="font-size:13px">“Matches our need” in 01 means the documented parameters and response example fit the feature; the fields we display have not yet been matched one by one against the response fields. “Required” is judged by what our first release needs.</p>
+</section>
+<section id="src"><h2>Sources</h2>
+<p class="lead">Every entry in 01 and 02 names what its statement about Rex is based on. These are the materials cited.</p>
+<div class="scroll"><table><thead><tr><th>Kind</th><th>Cited as</th><th>What it is</th><th>Where</th></tr></thead><tbody>
+<tr><td rowspan="3"><b>Rex</b></td><td>API docs › Service › method</td><td>The official Rex API documentation, as retrieved on 12 Nov 2026. Parameters and returns come from Service::describe (include_detail=1); “describeModel” means the service's data structure and searchable fields; “article” means the guide articles in the docs (Authentication, Integrations, Rate Limits, etc.).</td><td><a href="https://apibrowser.rexsoftware.com/">apibrowser.rexsoftware.com</a></td></tr>
+<tr><td>Rex email 6 Nov 2026</td><td>Reply from the Rex API team (Christian Tanpoco) to Ping Han, subject “Write or read data / data entry”.</td><td>Email forwarded by Ping</td></tr>
+<tr><td>Rex API Integration Guide</td><td>A Word document supplied by the client (4 Nov 2026), a summary of the Integrations article of the Rex docs covering onboarding and cost.</td><td>Rex_API_Integration_Guide.docx</td></tr>
+</tbody></table></div>
+<p class="lead" style="font-size:13px;display:none"></p>
+</section>
+<div class="tabs" id="tabs" role="tablist"><button type="button" role="tab" id="t-conf" data-p="conf" aria-controls="conf">Conflicts<span>3</span></button><button type="button" role="tab" id="t-c1" data-p="c1" aria-controls="c1">Rex has it, sufficient<span>27</span></button><button type="button" role="tab" id="t-c2" data-p="c2" aria-controls="c2">Not met by Rex · required<span>17</span></button><button type="button" role="tab" id="t-c3" data-p="c3" aria-controls="c3">Not met by Rex · optional<span>11</span></button></div>
+<section id="conf" class="panel" role="tabpanel" aria-labelledby="t-conf"><h2>Conflicts between sources: which one prevails?</h2>
+<p class="lead">3 points. In each, the Rex email and the API docs (including the Integration Guide) say different things, and every method is affected. Each point says what we do for now. Inconsistencies on specific methods (path form, response fields, tag field) are listed under “Not met by Rex · required”.</p>
+<article class="it ck" id="k1"><header><span class="cls ck">K1</span><h3>Is billing per agency account, and which limits come with it?</h3></header><div class="rows">
+<b>Methods affected</b><div>All methods (access and request limits)</div>
+<b>Source A</b><div><span class="who">Rex email 6 Nov 2026</span>The dedicated integration user is non-billable and API access is free; the limit is 3,600 requests per hour per account.</div>
+<b>Source B</b><div><span class="who">API docs › Integrations and Rate Limits articles; Rex API Integration Guide</span>The integration user counts against the agency&#x27;s user slots and may raise the monthly fee; only a Verified Integrator is exempt, and applying requires the integration to be live in at least one client account. The rate limit is 3,600 requests per hour per agency account, soft for now, to be strictly enforced later.</div>
+<b>What we do for now</b><div>We follow the email: non-billable; our backend queues calls to stay within 3,600 per hour.</div>
+<b>Question for Rex</b><div>Is billing calculated per agency account (Place Sunnybank): is the integration user free and outside the user slots from day one, or is a slot paid until Verified Integrator approval? Do the limits follow the agency account as well: is 3,600 requests per hour shared by the whole account (including office staff using Rex and other integrations), or does the integration user have its own allowance? What happens when it is exceeded (rejected, delayed, disabled)? Are there other per-account limits, such as a daily cap or a concurrency limit?</div>
+</div></article>
+<article class="it ck" id="k2"><header><span class="cls ck">K2</span><h3>Access to a test environment</h3></header><div class="rows">
+<b>Methods affected</b><div>All methods (verification before launch)</div>
+<b>Source A</b><div><span class="who">Rex email 6 Nov 2026</span>API writes trigger Rex automations; test in the shared sandbox first.</div>
+<b>Source B</b><div><span class="who">API docs › Authentication article</span>A sandbox account is provisioned only for Verified Integrators. (The Integrations article of the same docs says a test account can be requested through the enquiry form.)</div>
+<b>What we do for now</b><div>We have no test account yet, which is why this list is checked against the docs only.</div>
+<b>Question for Rex</b><div>Can we have a test / sandbox account now, and how do we request it?</div>
+</div></article>
+<article class="it ck" id="k3"><header><span class="cls ck">K3</span><h3>Whose name goes in X-App-Identifier</h3></header><div class="rows">
+<b>Methods affected</b><div>All methods (header on every request)</div>
+<b>Source A</b><div><span class="who">Rex email 6 Nov 2026</span>The example value is Integration:PlaceSunnybank:Portal: the company segment is the agency.</div>
+<b>Source B</b><div><span class="who">API docs › Integrations article; Rex API Integration Guide</span>The convention is Integration:AcmeCorp:ServiceName, where AcmeCorp is the name of the integrator&#x27;s company.</div>
+<b>What we do for now</b><div>We use Integration:PlaceSunnybank:Portal as in the email.</div>
+<b>Question for Rex</b><div>Should the company segment be the agency (PlaceSunnybank) or the integrator (our company)? The value is also the basis of a Verified Integrator application; please give the final form.</div>
+</div></article>
+<p class="lead" style="font-size:13px">Token lifetime is not listed here: the email says token_lifetime may be up to 1 week, the API docs advise against using one token for several days. This needs no answer from Rex; we will verify in the sandbox that every login returns a fresh token, and the backend will log in again daily.</p>
+</section>
+<section id="c1" class="panel" role="tabpanel" aria-labelledby="t-c1"><h2><i>01</i>Required, available in Rex and sufficient</h2>
+<p class="lead">27 methods, all <code>POST https://api.rexsoftware.com/v1/rex/{Service}/{method}</code>. A <span class="req">*</span> marks a required parameter. All of them have a response example in the docs, except <code>Authentication::login</code> (returns a string) and <code>Properties::findPossibleDuplicate</code> (returns an id or false). An entry in the “Question for Rex” column means the method is usable but one detail is not documented.</p>
+<div class="ft"><h3>Login and session · 3</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k a">Session</span></td><td><code>Authentication::login</code><div></div></td><td>Log in with the integration account to obtain a token</td><td class="exp"><code>email</code><span class=req>*</span> <code>password</code><span class=req>*</span> <code>account_id</code> <code>token_lifetime</code></td><td class="exp">result is the token string. Every later request sends Authorization: Bearer &lt;token&gt;</td><td class="sr">API docs › Authentication › login; Rex email 6 Nov 2026</td><td class="q"></td></tr>
+<tr><td><span class="k a">Session</span></td><td><code>UserProfile::getAccessibleAccounts</code><div></div></td><td>List the Rex accounts the integration account can enter</td><td class="exp"><code>limit_to_current_application</code> <code>return_account_ids_only</code></td><td class="exp">Array of accounts (id, name). Used to find the account_id of Place Sunnybank</td><td class="sr">API docs › UserProfile › getAccessibleAccounts</td><td class="q"></td></tr>
+<tr><td><span class="k a">Session</span></td><td><code>UserProfile::read</code><div></div></td><td>Read the profile of the logged-in (integration) user</td><td class="exp"><code>id</code> <code>fields</code> <code>extra_fields</code></td><td class="exp">Profile object of the current user. Confirms the token is valid and the identity is right</td><td class="sr">API docs › UserProfile › read</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Users and team · 1</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>AccountUsers::search</code><div></div></td><td>Read the users of the Rex account</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[users…], total}. Can filter by first_name, last_name, email, status</td><td class="sr">API docs › AccountUsers › search</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Duplicate check and merge · 1</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Contacts::findMatchingContacts</code><div></div></td><td>Decide whether a contact already exists, by mobile / email / name</td><td class="exp"><code>contact_type</code> <code>name_first</code> <code>name_last</code> <code>company_name</code> <code>email</code> <code>phones</code> <code>min_user_relationship_to_contact</code> <code>limit</code></td><td class="exp">{verdict: unique | multiple | none, truncated: bool, contacts:[{id, type, name, email_address, phone_number}], employer}</td><td class="sr">API docs › Contacts › findMatchingContacts; Rex email 6 Nov 2026</td><td class="q">For the path form see 02-2</td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Contacts · 4</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Contacts::search</code><div></div></td><td>Search contacts</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, name, email_address, phone_number, contact_by_*, interest_level, last_contacted_date, system_owner_user…}], total}</td><td class="sr">API docs › Contacts › search</td><td class="q"></td></tr>
+<tr><td><span class="k r">Read</span></td><td><code>Contacts::read</code><div></div></td><td>Read one contact in full</td><td class="exp"><code>id</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code></td><td class="exp">Contact object: address, is_dnd, contact_by_email/sms/phone/letter, interest_level, last_contacted_date, system_owner_user, system_modified_user, system_modtime, etag, security_user_rights, plus related.contact_names / contact_phones / contact_emails / contact_tags / contact_relationships / contact_reln_property / contact_reln_listing / contact_mailing_lists</td><td class="sr">API docs › Contacts › read</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Contacts::create</code><div></div></td><td>Create a contact</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code> <code>options</code><div class="pd">data: type (person), address, interest_level (hot|warm|cold), contact_by_email / contact_by_sms / contact_by_phone / contact_by_letter (booleans), marketing_enquiry_source{id}; related.contact_names[{name_first, name_last}], related.contact_phones[{phone_type, phone_number, phone_primary, phone_primary_sms}], related.contact_emails[{email_address, email_primary}], related.contact_tags[{tag}], related.contact_reln_property[{reln_type{id}, property{id}}], related.contact_relationships[{relationship_type{id}, related_contact{id}}]</div></td><td class="exp">New record id (return_id=true) or the full record</td><td class="sr">API docs › Contacts › create; Rex email 6 Nov 2026</td><td class="q">If related.contact_tags carries a tag text the account does not have yet, is the tag created automatically? For the field that carries tags see 02-6</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Contacts::update</code><div></div></td><td>Update a contact (partial updates supported)</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data: Must contain id; send only the fields to change. Rows in related: with id = update, without id = add, with destroy:true = delete; rows not sent are left alone</div></td><td class="exp">The contact record after the update (trimmed by fields)</td><td class="sr">API docs › Contacts › update; Rex email 6 Nov 2026</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Enquiries (Leads) · 4</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Leads::read</code><div></div></td><td>Read one lead</td><td class="exp"><code>id</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code></td><td class="exp">Lead object: note / body_snippet, contact, listing, property, assignee, lead_type, lead_source, completion time</td><td class="sr">API docs › Leads › read</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Leads::create</code><div></div></td><td>Create a lead (enquiry, open-home check-in)</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: note (the content, required), contact{id}, listing{id} or property{id}, assignee{id} (Rex user id), lead_type{id} (value list lead_type, e.g. appraisal_request), lead_source{id} (value list enquiry_source)</div></td><td class="exp">Id of the new lead or the full record (with body_snippet, contact, listing, assignee, security_user_rights)</td><td class="sr">API docs › Leads › create; Rex email 6 Nov 2026</td><td class="q">When assignee{id} names the agent directly, does the integration account need the leads.assign_to_anyone privilege? When only listing{id} is sent and no assignee, is the lead assigned to that listing&#x27;s agent automatically (the docs only describe the ::assign_round_robin rule)? For the path form see 02-2</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Leads::update</code><div></div></td><td>Update a lead (e.g. change the assignee)</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data: Contains id; e.g. assignee{id}, note</div></td><td class="exp">The lead record after the update</td><td class="sr">API docs › Leads › update</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Leads::toggleCompletionState</code><div></div></td><td>Mark a lead completed / not completed</td><td class="exp"><code>id</code><span class=req>*</span> <code>is_completed</code> <code>dry_run</code></td><td class="exp">The lead record after the update</td><td class="sr">API docs › Leads › toggleCompletionState</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Notes and communication log · 2</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Notes::search</code><div></div></td><td>Read the notes of a contact or property</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, note, note_type{id,text}, system_ctime, system_created_user, related.note_contacts, related.note_properties}], total}</td><td class="sr">API docs › Notes › search</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Notes::create</code><div></div></td><td>Create a note</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: note (body), note_type{id} (value list note_type, e.g. phonecall), update_last_contacted (true refreshes the contact&#x27;s last contacted date), related.note_contacts[{contact_id}], related.note_properties[{property_id}]</div></td><td class="exp">New note id or the full record (with etag, note_type, related)</td><td class="sr">API docs › Notes › create; Rex email 6 Nov 2026</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>To-do reminders · 2</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k w">Write</span></td><td><code>Reminders::create</code><div></div></td><td>Create a reminder (To-do)</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: reminder_type{id} (phone | appointment | email | letter | sms | task), remindee{type, id} (type: user | user_group | system; for system the id is record_owner or all_users), reminder_description, reminder_date (YYYY-MM-DD), reminder_time, contact{id}, property{id}, listing{id}, priority{id}</div></td><td class="exp">New reminder id or the full record (with etag, remindee, security_user_rights)</td><td class="sr">API docs › Reminders › create</td><td class="q">After assigning to a colleague, does Rex send a mobile push notification?</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Reminders::update</code><div></div></td><td>Update a reminder (text, date, reassign)</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data: Contains id; e.g. remindee{type,id}, reminder_date, reminder_time, reminder_description</div></td><td class="exp">The reminder record after the update</td><td class="sr">API docs › Reminders › update</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Appraisal booking and calendar · 3</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Appraisals::search</code><div></div></td><td>Search appraisals</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, appraisal_date, property, agent_1, price_min, price_max, interest_level, appraisal_state}], total}</td><td class="sr">API docs › Appraisals › search</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Appraisals::create</code><div></div></td><td>Create an appraisal (Book appraisal)</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: property{id}, appraisal_date, agent_1{id}, agent_2{id}, price_min, price_max, price_asking, price_rent, interest_level</div></td><td class="exp">New appraisal id or the full record (with appraisal_state, property, agent)</td><td class="sr">API docs › Appraisals › create</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>CalendarEvents::create</code><div></div></td><td>Create an appointment in the Rex calendar</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: calendar{id}, title, description, starts_at{time, tzid}, ends_at{time, tzid}, event_location{description, latitude, longitude}, appointment_type{id}, organiser_user{id}, records[{id, service}] (links to Properties and Contacts), followup_reminder</div></td><td class="exp">New event id (UUID string) or the full record</td><td class="sr">API docs › CalendarEvents › create</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Buyer match profiles · 2</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k w">Write</span></td><td><code>MatchProfiles::create</code><div></div></td><td>Create a buyer match profile</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: profile_name, category (e.g. residential_sale), contact{id}, price{min,max}, price_match{min,max}, attr_bedrooms{min,max}, attr_bathrooms{min,max}, related.suburbs[{suburb_or_town, state_or_region, postcode, country}]</div></td><td class="exp">The new profile record (id, profile_name, category, contact, price, attr_*, related.suburbs)</td><td class="sr">API docs › MatchProfiles › create</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>MatchProfiles::update</code><div></div></td><td>Update a buyer match profile</td><td class="exp"><code>data</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code><div class="pd">data: Contains id; otherwise as for create</div></td><td class="exp">The profile record after the update</td><td class="sr">API docs › MatchProfiles › update</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Properties and map · 4</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Properties::search</code><div></div></td><td>Search properties</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, system_search_key (full address), adr_*, adr_latitude, adr_longitude, attr_bedrooms…, system_owner_user}], total}</td><td class="sr">API docs › Properties › search</td><td class="q"></td></tr>
+<tr><td><span class="k r">Read</span></td><td><code>Properties::read</code><div></div></td><td>Read one property</td><td class="exp"><code>id</code><span class=req>*</span> <code>fields</code> <code>extra_fields</code></td><td class="exp">Property object: adr_*, attr_bedrooms / attr_bathrooms / attr_garages / attr_landarea, title_number, is_dnd, related.contact_reln_property (owners and other related people), related.property_tags</td><td class="sr">API docs › Properties › read</td><td class="q"></td></tr>
+<tr><td><span class="k r">Read</span></td><td><code>Properties::findPossibleDuplicate</code><div></div></td><td>Check for an existing property by address before creating</td><td class="exp"><code>adr_unit_number</code> <code>adr_street_number</code> <code>adr_street_name</code> <code>adr_suburb_or_town</code> <code>adr_state_or_region</code> <code>adr_postcode</code> <code>property_category_id</code> <code>order_by_most_recent</code></td><td class="exp">Id of the existing property; false if none</td><td class="sr">API docs › Properties › findPossibleDuplicate</td><td class="q"></td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>Properties::create</code><div></div></td><td>Create a property (an address not yet in Rex)</td><td class="exp"><code>data</code><span class=req>*</span> <code>return_id</code><div class="pd">data: property_category{id} (residential), adr_unit_number, adr_street_number, adr_street_name, adr_suburb_or_town, adr_state_or_region, adr_postcode, adr_country, adr_latitude, adr_longitude, attr_bedrooms / attr_bathrooms / attr_garages / attr_landarea</div></td><td class="exp">New property id or the full record</td><td class="sr">API docs › Properties › create</td><td class="q"></td></tr>
+</tbody></table></div></div>
+<div class="ft"><h3>Listings and open homes · 1</h3><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>What we use it for</th><th>Parameters</th><th>Expected return</th><th>Rex source</th><th>Question for Rex</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>Listings::search</code><div></div></td><td>Search our own listings</td><td class="exp"><code>criteria</code> <code>order_by</code> <code>offset</code> <code>limit</code> <code>result_format</code> <code>extra_options</code></td><td class="exp">{rows:[{id, property{…address}, listing_category, system_listing_state, price_advertise_as, listing_agent_1…}], total}</td><td class="sr">API docs › Listings › search</td><td class="q"></td></tr>
+</tbody></table></div></div>
+</section>
+<section id="c2" class="panel" role="tabpanel" aria-labelledby="t-c2"><h2><i>02</i>Required, missing in Rex or not sufficient</h2>
+<p class="lead">Grouped by business function, 17 entries of two kinds; each entry is marked after its title.</p>
+<p class="lead"><span class="has n">Missing in Rex or not enough</span> 5 entries. Each states what we need, why, the situation in Rex today, the method we would like, and the JSON structure we would like exported if a method is not possible. Values in the JSON are illustrative; field names can follow Rex conventions as long as we are told the mapping. Methods marked “name is illustrative” are our illustration; Rex does not have them today.</p>
+<p class="lead"><span class="has n">Response structure missing or incomplete</span> 12 entries. We must use these methods and their parameters are checked, but for the return the Rex docs only say “array” or one sentence, with no fields (Reminders::search has an example that lacks a field). The “response we expect” is written by us from what we need and the Rex data model; it does not come from Rex. Please confirm each one or give a real response example; different field names are fine as long as we are told the mapping.</p>
+<h3 id="c2-init">Initial data load · 1</h3>
+<article class="it c2" id="m3"><header><span class="cls c2">02-1</span><h3>Initial data load: all contacts, properties and the relationships between them</h3><span class="has n">Missing in Rex or not enough</span></header><div class="rows">
+<b>What we need</b><div>Before launch, a one-off load of three sets of data: every contact in the account, every property in the patch, and the relationships between contacts and properties (who owns or rents which property). After that, a daily incremental update. If Rex does not supply the properties we will use data exported from Pricefinder, in which case each Pricefinder property has to be matched to its Rex property id.</div>
+<b>Why</b><div><ul><li>Agents working door to door need to see at once who owns a house and when the owner was last contacted. Reception on the street is unreliable and there is a limit of 3,600 requests per hour, so we need a local copy of the data instead of querying Rex every time.</li><li>All three are needed: contacts without relationships do not tell us which house an owner belongs to; properties without contacts show no owner at the door.</li><li>Properties exported from Pricefinder may not carry the Rex property id. Without a match the same house appears twice, the owner relationship cannot be attached to the Pricefinder row, and later writes to Rex have no property to point at.</li></ul></div>
+<b>Rex today</b><div><ul><li>Contacts::search returns at most 100 rows per page in the default format and can include related.contact_reln_property (contact-to-property relationships), related.contact_tags, phones and emails through extra_options. At 3,600 requests per hour, paging through everything yields at most about 360,000 rows per hour. The docs do not say whether a full pull like this is allowed, or whether the integration account can see every contact in the account.</li><li>Properties::search is also limited to 100 rows per page and offers contact_reln_property in extra_options; the etags format returns 50,000 rows per page and suits the later incremental reconciliation.</li><li>Export::queueExport(service_name, criteria, options, output_format) exists and returns the token of an asynchronous task. The docs do not say which services it supports, which output formats exist or how the result file is fetched.</li><li>Rex can store a link between a Rex property and a Pricefinder property id: ThirdPartyServicePriceFinderPropertyV2::setPropertyRemoteId(connection_id, local_property_id, remote_property_id). The link id is not visible in the Properties data structure or searchable fields, and the docs show no way to read it.</li><li>Properties::findPossibleDuplicate finds a Rex property by address, one property per call.</li><li>The docs mark ThirdPartyServicePriceFinderImportV2::queuePropertyImport as Refused: the Domain data agreement allows Pricefinder properties into Rex only by hand, one at a time. Properties that exist in Pricefinder but not in Rex will therefore not be bulk-created in Rex; they stay in our own system only.</li></ul></div>
+<b>Method we would like</b><div><div>Keep the existing methods; please answer the three points below</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>Contacts::search · Properties::search</code></td><td>May the integration account page through everything (limit 100, with related.*)? Can it see every contact and property?</td><td>full load</td></tr><tr><td><code>Export::queueExport</code></td><td>Is it open to the integration account? Supported service_name and output_format values; how the result file is fetched</td><td>full load</td></tr><tr><td><code>Properties::read · Properties::search</code></td><td>Return the Pricefinder property id linked to each property (the value written by setPropertyRemoteId), to match rows exported from Pricefinder</td><td>matching</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>Contacts, properties and relationships with the fields in the JSON below</div></div>
+<b>Or a data export</b><div>If the methods are not suited to a full pull: a one-off export of the three sets (JSON or CSV) in the structure below. If Rex does not supply the properties, please give at least a table of Rex property id, address and Pricefinder property id, which we will use to match the Pricefinder export to Rex.<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;contacts&quot;: [
+    {
+      &quot;rex_contact_id&quot;: 678,
+      &quot;type&quot;: &quot;person&quot;,
+      &quot;name_first&quot;: &quot;Mary&quot;,
+      &quot;name_last&quot;: &quot;Chen&quot;,
+      &quot;phones&quot;: [
+        {
+          &quot;type&quot;: &quot;mobile&quot;,
+          &quot;number&quot;: &quot;0412 778 201&quot;,
+          &quot;primary&quot;: true
+        }
+      ],
+      &quot;emails&quot;: [
+        {
+          &quot;address&quot;: &quot;mary@example.com&quot;,
+          &quot;primary&quot;: true
+        }
+      ],
+      &quot;contact_by_sms&quot;: true,
+      &quot;contact_by_phone&quot;: true,
+      &quot;contact_by_email&quot;: true,
+      &quot;contact_by_letter&quot;: true,
+      &quot;tags&quot;: [
+        &quot;Seller lead&quot;,
+        &quot;Area: Gager West&quot;
+      ],
+      &quot;interest_level&quot;: &quot;warm&quot;,
+      &quot;last_contacted_date&quot;: &quot;2026-10-30&quot;,
+      &quot;owner_user&quot;: {
+        &quot;id&quot;: 12,
+        &quot;name&quot;: &quot;Natalie Wong&quot;
+      },
+      &quot;etag&quot;: &quot;678-1794500000&quot;
+    }
+  ],
+  &quot;properties&quot;: [
+    {
+      &quot;rex_property_id&quot;: 5,
+      &quot;pricefinder_property_id&quot;: &quot;12345678&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;8&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5812,
+      &quot;longitude&quot;: 153.0571,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 4,
+      &quot;bathrooms&quot;: 2,
+      &quot;car_spaces&quot;: 2,
+      &quot;land_area_m2&quot;: 607,
+      &quot;etag&quot;: &quot;5-1794400000&quot;
+    }
+  ],
+  &quot;relationships&quot;: [
+    {
+      &quot;rex_contact_id&quot;: 678,
+      &quot;rex_property_id&quot;: 5,
+      &quot;reln_type&quot;: &quot;owner&quot;
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>pricefinder_property_id</code></td><td>Given when Rex holds the link, otherwise null. With it we match by id; without it we match on the normalised address and send the leftovers to manual review</td></tr><tr><td><code>relationships.reln_type</code></td><td>owner, tenant, etc.: the Rex relationship type id</td></tr><tr><td><code>etag</code></td><td>Used for the later incremental reconciliation</td></tr></tbody></table></div></div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Contacts › describeModel (search_result_formats, search_extra_options); Properties › describeModel (same)</li><li>API docs › Rate Limits article (3,600 per hour); E-tags Sync article</li><li>API docs › Export › queueExport</li><li>API docs › ThirdPartyServicePriceFinderPropertyV2 › setPropertyRemoteId; ThirdPartyServicePriceFinderImportV2 › queuePropertyImport; Properties › findPossibleDuplicate</li></ul></div>
+</div></article>
+<h3 id="c2-auth">Login and session · 1</h3>
+<article class="it c2" id="m5"><header><span class="cls c2">02-2</span><h3>Form of the endpoint path</h3><span class="has n">Missing in Rex or not enough</span></header><div class="rows">
+<b>What we need</b><div>Please confirm which form of the path to use when calling a method, and whether both forms work.</div>
+<b>Why</b><div><ul><li>Every call uses the path; with the wrong form no method can be called.</li><li>The two methods named in the email (create a lead, find matching contacts) are the core of enquiries and check-ins and must be settled before launch.</li></ul></div>
+<b>Rex today</b><div><ul><li>The Rex email writes leads/create and contacts/find-matching-contacts (lower case with hyphens).</li><li>The API docs write /v1/rex/Leads/create and /v1/rex/Contacts/findMatchingContacts (capitalised service, camelCase method).</li><li>For now we use the form in the API docs.</li></ul></div>
+<b>Method we would like</b><div><div>Please confirm which form prevails</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>POST /v1/rex/Leads/create</code></td><td>Form in the API docs</td><td>used now</td></tr><tr><td><code>POST …/leads/create</code></td><td>Form in the email; what is the full URL?</td><td>to confirm</td></tr><tr><td><code>POST /v1/rex/Contacts/findMatchingContacts</code></td><td>Form in the API docs</td><td>used now</td></tr><tr><td><code>POST …/contacts/find-matching-contacts</code></td><td>Form in the email; what is the full URL?</td><td>to confirm</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>No return involved</div></div>
+<b>Sources</b><div class="srcs"><ul><li>Rex email 6 Nov 2026</li><li>API docs › Leads › create; Contacts › findMatchingContacts; Authentication article</li></ul></div>
+</div></article>
+<h3 id="c2-user">Users and team · 1</h3>
+<article class="it c2" id="b-remindees"><header><span class="cls c2">02-3</span><h3><code>Reminders::getRemindeeList</code></h3><span class="k r">Read</span><span>People and user groups a reminder can be assigned to</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To let an agent assign a reminder, we list the colleagues and user groups it can be assigned to.</div>
+<b>Parameters (checked)</b><div><div><span class="none">No parameters</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array An array of users...”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;type&quot;: &quot;user&quot;,
+      &quot;id&quot;: 12,
+      &quot;name&quot;: &quot;Natalie Wong&quot;
+    },
+    {
+      &quot;type&quot;: &quot;user_group&quot;,
+      &quot;id&quot;: 3,
+      &quot;name&quot;: &quot;Sales team&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Does each item carry type, id and a display name?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Reminders › getRemindeeList (parameters; no response example)</li><li>Basis of the expected structure: API docs › Reminders › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-dedupe">Duplicate check and merge · 2</h3>
+<article class="it c2" id="b-dupes"><header><span class="cls c2">02-4</span><h3><code>Dedupe::findPossibleDuplicates</code></h3><span class="k r">Read</span><span>Find possible duplicates of a record</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To show the agent which record a contact possibly duplicates, and to pass both ids to the merge call.</div>
+<b>Parameters (checked)</b><div><div><code>service_name</code><span class=req>*</span> <span class="none">string, Contacts</span><br><code>match_fields</code><span class=req>*</span> <span class="none">array, Fields that must be equal: email / phone / names; all must match</span><br><code>company_or_person</code> <span class="none">string, person | company</span><br><code>record_id</code> <span class="none">int, Only look for duplicates of this record</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array Returns an array of possible duplicates where each entry is an object in the form {winning_id, losing_ids, number_of_dupes, name, email_address, phone_number, contact_image}”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;winning_id&quot;: 678,
+      &quot;losing_ids&quot;: [
+        912
+      ],
+      &quot;number_of_dupes&quot;: 1,
+      &quot;name&quot;: &quot;Mary Chen&quot;,
+      &quot;email_address&quot;: &quot;mary@example.com&quot;,
+      &quot;phone_number&quot;: &quot;0412 778 201&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Does each group give the winning and losing ids plus name, phone and email for display?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Dedupe › findPossibleDuplicates (parameters; no response example)</li><li>Basis of the expected structure: API docs › Dedupe › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<article class="it c2" id="b-merge"><header><span class="cls c2">02-5</span><h3><code>Dedupe::combineRecords</code></h3><span class="k w">Write</span><span>Merge duplicate records</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To merge two duplicate contacts into one after the agent has picked the values to keep.</div>
+<b>Parameters (checked)</b><div><div><code>service_name</code><span class=req>*</span> <span class="none">string, Contacts (Properties also supported)</span><br><code>winning_id</code><span class=req>*</span> <span class="none">int, Id of the record to keep</span><br><code>losing_ids</code><span class=req>*</span> <span class="none">int[], Ids of the records merged into it</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;winning_id&quot;: 678,
+    &quot;merged_ids&quot;: [
+      912
+    ],
+    &quot;record&quot;: {
+      &quot;id&quot;: 678,
+      &quot;etag&quot;: &quot;…&quot;
+    }
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Which privilege the integration account needs; which side wins when fields conflict; whether notes, leads, tags and relationships all move to the kept record; what is returned.</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Dedupe › combineRecords (parameters; no response example)</li><li>Basis of the expected structure: API docs › Dedupe › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-tag">Tags · 2</h3>
+<article class="it c2" id="m4"><header><span class="cls c2">02-6</span><h3>Contact tags: which field carries them, and grouping by scenario (DK, OFI, Enquiry)</h3><span class="has n">Missing in Rex or not enough</span></header><div class="rows">
+<b>What we need</b><div>A scenario attribute on each contact tag, or a convention named by Rex, that tells us which tags belong to DK mode, which to OFI and which to Enquiry. Please also confirm which field contact tags are written to and that this form stays valid.</div>
+<b>Why</b><div><ul><li>Tags depend on the scenario the contact is met in: door knocking (DK) uses DK tags, an open home (OFI) uses OFI tags, an enquiry uses another set. The agent should be offered only the tags of the scenario they are working in.</li><li>A tag created by office staff in Rex should also land in the right scenario list without being configured a second time on our side.</li><li>In all of these scenarios tags are written through Contacts::create / update, so the way tags are written must not stop working.</li></ul></div>
+<b>Rex today</b><div><ul><li>An AdminTags record has only id, tag, object_type and cached_count, with no group or category field; object_type only separates contact tags from property tags.</li><li>The docs are not consistent about the tag field: Contacts describeModel marks contact_tags as “(Deprecated) Tags associated with the contact”, while related.contact_tags in the same list is not marked deprecated.</li><li>The request examples of Contacts::create and update write tags in data.related.contact_tags, but the parameter definition lists only contact_emails, contact_phones and contact_names under related, with no contact_tags. The Rex email says tags go through related.contact_tags.</li><li>For now we read and write related.contact_tags and never the top-level contact_tags.</li></ul></div>
+<b>Method we would like</b><div><div>One extra field on existing methods (name is illustrative)</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>Contacts::create · update · read</code></td><td>Please confirm: only the top-level contact_tags is deprecated and related.contact_tags stays; if tagging itself is being retired, tell us the replacement</td><td>confirm</td></tr><tr><td><code>AdminTags::search</code></td><td>rows gain group: dk | ofi | enquiry | empty</td><td>read</td></tr><tr><td><code>AdminTags::create</code></td><td>data:{tag, object_type, group}</td><td>write</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>{rows:[{id, tag, object_type, group, cached_count}], total}</div></div>
+<b>Or a data export</b><div>If Rex will not add a field: we keep the tag-to-scenario mapping ourselves. In that case please export the account&#x27;s existing contact tags; the agency marks the scenario of each and we import the result.<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;tags&quot;: [
+    {
+      &quot;id&quot;: 31,
+      &quot;tag&quot;: &quot;Seller lead&quot;,
+      &quot;object_type&quot;: &quot;contact&quot;,
+      &quot;scenarios&quot;: [
+        &quot;enquiry&quot;,
+        &quot;dk&quot;
+      ],
+      &quot;use_count&quot;: 214
+    },
+    {
+      &quot;id&quot;: 47,
+      &quot;tag&quot;: &quot;Neighbour&quot;,
+      &quot;object_type&quot;: &quot;contact&quot;,
+      &quot;scenarios&quot;: [
+        &quot;ofi&quot;
+      ],
+      &quot;use_count&quot;: 96
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>scenarios</code></td><td>dk | ofi | enquiry, several allowed; may be left empty in the export for the agency to fill in</td></tr><tr><td><code>use_count</code></td><td>How often the tag is used, for ordering</td></tr></tbody></table></div></div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › AdminTags › describeModel (data structure)</li><li>API docs › Contacts › describeModel; request example of Contacts › create</li><li>Rex email 6 Nov 2026 (tags through related.contact_tags)</li></ul></div>
+</div></article>
+<article class="it c2" id="b-tags"><header><span class="cls c2">02-7</span><h3><code>AdminTags::search</code></h3><span class="k r">Read</span><span>Read the account&#x27;s tag list</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To list and search the account&#x27;s tags when the agent tags a contact.</div>
+<b>Parameters (checked)</b><div><div><code>criteria</code> <span class="none">array, Array of conditions, each {name, type, value}; type defaults to =, also in / between / &gt;= etc.</span><br><code>order_by</code> <span class="none">object, {field: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int, Rows to skip, default 0</span><br><code>limit</code> <span class="none">int, Rows to return, default 20; the default format allows up to 100</span><br><code>result_format</code> <span class="none">string, default | ids | etags (services add their own formats)</span><br><code>extra_options</code> <span class="none">array, Supported by some services only</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 31,
+        &quot;tag&quot;: &quot;Seller lead&quot;,
+        &quot;object_type&quot;: &quot;contact&quot;,
+        &quot;cached_count&quot;: 214
+      }
+    ],
+    &quot;total&quot;: 58
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Are these four fields what a search row contains?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › AdminTags › search (parameters; no response example)</li><li>Basis of the expected structure: API docs › AdminTags › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-lead">Enquiries (Leads) · 1</h3>
+<article class="it c2" id="b-leadsearch"><header><span class="cls c2">02-8</span><h3><code>Leads::search</code></h3><span class="k r">Read</span><span>Search leads</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To list open enquiries, the attendees of an open home, and a contact&#x27;s enquiry history.</div>
+<b>Parameters (checked)</b><div><div><code>criteria</code> <span class="none">array, Array of conditions, each {name, type, value}; type defaults to =, also in / between / &gt;= etc.</span><br><code>order_by</code> <span class="none">object, {field: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int, Rows to skip, default 0</span><br><code>limit</code> <span class="none">int, Rows to return, default 20; the default format allows up to 100</span><br><code>result_format</code> <span class="none">string, default | ids | etags (services add their own formats)</span><br><code>extra_options</code> <span class="none">array, Supported by some services only</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 2051,
+        &quot;contact&quot;: {
+          &quot;id&quot;: 678,
+          &quot;name&quot;: &quot;Mary Chen&quot;
+        },
+        &quot;listing&quot;: {
+          &quot;id&quot;: 77,
+          &quot;property&quot;: {
+            &quot;system_search_key&quot;: &quot;8 Gager Street, Sunnybank QLD 4109&quot;
+          }
+        },
+        &quot;property&quot;: null,
+        &quot;assignee&quot;: {
+          &quot;id&quot;: 12,
+          &quot;name&quot;: &quot;Natalie Wong&quot;
+        },
+        &quot;lead_type&quot;: {
+          &quot;id&quot;: &quot;appraisal_request&quot;,
+          &quot;text&quot;: &quot;Appraisal request&quot;
+        },
+        &quot;lead_source&quot;: {
+          &quot;id&quot;: 1,
+          &quot;text&quot;: &quot;Open home&quot;
+        },
+        &quot;body_snippet&quot;: &quot;Thinking of selling next year…&quot;,
+        &quot;system_ctime&quot;: 1794500000,
+        &quot;system_completed_time&quot;: null
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Do search rows carry the names (not only ids) of contact, listing / property and assignee, plus the snippet and timestamps?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Leads › search (parameters; no response example)</li><li>Basis of the expected structure: API docs › Leads › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-todo">To-do reminders · 2</h3>
+<article class="it c2" id="b-remsearch"><header><span class="cls c2">02-9</span><h3><code>Reminders::search</code></h3><span class="k r">Read</span><span>Read reminders (To-dos)</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To list the reminders assigned to the agent, those the agent assigned to others, and the completed ones; each is shown with its date and time.</div>
+<b>Parameters (checked)</b><div><div><code>criteria</code> <span class="none">array, Array of conditions, each {name, type, value}; type defaults to =, also in / between / &gt;= etc.</span><br><code>order_by</code> <span class="none">object, {field: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int, Rows to skip, default 0</span><br><code>limit</code> <span class="none">int, Rows to return, default 20; the default format allows up to 100</span><br><code>result_format</code> <span class="none">string, default | ids | etags (services add their own formats)</span><br><code>extra_options</code> <span class="none">array, Supported by some services only</span></div></div>
+<b>What the docs say about the return</b><div>The docs have a response example, but it carries no reminder_time; the field is in the data structure and the searchable fields.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 40117,
+        &quot;reminder_description&quot;: &quot;Call back about appraisal&quot;,
+        &quot;reminder_date&quot;: &quot;2026-11-14&quot;,
+        &quot;reminder_time&quot;: &quot;09:30:00&quot;,
+        &quot;reminder_type&quot;: {
+          &quot;id&quot;: &quot;call&quot;,
+          &quot;text&quot;: &quot;Call&quot;
+        },
+        &quot;remindee&quot;: {
+          &quot;type&quot;: &quot;user&quot;,
+          &quot;id&quot;: 12,
+          &quot;display&quot;: &quot;Natalie Wong&quot;
+        },
+        &quot;contact&quot;: {
+          &quot;id&quot;: 678,
+          &quot;name&quot;: &quot;Mary Chen&quot;
+        },
+        &quot;property&quot;: {
+          &quot;id&quot;: 5,
+          &quot;system_search_key&quot;: &quot;8 Gager Street, Sunnybank QLD 4109&quot;
+        },
+        &quot;system_created_user&quot;: {
+          &quot;id&quot;: 12,
+          &quot;name&quot;: &quot;Natalie Wong&quot;
+        },
+        &quot;system_completed_time&quot;: null
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Do search and read return reminder_time, and does it need an extra field group in the request? Is “assigned to me” filtered with remindee_user_id, or with remindee_type plus remindee_id? Is “not completed” simply system_completed_time being empty?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Reminders › search (parameters; response example lacks reminder_time)</li><li>Basis of the expected structure: API docs › Reminders › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<article class="it c2" id="b-remdone"><header><span class="cls c2">02-10</span><h3><code>Reminders::toggleCompletionState</code></h3><span class="k w">Write</span><span>Complete / reopen a reminder</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To mark a reminder completed or reopen it; completion should leave a record in Rex.</div>
+<b>Parameters (checked)</b><div><div><code>id</code><span class=req>*</span> <span class="none">int, Reminder id</span><br><code>is_completed</code> <span class="none">bool, true = complete, false = reopen</span><br><code>create_activity_entry</code> <span class="none">bool, true leaves an entry in the Rex activity stream</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array A read after the update”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;id&quot;: 40117,
+    &quot;reminder_description&quot;: &quot;Call back about appraisal&quot;,
+    &quot;reminder_date&quot;: &quot;2026-11-14&quot;,
+    &quot;reminder_time&quot;: &quot;09:30:00&quot;,
+    &quot;remindee&quot;: {
+      &quot;type&quot;: &quot;user&quot;,
+      &quot;id&quot;: 12
+    },
+    &quot;system_completed_time&quot;: 1794533000,
+    &quot;system_completed_user&quot;: {
+      &quot;id&quot;: 12,
+      &quot;name&quot;: &quot;Natalie Wong&quot;
+    }
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Is the return the reminder after the update? Does create_activity_entry=true amount to a note on the contact?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Reminders › toggleCompletionState (parameters; no response example)</li><li>Basis of the expected structure: API docs › Reminders › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-match">Buyer match profiles · 1</h3>
+<article class="it c2" id="b-mpsearch"><header><span class="cls c2">02-11</span><h3><code>MatchProfiles::search</code></h3><span class="k r">Read</span><span>Read a contact&#x27;s buyer match profiles</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To read a buyer&#x27;s existing match profiles before deciding whether to create a new one or update one.</div>
+<b>Parameters (checked)</b><div><div><code>criteria</code> <span class="none">array, Array of conditions, each {name, type, value}; type defaults to =, also in / between / &gt;= etc.</span><br><code>order_by</code> <span class="none">object, {field: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int, Rows to skip, default 0</span><br><code>limit</code> <span class="none">int, Rows to return, default 20; the default format allows up to 100</span><br><code>result_format</code> <span class="none">string, default | ids | etags (services add their own formats)</span><br><code>extra_options</code> <span class="none">array, Supported by some services only</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 902,
+        &quot;profile_name&quot;: &quot;Runcorn 3 bed&quot;,
+        &quot;category&quot;: &quot;residential_sale&quot;,
+        &quot;contact&quot;: {
+          &quot;id&quot;: 678
+        },
+        &quot;price&quot;: {
+          &quot;min&quot;: 900000,
+          &quot;max&quot;: 1100000
+        },
+        &quot;attr_bedrooms&quot;: {
+          &quot;min&quot;: 3,
+          &quot;max&quot;: null
+        },
+        &quot;attr_bathrooms&quot;: {
+          &quot;min&quot;: 2,
+          &quot;max&quot;: null
+        },
+        &quot;related&quot;: {
+          &quot;suburbs&quot;: [
+            {
+              &quot;suburb_or_town&quot;: &quot;Runcorn&quot;,
+              &quot;state_or_region&quot;: &quot;QLD&quot;,
+              &quot;postcode&quot;: &quot;4113&quot;
+            }
+          ]
+        }
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>How to filter by contact; do rows carry price, bedrooms, bathrooms and suburbs?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › MatchProfiles › search (parameters; no response example)</li><li>Basis of the expected structure: API docs › MatchProfiles › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-prop">Properties and map · 2</h3>
+<article class="it c2" id="b-phist"><header><span class="cls c2">02-12</span><h3><code>Properties::getHistory</code></h3><span class="k r">Read</span><span>Property history (other-agency listings, appraisals, our listings)</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To show the agent a property&#x27;s listing and appraisal history held in Rex.</div>
+<b>Parameters (checked)</b><div><div><code>id</code><span class=req>*</span> <span class="none">int, Property id</span><br><code>limit</code> <span class="none">int, Number of rows</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;type&quot;: &quot;listing&quot;,
+      &quot;id&quot;: 77,
+      &quot;date&quot;: &quot;2024-05-02&quot;,
+      &quot;state&quot;: &quot;sold&quot;,
+      &quot;price&quot;: 880000,
+      &quot;agent&quot;: {
+        &quot;id&quot;: 12,
+        &quot;name&quot;: &quot;Natalie Wong&quot;
+      }
+    },
+    {
+      &quot;type&quot;: &quot;appraisal&quot;,
+      &quot;id&quot;: 311,
+      &quot;date&quot;: &quot;2023-11-20&quot;,
+      &quot;price_min&quot;: 820000,
+      &quot;price_max&quot;: 880000
+    },
+    {
+      &quot;type&quot;: &quot;oab&quot;,
+      &quot;id&quot;: 1204,
+      &quot;date&quot;: &quot;2022-08-15&quot;,
+      &quot;agency_name&quot;: &quot;Other Agency Sunnybank&quot;,
+      &quot;price_text&quot;: &quot;Offers over $800,000&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>The type, date, price and agent fields of each entry in the returned array.</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Properties › getHistory (parameters; no response example)</li><li>Basis of the expected structure: API docs › Properties › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<article class="it c2" id="b-oabs"><header><span class="cls c2">02-13</span><h3><code>Oabs::search</code></h3><span class="k r">Read</span><span>Listings held by other agencies</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To mark on the map the houses currently listed with another agency.</div>
+<b>Parameters (checked)</b><div><div><code>criteria</code> <span class="none">array, Array of conditions, each {name, type, value}; type defaults to =, also in / between / &gt;= etc.</span><br><code>order_by</code> <span class="none">object, {field: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int, Rows to skip, default 0</span><br><code>limit</code> <span class="none">int, Rows to return, default 20; the default format allows up to 100</span><br><code>result_format</code> <span class="none">string, default | ids | etags (services add their own formats)</span><br><code>extra_options</code> <span class="none">array, Supported by some services only</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 1204,
+        &quot;property_id&quot;: 5,
+        &quot;oab_state&quot;: &quot;current&quot;,
+        &quot;oab_date&quot;: &quot;2026-10-28&quot;,
+        &quot;first_seen_date&quot;: &quot;2026-10-28&quot;,
+        &quot;agency&quot;: {
+          &quot;id&quot;: 44,
+          &quot;name&quot;: &quot;Other Agency Sunnybank&quot;
+        },
+        &quot;price&quot;: null,
+        &quot;price_text&quot;: &quot;Offers over $950,000&quot;
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>The fields of a search row; how to filter by a set of property_ids and by current state.</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Oabs › search (parameters; no response example)</li><li>Basis of the expected structure: API docs › Oabs › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-listing">Listings and open homes · 1</h3>
+<article class="it c2" id="b-levents"><header><span class="cls c2">02-14</span><h3><code>ListingEvents::search</code></h3><span class="k r">Read</span><span>Open-home sessions of a listing</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>To list today&#x27;s and upcoming open homes.</div>
+<b>Parameters (checked)</b><div><div><code>criteria</code> <span class="none">array, Array of conditions, each {name, type, value}; type defaults to =, also in / between / &gt;= etc.</span><br><code>order_by</code> <span class="none">object, {field: &quot;asc&quot;|&quot;desc&quot;}</span><br><code>offset</code> <span class="none">int, Rows to skip, default 0</span><br><code>limit</code> <span class="none">int, Rows to return, default 20; the default format allows up to 100</span><br><code>result_format</code> <span class="none">string, default | ids | etags (services add their own formats)</span><br><code>extra_options</code> <span class="none">array, Supported by some services only</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: {
+    &quot;rows&quot;: [
+      {
+        &quot;id&quot;: 5501,
+        &quot;listing_id&quot;: 77,
+        &quot;event_type&quot;: {
+          &quot;id&quot;: &quot;open_home&quot;,
+          &quot;text&quot;: &quot;Open home&quot;
+        },
+        &quot;event_date&quot;: &quot;2026-11-15&quot;,
+        &quot;event_time_start&quot;: &quot;10:00:00&quot;,
+        &quot;event_time_end&quot;: &quot;10:30:00&quot;,
+        &quot;event_agent_id&quot;: 12
+      }
+    ],
+    &quot;total&quot;: 1
+  },
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Do search rows have start and end times? Which event_type value means an open home?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › ListingEvents › search (parameters; no response example)</li><li>Basis of the expected structure: API docs › ListingEvents › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+<h3 id="c2-market">Market data (Pricefinder) · 2</h3>
+<article class="it c2" id="m1"><header><span class="cls c2">02-15</span><h3>Daily new sales and new listings inside a patch</h3><span class="has n">Missing in Rex or not enough</span></header><div class="rows">
+<b>What we need</b><div>Given a patch (one or more polygons, or a list of suburbs) and a date range, return the properties newly sold and newly listed inside it, each with address, coordinates, date, price and the agency handling it.</div>
+<b>Why</b><div><ul><li>Each day the agent reviews what was newly sold and newly listed in their patch and decides, item by item, whether to follow it up. The agency does this today by checking Pricefinder daily.</li><li>Without this data the agent has no daily list of market changes to act on.</li><li>We write back to Rex (a note, an update of the previous owner&#x27;s relationship) only after the agent confirms an item, so this request is read-only.</li></ul></div>
+<b>Rex today</b><div><ul><li>The Rex property record (Properties) has no sale date or sale price field, and search has no criterion by coordinates.</li><li>Rex has Pricefinder pass-through methods: ThirdPartyServicePriceFinderSearchV2::polygonSearch(connection_id, coordinates) and ::propertySearch. The docs do not give the response structure, whether a date filter exists, or how many calls per day are allowed, and they require the account to have the built-in Pricefinder connection.</li><li>Oabs::search only covers other-agency listings already entered in Rex, not the whole market.</li></ul></div>
+<b>Method we would like</b><div><div>(name is illustrative) MarketEvents::search</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>polygons</code></td><td>Array of 1–20 GeoJSON Polygons, longitude first</td><td>one of the two</td></tr><tr><td><code>suburbs</code></td><td>[{suburb_or_town, postcode}]</td><td>one of the two</td></tr><tr><td><code>event_types</code></td><td>[&quot;sold&quot;, &quot;new_listing&quot;]</td><td>required</td></tr><tr><td><code>date_from / date_to</code></td><td>YYYY-MM-DD</td><td>required</td></tr><tr><td><code>limit / offset</code></td><td>paging</td><td>optional</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>{rows:[events…], total}; the fields of each event are in the JSON below</div></div>
+<b>Or a data export</b><div>If an endpoint is not possible: one JSON file per day (or a push to a URL we provide) with all events of the previous day inside the patch.<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;area&quot;: {
+    &quot;suburbs&quot;: [
+      {
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      }
+    ]
+  },
+  &quot;events&quot;: [
+    {
+      &quot;event_id&quot;: &quot;pf-88213491&quot;,
+      &quot;event_type&quot;: &quot;sold&quot;,
+      &quot;event_date&quot;: &quot;2026-11-08&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;8&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5812,
+      &quot;longitude&quot;: 153.0571,
+      &quot;rex_property_id&quot;: 5,
+      &quot;price&quot;: 1020000,
+      &quot;price_text&quot;: &quot;$1,020,000&quot;,
+      &quot;agency_name&quot;: &quot;Other Agency Sunnybank&quot;,
+      &quot;agent_name&quot;: &quot;J. Smith&quot;,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 4,
+      &quot;bathrooms&quot;: 2,
+      &quot;car_spaces&quot;: 2,
+      &quot;land_area_m2&quot;: 607,
+      &quot;source&quot;: &quot;pricefinder&quot;,
+      &quot;source_property_id&quot;: &quot;12345678&quot;
+    },
+    {
+      &quot;event_id&quot;: &quot;pf-88213502&quot;,
+      &quot;event_type&quot;: &quot;new_listing&quot;,
+      &quot;event_date&quot;: &quot;2026-11-12&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;14&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5809,
+      &quot;longitude&quot;: 153.0575,
+      &quot;rex_property_id&quot;: null,
+      &quot;price&quot;: null,
+      &quot;price_text&quot;: &quot;Offers over $950,000&quot;,
+      &quot;agency_name&quot;: &quot;Other Agency Sunnybank&quot;,
+      &quot;agent_name&quot;: &quot;A. Lee&quot;,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 3,
+      &quot;bathrooms&quot;: 1,
+      &quot;car_spaces&quot;: 1,
+      &quot;land_area_m2&quot;: 556,
+      &quot;source&quot;: &quot;pricefinder&quot;,
+      &quot;source_property_id&quot;: &quot;12345702&quot;
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>event_type</code></td><td>sold | new_listing</td></tr><tr><td><code>rex_property_id</code></td><td>The Rex id when the property exists in Rex, otherwise null</td></tr><tr><td><code>price / price_text</code></td><td>Sale or asking price; when undisclosed price is null and price_text carries the original wording</td></tr><tr><td><code>source / source_property_id</code></td><td>Data source and its property id, used for de-duplication</td></tr></tbody></table></div></div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Properties › describeModel (no sale fields and no coordinate criterion in the structure or searchable fields)</li><li>API docs › ThirdPartyServicePriceFinderSearchV2 › polygonSearch, propertySearch (return documented only as array)</li><li>API docs › Oabs › describeModel</li></ul></div>
+</div></article>
+<article class="it c2" id="m2"><header><span class="cls c2">02-16</span><h3>Last sale and registered owner of each property</h3><span class="has n">Missing in Rex or not enough</span></header><div class="rows">
+<b>What we need</b><div>By Rex property id or address, return the property&#x27;s last sale date, sale price, registered owner names and lot details.</div>
+<b>Why</b><div><ul><li>The agent needs to see when a property was last sold, and for how much, before speaking to the owner.</li><li>For houses with no contact in Rex yet, the agent needs the registered owner&#x27;s name before knocking; when a property sells, we also compare the sale against the previous owner.</li><li>Without this data the agent has to look each property up in Pricefinder separately.</li></ul></div>
+<b>Rex today</b><div><ul><li>The Rex Properties record has no last-sale or registered-owner field.</li><li>ThirdPartyServicePriceFinderPropertyV2::getPropertyDetails(connection_id, local_property_id | remote_property_id) exists, but the docs only say it returns an array, with no fields; they do not say where connection_id comes from; it works one property at a time.</li></ul></div>
+<b>Method we would like</b><div><div>Keep ThirdPartyServicePriceFinderPropertyV2::getPropertyDetails; please complete its documentation</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>connection_id</code></td><td>Please explain how the integration account obtains it</td><td>required</td></tr><tr><td><code>local_property_id</code></td><td>Rex property id</td><td>one of the two</td></tr><tr><td><code>remote_property_id</code></td><td>Pricefinder property id</td><td>one of the two</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>One object with the fields in the JSON below; please also state the hourly / daily call limit</div></div>
+<b>Or a data export</b><div>If the method cannot be opened to the integration account: a one-off export of this data for every property in the patch, refreshed monthly.<pre>{
+  &quot;generated_at&quot;: &quot;2026-11-13T02:00:00+10:00&quot;,
+  &quot;properties&quot;: [
+    {
+      &quot;rex_property_id&quot;: 5,
+      &quot;source_property_id&quot;: &quot;12345678&quot;,
+      &quot;address&quot;: {
+        &quot;unit_number&quot;: null,
+        &quot;street_number&quot;: &quot;8&quot;,
+        &quot;street_name&quot;: &quot;Gager Street&quot;,
+        &quot;suburb_or_town&quot;: &quot;Sunnybank&quot;,
+        &quot;state_or_region&quot;: &quot;QLD&quot;,
+        &quot;postcode&quot;: &quot;4109&quot;
+      },
+      &quot;latitude&quot;: -27.5812,
+      &quot;longitude&quot;: 153.0571,
+      &quot;lot&quot;: &quot;12&quot;,
+      &quot;plan&quot;: &quot;RP123456&quot;,
+      &quot;land_area_m2&quot;: 607,
+      &quot;property_type&quot;: &quot;house&quot;,
+      &quot;bedrooms&quot;: 4,
+      &quot;bathrooms&quot;: 2,
+      &quot;car_spaces&quot;: 2,
+      &quot;last_sale&quot;: {
+        &quot;date&quot;: &quot;2019-03-22&quot;,
+        &quot;price&quot;: 780000,
+        &quot;sale_type&quot;: &quot;private_treaty&quot;
+      },
+      &quot;registered_owners&quot;: [
+        {
+          &quot;name&quot;: &quot;Mary Chen&quot;
+        },
+        {
+          &quot;name&quot;: &quot;David Chen&quot;
+        }
+      ],
+      &quot;owner_occupied&quot;: true
+    }
+  ]
+}</pre>
+<div class="scroll"><table><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>last_sale</code></td><td>null when there is no sale on record</td></tr><tr><td><code>registered_owners</code></td><td>Registered owner names; names only, no contact details</td></tr><tr><td><code>lot / plan</code></td><td>Lot and plan, shown on the Land · Lot line of the Property page</td></tr></tbody></table></div></div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › Properties › describeModel (no sale or registered-owner fields)</li><li>API docs › ThirdPartyServicePriceFinderPropertyV2 › getPropertyDetails (return documented only as array)</li></ul></div>
+</div></article>
+<h3 id="c2-sys">Value lists and backend · 1</h3>
+<article class="it c2" id="b-values"><header><span class="cls c2">02-17</span><h3><code>SystemValues::getCategoryValues</code></h3><span class="k r">Read</span><span>Read a value list</span><span class="has n">Response structure missing or incomplete</span></header><div class="rows">
+<b>Why</b><div>Writing leads, notes and relationships needs ids from value lists (source, type, relationship type).</div>
+<b>Parameters (checked)</b><div><div><code>list_name</code><span class=req>*</span> <span class="none">string, e.g. enquiry_source, lead_type, note_type, contact_reln_listing</span><br><code>ids_only</code> <span class="none">bool</span><br><code>labels_only</code> <span class="none">bool</span></div></div>
+<b>What the docs say about the return</b><div>The docs say: “array An associative array of arrays containing a &quot;value&quot; key and a &quot;text&quot; key (if string passed in) or an array like that described keyed by each list_name passed in in the first argument”. There is no response example.</div>
+<b>Response we expect</b><div><pre>{
+  &quot;result&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;text&quot;: &quot;Open home&quot;
+    },
+    {
+      &quot;id&quot;: 2,
+      &quot;text&quot;: &quot;Website&quot;
+    }
+  ],
+  &quot;error&quot;: null
+}</pre></div>
+<b>Question for Rex</b><div>Is each item keyed id / text or value / text? The return description says value and text, while the response examples of records (e.g. note_type in Notes, lead_type in Leads) show {id, text}; for now we treat items as {id, text}. What is the list name for contact relationship types?</div>
+<b>Sources</b><div class="srcs"><ul><li>API docs › SystemValues › getCategoryValues (parameters; no response example)</li><li>Basis of the expected structure: API docs › SystemValues › describeModel, plus what the feature needs</li></ul></div>
+</div></article>
+</section>
+<section id="c3" class="panel" role="tabpanel" aria-labelledby="t-c3"><h2><i>03</i>Optional, launch does not depend on it</h2>
+<p class="lead">11 items. The first 7 exist in the Rex docs: please confirm whether the integration account can use them. The last 4 do not exist: the method, parameters and return we would like are stated. Each item says what we do without it.</p>
+<article class="it" id="n1"><header><span class="cls c3">03-1</span><h3>All properties inside a polygon in one call</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>When drawing an area and on the Full-screen map: one request for the coordinates and status of every property inside a polygon, plus the preview data when a pin is tapped.</div>
+<b>Rex today</b><div>Rex has these two ProspectingMap methods; the docs describe a pilot feature that may need its own seat. Please confirm whether the integration account can use them.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>ProspectingMap::searchPropertyPinsInArea</code><div class="pd">All properties inside a polygon (map pins)</div></td><td class="exp"><code>polygon</code> <span class="none">GeoJSON, One Polygon, longitude first</span><br><code>polygons</code> <span class="none">array, 1–20 Polygons, taken as a union</span><br><code>filters</code> <span class="none">object, owner_status, property_status, locality, min_bedrooms, tags, last_contacted, etc.</span></td><td class="exp">{rows:[{id, lat, lng, status, is_ai_prospect}], truncated}</td></tr>
+<tr><td><span class="k r">Read</span></td><td><code>ProspectingMap::propertyPreview</code><div class="pd">Preview-card data for a map pin</div></td><td class="exp"><code>property_id</code><span class=req>*</span> <span class="none">int, Property id</span></td><td class="exp">Address, market status, layout, last sale, days on market, all owners, record owner, images</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>Properties::search by suburb (result_format=map, up to 50,000 rows per call), filtered by polygon and cached in our backend.</div>
+</div></article>
+<article class="it" id="n2"><header><span class="cls c3">03-2</span><h3>Book appraisal: free slots, confirmation SMS, day-before reminder</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>Book appraisal shows the agent&#x27;s free slots; once booked, Rex sends the vendor a confirmation SMS and a reminder the day before.</div>
+<b>Rex today</b><div>All three methods are documented, but the structure of the times and alerts parameters is not. Please give an example of both, and say which number the SMS is sent from and how it is charged.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>CalendarAvailabilities::getAvailability</code><div class="pd">Free time slots of an agent</div></td><td class="exp"><code>user_ids</code><span class=req>*</span> <span class="none">int[], Rex user ids</span><br><code>times</code><span class=req>*</span> <span class="none">array, Time ranges to query (structure not documented)</span></td><td class="exp">Array (structure not documented)</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>CalendarEvents::sendConfirmationMessages</code><div class="pd">Send the appointment confirmation SMS / email to the vendor</div></td><td class="exp"><code>id</code><span class=req>*</span> <span class="none">string, Event id</span><br><code>data_overrides</code> <span class="none">object, Custom content: vendor_sms_body, vendor_email_subject, vendor_email_body, etc.</span><br><code>vendor_confirmations</code> <span class="none">bool, Send to vendors</span><br><code>guest_confirmations</code> <span class="none">bool, Send to guests</span><br><code>vendor_contact_ids</code> <span class="none">array, Send only to these vendors</span></td><td class="exp">{guests, vendors, tenants}, each with sent_totals (number of emails and SMS)</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>CalendarEvents::scheduleAlertMessages</code><div class="pd">Schedule the reminder SMS for the day before</div></td><td class="exp"><code>id</code><span class=req>*</span> <span class="none">string, Event id</span><br><code>alerts</code><span class=req>*</span> <span class="none">array, Alert definitions (structure not documented)</span></td><td class="exp">Array</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>The appraisal and calendar event are still written (Appraisals::create and CalendarEvents::create in 01); the confirmation SMS goes from the agent&#x27;s own phone and the reminder uses Reminders::create.</div>
+</div></article>
+<article class="it" id="n3"><header><span class="cls c3">03-3</span><h3>Native open-home attendance record</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>At check-in, besides the lead, also write a native Rex attendance record so the attendance appears in the vendor report.</div>
+<b>Rex today</b><div>The methods are documented. The Rex email only asks for a lead; please confirm whether also writing Feedback would create duplicates.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k w">Write</span></td><td><code>Feedback::create</code><div class="pd">Write an open-home attendance / inspection feedback record</div></td><td class="exp"><code>data</code><span class=req>*</span> <span class="none">object, date_of, listing{id}, agent{id}, note, interest_level{id}, enquiry_source{id}, feedback_type{id} (e.g. inspection), number_of_people, related.feedback_contacts[{contact_id}]</span><br><code>return_id</code> <span class="none">bool</span></td><td class="exp">New feedback id or the full record</td></tr>
+<tr><td><span class="k r">Read</span></td><td><code>Feedback::searchOpenHomeAttendance</code><div class="pd">Open-home attendance records (by contact)</div></td><td class="exp"><code>suburb</code> <span class="none">string</span><br><code>postcode</code> <span class="none">string</span><br><code>date_from</code> <span class="none">string, YYYY-MM-DD</span><br><code>date_to</code> <span class="none">string, YYYY-MM-DD</span><br><code>interest_level</code> <span class="none">string, warm | hot | cold</span><br><code>limit</code> <span class="none">int, Default 500, maximum 2000</span><br><code>offset</code> <span class="none">int</span></td><td class="exp">{rows:[attendance records…], truncated}</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>Create the lead only; the attendee list comes from Leads::search by listing and date.</div>
+</div></article>
+<article class="it" id="n4"><header><span class="cls c3">03-4</span><h3>Custom fields: how consent was obtained, DNCR check date</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>Record on the contact how consent was obtained and the date of the last Do Not Call Register check.</div>
+<b>Rex today</b><div>The CustomFields methods are documented; the field definitions must first be created once with AdminCustomFields::createField. Please confirm whether the integration account may create fields.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>CustomFields::getValuesKeyedByFieldName</code><div class="pd">Read a contact&#x27;s custom field values</div></td><td class="exp"><code>service_name</code><span class=req>*</span> <span class="none">string, Contacts</span><br><code>service_object_id</code><span class=req>*</span> <span class="none">int, Contact id</span><br><code>limit_to</code> <span class="none">array, Only these fields</span><br><code>simple_values</code> <span class="none">bool</span></td><td class="exp">{&quot;Tab.Group.Field&quot;: value, …}</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>CustomFields::setFieldValues</code><div class="pd">Write a contact&#x27;s custom field values</div></td><td class="exp"><code>service_name</code><span class=req>*</span> <span class="none">string, Contacts</span><br><code>service_object_id</code><span class=req>*</span> <span class="none">int, Contact id</span><br><code>value_map</code><span class=req>*</span> <span class="none">object, {field: value}</span></td><td class="exp">Array (the values after writing)</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>Both are kept in our own database, with a note written to Rex.</div>
+</div></article>
+<article class="it" id="n5"><header><span class="cls c3">03-5</span><h3>Batch requests</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>Combine many calls into one request when writing area tags in bulk or acting on several To-dos.</div>
+<b>Rex today</b><div>The method is documented. Please confirm whether one batch counts as one request or as the number of calls inside it against the 3,600 per hour limit.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k w">Write</span></td><td><code>BatchRequests::execute</code><div class="pd">Run several calls in one request</div></td><td class="exp"><code>requests</code><span class=req>*</span> <span class="none">array, [{method:&quot;Contacts::update&quot;, args:{…}}, …]; keys allowed</span><br><code>shared_args</code> <span class="none">object, Arguments shared by all requests</span></td><td class="exp">The result of each call, in order (or by key)</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>Call one by one, queued and rate-limited by our backend.</div>
+</div></article>
+<article class="it" id="n6"><header><span class="cls c3">03-6</span><h3>Webhook subscription</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>When office staff change a contact, property or lead directly in Rex, we know within a minute.</div>
+<b>Rex today</b><div>The methods are documented and need the Manage Webhooks privilege. Please confirm the integration account can be given it.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k r">Read</span></td><td><code>AdminWebhooks::getEventsAndCategories</code><div class="pd">List of webhook events that can be subscribed to</div></td><td class="exp"><span class="none">No parameters</span></td><td class="exp">Array of events and categories (50+, covering create / update of the common records)</td></tr>
+<tr><td><span class="k w">Write</span></td><td><code>AdminWebhooks::create</code><div class="pd">Subscribe to webhooks</div></td><td class="exp"><code>data</code><span class=req>*</span> <span class="none">object, name, url, is_enabled (must be true), send_format_id (v1_context_only sends ids only | v1_full_change_detail), events[{event_id}]</span></td><td class="exp">Id of the new subscription</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>Nightly reconciliation with the etags search format, plus a fresh read whenever a record is opened.</div>
+</div></article>
+<article class="it" id="n7"><header><span class="cls c3">03-7</span><h3>Update property details and property tags</h3><span class="has y">In the Rex docs</span></header><div class="rows">
+<b>What we need</b><div>Change property details such as bedrooms on the phone, or tag a property (needed if 03-11 is settled as a property tag).</div>
+<b>Rex today</b><div>The method is documented with complete parameters.</div>
+<b>Method, parameters, return</b><div><div class="scroll"><table><thead><tr><th>Type</th><th>Method</th><th>Parameters</th><th>Expected return</th></tr></thead><tbody>
+<tr><td><span class="k w">Write</span></td><td><code>Properties::update</code><div class="pd">Update property details</div></td><td class="exp"><code>data</code><span class=req>*</span> <span class="none">object, Contains id; send only the fields to change, e.g. attr_bedrooms, related.property_tags[{tag}]</span><br><code>fields</code> <span class="none">array, After the update, return only these parts</span><br><code>extra_fields</code> <span class="none">array, Additional data, must be requested explicitly</span></td><td class="exp">The property record after the update</td></tr>
+</tbody></table></div></div>
+<b>Without it we</b><div>In phase 1 property details are read-only.</div>
+</div></article>
+<article class="it" id="n8"><header><span class="cls c3">03-8</span><h3>Log an SMS / email sent outside Rex</h3><span class="has n">Not in Rex</span></header><div class="rows">
+<b>What we need</b><div>After the agent sends an SMS or email from their own phone, leave a “sent” entry in the contact&#x27;s communication history in Rex, next to the messages Rex itself sent.</div>
+<b>Rex today</b><div>MessageSends has search only: it can query messages Rex sent and has no write method.</div>
+<b>Method we would like</b><div><div>(name is illustrative) MessageSends::create</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>data.channel</code></td><td>sms | email</td><td>required</td></tr><tr><td><code>data.contact{id}</code></td><td>Contact id</td><td>required</td></tr><tr><td><code>data.sent_at</code></td><td>Time sent</td><td>required</td></tr><tr><td><code>data.body</code></td><td>Body</td><td>required</td></tr><tr><td><code>data.subject</code></td><td>Email subject</td><td>optional</td></tr><tr><td><code>data.sent_by_user{id}</code></td><td>The agent who sent it (Rex user id)</td><td>optional</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>Id of the new record; the contact&#x27;s last_contacted_date is refreshed</div></div>
+<b>Without it we</b><div>Written as Notes::create (update_last_contacted=true) with the channel and content in the body.</div>
+</div></article>
+<article class="it" id="n9"><header><span class="cls c3">03-9</span><h3>More criteria on the buyer match profile</h3><span class="has n">Not in Rex</span></header><div class="rows">
+<b>What we need</b><div>Besides price, suburbs, bedrooms and bathrooms, the buyer profile needs car spaces, land area, must-haves and finance status.</div>
+<b>Rex today</b><div>The MatchProfiles examples only show price, attr_bedrooms, attr_bathrooms and related.suburbs. The docs do not show whether the other fields exist.</div>
+<b>Method we would like</b><div><div>Keep MatchProfiles::create / update; please give the names of these fields</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>data.attr_garages{min,max}</code></td><td>Car spaces</td><td>optional</td></tr><tr><td><code>data.attr_landarea{min,max}</code></td><td>Land area (m²)</td><td>optional</td></tr><tr><td><code>data.must_haves</code></td><td>Must-haves, array of text</td><td>optional</td></tr><tr><td><code>data.finance_status</code></td><td>Finance status</td><td>optional</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>The profile record after the update, including these fields</div></div>
+<b>Without it we</b><div>These go into the profile name or a note.</div>
+</div></article>
+<article class="it" id="n10"><header><span class="cls c3">03-10</span><h3>Write on behalf of the agent</h3><span class="has n">Not in Rex</span></header><div class="rows">
+<b>What we need</b><div>When the integration account writes notes, leads and reminders, Rex shows the agent who acted as the creator, not the integration account.</div>
+<b>Rex today</b><div>The Rex email asks for a single integration account for the whole agency. The docs have no parameter for writing on behalf of a user; system_created_user is read-only.</div>
+<b>Method we would like</b><div><div>An optional addition to the existing write methods (name is illustrative)</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>X-Act-As-User header, or options.on_behalf_of_user_id</code></td><td>Rex user id</td><td>optional</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>system_created_user of the written record is that user</div></div>
+<b>Without it we</b><div>The agent&#x27;s name is added at the end of the note body; leads and reminders point to the agent through assignee / remindee; the full actor record is kept in our audit log.</div>
+</div></article>
+<article class="it" id="n11"><header><span class="cls c3">03-11</span><h3>Junk mail / NO JUNK MAIL flag</h3><span class="has n">Not in Rex</span></header><div class="rows">
+<b>What we need</b><div>One agreed place in Rex that records “this household takes no unaddressed advertising material”, readable, writable and searchable. Agents and letterbox droppers need to see which houses take no junk mail, and we count those households per area.</div>
+<b>Rex today</b><div>A contact has only the four switches contact_by_email / contact_by_sms / contact_by_phone / contact_by_letter, and contact_by_letter means addressed mail, not unaddressed material; Properties has no such field; is_dnd cannot be used (Rex email: it resets all four switches).</div>
+<b>Method we would like</b><div><div>One extra field on existing methods (Rex to say whether it belongs on the contact or the property)</div><div class="scroll"><table><thead><tr><th>Parameter / method</th><th>Content</th><th></th></tr></thead><tbody><tr><td><code>Properties::read / search</code></td><td>returns no_junk_mail (bool)</td><td>read</td></tr><tr><td><code>Properties::update</code></td><td>data:{id, no_junk_mail}</td><td>write</td></tr><tr><td><code>Properties::search</code></td><td>criteria: no_junk_mail = true</td><td>filter</td></tr></tbody></table></div><div><b style="font-family:var(--head);font-size:12px;color:var(--fg2);margin-right:6px">Expected return</b>A boolean. If Rex will not add a field, please name the recommended convention (for example a fixed tag “No junk mail”)</div></div>
+<b>Without it we</b><div>The flag is kept in our own database and the contact also gets a fixed tag “No junk mail” (Contacts::update from 01), so it can be filtered by tag in Rex as well.</div>
+</div></article>
+</section>
+</main>
+<script>
+(function(){
+  var main=document.querySelector('main'),tabs=[].slice.call(document.querySelectorAll('#tabs button'));
+  if(!main||!tabs.length)return;
+  function show(id){
+    tabs.forEach(function(b){var on=b.dataset.p===id;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;
+      var p=document.getElementById(b.dataset.p);if(p)p.classList.toggle('on',on);});
+  }
+  function go(hash,scroll){
+    var el=hash&&document.getElementById(hash.replace(/^#/,''));if(!el)return false;
+    var p=el.closest('.panel');if(p)show(p.id);
+    if(scroll){(p&&el===p?document.getElementById('tabs'):el).scrollIntoView({block:'start'});}
+    return true;
+  }
+  main.classList.add('js');show(tabs[0].dataset.p);
+  tabs.forEach(function(b,i){
+    b.addEventListener('click',function(){show(b.dataset.p);try{history.replaceState(null,'','#'+b.dataset.p)}catch(e){}});
+    b.addEventListener('keydown',function(e){var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(!d)return;
+      var n=tabs[(i+d+tabs.length)%tabs.length];n.focus();n.click();e.preventDefault();});
+  });
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    if(go(a.getAttribute('href'),true)){e.preventDefault();try{history.replaceState(null,'',a.getAttribute('href'))}catch(x){}}
+  });
+  if(location.hash)go(location.hash,true);
+})();
+</script>
+</body>
+</html>
