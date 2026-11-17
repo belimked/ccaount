@@ -194,7 +194,7 @@ td .tsn{margin-top:6px;font-size:12.5px;color:var(--fg2);line-height:1.5;display
 <div class="tiles"><div class="tile"><span class="v">50</span><span class="l"><span class="ts p"><b>✓</b>通过</span></span></div><div class="tile"><span class="v">2</span><span class="l"><span class="ts f"><b>✕</b>未通过</span></span></div><div class="tile"><span class="v">6</span><span class="l"><span class="ts s"><b>–</b>未能测试</span></span></div></div>
 <div class="scroll"><table><thead><tr><th>编号</th><th>接口 / 事项</th><th>结果</th><th>实测要点</th></tr></thead><tbody>
 <tr class="grp"><td colspan="4"><a href="#conf">资料冲突</a></td></tr>
-<tr><td><span class="cls ck">K1</span></td><td><a href="#k1">是否按公司账户收费，以及对应的限制</a></td><td><span class="ts s"><b>–</b>未能测试</span></td><td>收费按 Rex 邮件（集成用户免费、不占席位）执行。超过 3,600 次/小时后的表现（429 / 延迟 / 停用）无法测试：共享沙箱压测会影响其他集成商。按账户令牌桶限速（上限 3,000/小时），遇 429 按 Retry-After 退避；已写入追问邮件。</td></tr>
+<tr><td><span class="cls ck">K1</span></td><td><a href="#k1">是否按公司账户收费，以及对应的限制</a></td><td><span class="ts s"><b>–</b>未能测试</span></td><td>收费按 Rex 邮件（集成用户免费、不占席位）执行。超过 3,600 次/小时后的表现（429 / 延迟 / 停用）无法测试：共享沙箱压测会影响其他集成商。按账户令牌桶限速（上限 3,000/小时），遇 429 按 Retry-After 退避。</td></tr>
 <tr><td><span class="cls ck">K2</span></td><td><a href="#k2">测试环境能否使用</a></td><td><span class="ts p"><b>✓</b>通过</span></td><td>Rex 已提供共享沙箱（账户 2057），本清单的接口已在上面逐项实测，测试记录均以 AXLEO TEST 开头并已清理。</td></tr>
 <tr><td><span class="cls ck">K3</span></td><td><a href="#k3">X-App-Identifier 里写谁的名字</a></td><td><span class="ts p"><b>✓</b>通过</span></td><td>按 Rex 答复使用 Integration:PlaceSunnybank:Portal，每个请求都带此请求头，沙箱全部调用正常。</td></tr>
 <tr class="grp"><td colspan="4"><a href="#c1">01 Rex 已有并满足</a></td></tr>
@@ -260,7 +260,7 @@ td .tsn{margin-top:6px;font-size:12.5px;color:var(--fg2);line-height:1.5;display
 <section id="conf" class="panel" role="tabpanel" aria-labelledby="t-conf"><h2>资料之间的冲突，请 Rex 澄清以哪份为准</h2>
 <p class="lead">共 3 处。都是 Rex 邮件和 API 文档（含 Integration Guide）说法不一致，并且影响全部接口。每处都写了我们目前按哪种做。具体接口上的不一致（地址写法、返回字段、标签字段）归在“Rex 未满足 · 必要”里。</p>
 <article class="it ck" id="k1"><header><span class="cls ck">K1</span><h3>是否按公司账户收费，以及对应的限制</h3><span class="ts s"><b>–</b>未能测试</span></header><div class="rows">
-<b>沙箱实测</b><div class="tsrow"><span class="ts s"><b>–</b>未能测试</span><div>收费按 Rex 邮件（集成用户免费、不占席位）执行。超过 3,600 次/小时后的表现（429 / 延迟 / 停用）无法测试：共享沙箱压测会影响其他集成商。按账户令牌桶限速（上限 3,000/小时），遇 429 按 Retry-After 退避；已写入追问邮件。</div></div>
+<b>沙箱实测</b><div class="tsrow"><span class="ts s"><b>–</b>未能测试</span><div>收费按 Rex 邮件（集成用户免费、不占席位）执行。超过 3,600 次/小时后的表现（429 / 延迟 / 停用）无法测试：共享沙箱压测会影响其他集成商。按账户令牌桶限速（上限 3,000/小时），遇 429 按 Retry-After 退避。</div></div>
 <b>涉及接口</b><div>全部接口（接入前提和调用限额）</div>
 <b>说法一</b><div><span class="who">Rex 邮件 2026-11-06</span>专用的集成账号不计费，API 访问免费；限额是每个账户每小时 3,600 次。</div>
 <b>说法二</b><div><span class="who">API 文档 › Integrations 文章、Rate Limits 文章；Rex API Integration Guide</span>集成账号会占用中介公司的一个用户席位，可能增加月费；只有成为 Verified Integrator 才不占席位，而申请的前提是集成已经在至少一个正式账户上运行。限额是每个中介公司账户每小时 3,600 次，目前是软限制，文档说以后会严格执行。</div>
