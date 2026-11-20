@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="agentCollect iOS 测试版：真机 5 分钟手动检查清单" />
+<title>agentCollect 真机测试清单</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #132238;
+    --muted: #586579;
+    --line: #dbe2ea;
+    --surface: #ffffff;
+    --canvas: #f4f6f9;
+    --blue: #195f9b;
+    --blue-bg: #eaf2fa;
+    --teal: #14766f;
+    --teal-bg: #e7f5f2;
+    --amber: #8a5300;
+    --amber-bg: #fff4dc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--canvas);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  a { color: var(--blue); }
+  .wrap { width: min(100% - 32px, 820px); margin: 0 auto; }
+
+  header { background: var(--ink); color: #fff; padding: 24px 0 20px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 650; }
+  header p { margin: 0; color: #c6d2e0; }
+  header .meta { margin-top: 10px; font-size: 13px; color: #9fb0c4; }
+
+  main { padding: 20px 0 48px; }
+  section { margin-bottom: 26px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .box p { margin: 0 0 8px; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box ul { margin: 0; padding-left: 20px; }
+  .note { background: var(--blue-bg); border-color: #c9dcef; }
+  .warn { background: var(--amber-bg); border-color: #f0dcb0; }
+
+  ol.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  ol.checks li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--teal-bg); color: var(--teal); font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+  .title { font-weight: 650; flex: 1; }
+  .time { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .row { display: grid; grid-template-columns: 44px 1fr; gap: 6px; font-size: 14px; }
+  .row + .row { margin-top: 4px; }
+  .row b { color: var(--muted); font-weight: 600; }
+  label.done { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+  label.done input { width: 18px; height: 18px; }
+  code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+  .tag { display: inline-block; font-size: 12px; color: var(--amber); background: var(--amber-bg); border-radius: 4px; padding: 0 6px; margin-left: 4px; }
+  footer { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>agentCollect 真机 5 分钟检查清单</h1>
+    <p>只测模拟器覆盖不了的硬件功能：摇一摇、麦克风、语音、相机、GPS。</p>
+    <div class="meta">适用测试版 0.1.0 (41) · iOS Ad Hoc · 2026-11-20</div>
+  </div>
+</header>
+<main class="wrap">
+  <section>
+    <h2>测试前准备</h2>
+    <div class="box">
+      <ul>
+        <li>iPhone 已登记 UDID，用 <b>Safari</b> 打开安装页安装测试版：<br />
+          <a href="https://agentcollect-install.pages.dev">agentcollect-install.pages.dev</a>（国内网络用这个）或
+          <a href="https://belimked.github.io/011.aus_assent/">belimked.github.io/011.aus_assent</a></li>
+        <li>首次打开如提示开发者模式：设置 → 隐私与安全性 → 开发者模式 → 开启 → 重启 → 打开。</li>
+        <li>用 <code>mary@axleo.local</code>（或自己的账号）登录。</li>
+        <li>手机联网，最好在室外或窗边（GPS 需要）。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="box note">
+      <p>登录、敲门（DK）表单、联系人、待办、地图卡片、OFI 登记、审核队列、同步、离线和语言切换已由 12 个自动化用例覆盖（最近一次 12/12 通过），不用重复手测。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>检查项</h2>
+    <ol class="checks">
+      <li>
+        <div class="head"><span class="num">1</span><span class="title">摇一摇</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>任意页面用力连摇手机 2–3 下；再摇一次。</span></div>
+        <div class="row"><b>预期</b><span>弹出翻译页 “Talk to me”，再摇一次关闭。轻微晃动、走路时不应误触发。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">2</span><span class="title">麦克风权限</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>首次在 DK 页按住大麦克风按钮。</span></div>
+        <div class="row"><b>预期</b><span>系统请求麦克风权限；允许后提示 “Microphone ready…”。如在“设置”里关闭权限，再按住应提示去设置开启或改用打字。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">3</span><span class="title">DK 语音识别</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>DK 页按住麦克风，说：“Spoke to Mary at 12 Gager Street, mobile 0412 555 019, might sell next year”，松开。</span></div>
+        <div class="row"><b>预期</b><span>出现听写动画 → “Say it or type it” 带上识别文字 → 记录后进入 “Check before saving”，姓名、手机号已填好。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">4</span><span class="title">普通话 / 粤语识别</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>在 “Say it or type it” 里切到 普通话 或 粤语，按住说一句带手机号的话。</span></div>
+        <div class="row"><b>预期</b><span>识别出中文文字，手机号正确。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">5</span><span class="title">翻译语音</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>打开翻译页（“我的” → “和我说 · 预览翻译”，或摇一摇）。中介一侧按住说英文；访客一侧选 普通话 再说中文。</span></div>
+        <div class="row"><b>预期</b><span>对方一侧显示译文并从扬声器朗读；上半屏倒置，方便对面的人看。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">6</span><span class="title">OFI 语音登记</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>OFI → Start check-in → Speak，说出姓名、手机号、邮箱。</span></div>
+        <div class="row"><b>预期</b><span>表单自动填好，可直接 Register。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">7</span><span class="title">相机</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>房产页 → Photo → “拍房子 → 保存到房产” → 相机（Camera），拍一张。</span></div>
+        <div class="row"><b>预期</b><span>请求相机权限；照片显示在房产页顶部；联网后上传，重新登录后仍可见。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">8</span><span class="title">名片识别<span class="tag">可选</span></span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>Photo → “拍名片 / 笔记” → 相机，拍一张名片。</span></div>
+        <div class="row"><b>预期</b><span>读出姓名、电话（需要联网，服务器需配置 AI）。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">9</span><span class="title">GPS</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>DK 页打开 “GPS LIVE” 开关，首次会请求定位权限。</span></div>
+        <div class="row"><b>预期</b><span>卡片显示 “YOU'RE AT · LIVE GPS”，地址为离你最近的房产（不在 Sunnybank 时默认为 12 Gager St）；关掉后显示 “GPS OFF”。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+      <li>
+        <div class="head"><span class="num">10</span><span class="title">全屏地图实时位置</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>DK → 地图全屏。</span></div>
+        <div class="row"><b>预期</b><span>地图上有 “You · live” 蓝点，并跟着你移动。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>发现问题时</h2>
+    <div class="box warn">
+      <p>截图或录屏，记下 iPhone 型号、iOS 版本、测试版构建号（如 0.1.0 (41)）和时间，发给开发者。</p>
+      <p>程序闪退：设置 → 隐私与安全性 → 分析与改进 → 分析数据，找 <code>agentCollect</code> 开头的崩溃日志一并发送。</p>
+    </div>
+  </section>
+
+  <footer>勾选状态只保存在当前页面，刷新后清空。</footer>
+</main>
+</body>
+</html>
