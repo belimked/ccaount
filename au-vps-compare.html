@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="AxleoCollect 后台：澳洲 VPS 2GB / 4GB 规格对比" />
+<title>澳洲 VPS 对比（2GB / 4GB）· AxleoCollect 后台选型</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #132238;
+    --muted: #586579;
+    --line: #dbe2ea;
+    --surface: #ffffff;
+    --canvas: #f4f6f9;
+    --blue: #195f9b;
+    --blue-bg: #eaf2fa;
+    --teal: #14766f;
+    --teal-bg: #e7f5f2;
+    --amber: #8a5300;
+    --amber-bg: #fff4dc;
+    --risk: #a53426;
+    --risk-bg: #fdeeea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--canvas);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  a { color: var(--blue); }
+  a:hover { color: var(--teal); }
+  .wrap { width: min(100% - 32px, 1360px); margin: 0 auto; }
+
+  header { background: var(--ink); color: #fff; padding: 28px 0 24px; }
+  header h1 { margin: 0 0 6px; font-size: 24px; font-weight: 650; }
+  header p { margin: 0; color: #c6d2e0; }
+  header .meta { margin-top: 12px; font-size: 13px; color: #9fb0c4; }
+
+  main { padding: 24px 0 48px; }
+  section { margin-bottom: 28px; }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 15px; }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .card.pick { border-left: 4px solid var(--teal); }
+  .card.alt { border-left: 4px solid var(--blue); }
+  .card.warn { border-left: 4px solid var(--amber); }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .tabs button {
+    border: 0; background: transparent; padding: 8px 18px; font: inherit; cursor: pointer; color: var(--muted);
+  }
+  .tabs button + button { border-left: 1px solid var(--line); }
+  .tabs button[aria-selected="true"] { background: var(--ink); color: #fff; }
+  .toolbar label { font-size: 14px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+  .toolbar select { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+
+  .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 1240px; }
+  td:nth-child(2) { min-width: 96px; }
+  td:nth-child(9) { min-width: 210px; }
+  th, td { padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  th { background: #f8fafc; font-size: 13px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr.rec { background: #f3faf8; }
+  tbody tr.rec td:first-child { box-shadow: inset 4px 0 0 var(--teal); }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .vendor { font-weight: 600; }
+  .sub { display: block; color: var(--muted); font-size: 12.5px; font-weight: 400; }
+  .price { font-weight: 650; font-size: 15px; }
+  .cur { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 0 6px; border-radius: 4px; margin-left: 4px; vertical-align: 1px; }
+  .cur.usd { background: var(--blue-bg); color: var(--blue); }
+  .cur.aud { background: var(--amber-bg); color: var(--amber); }
+  .tag { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 4px; margin: 2px 4px 2px 0; white-space: nowrap; }
+  .tag.ok { background: var(--teal-bg); color: var(--teal); }
+  .tag.info { background: var(--blue-bg); color: var(--blue); }
+  .tag.warn { background: var(--amber-bg); color: var(--amber); }
+  .tag.risk { background: var(--risk-bg); color: var(--risk); }
+  .req { font-size: 13.5px; }
+  .links .lk { display: block; white-space: nowrap; font-size: 13.5px; }
+  .unverified { color: var(--amber); font-size: 12px; }
+
+  .notes { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; }
+  .notes ol, .notes ul { margin: 0; padding-left: 20px; }
+  .notes li { margin: 4px 0; }
+  footer { color: var(--muted); font-size: 13px; padding-bottom: 32px; }
+
+  @media (max-width: 640px) {
+    header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>澳洲 VPS 对比：2GB / 4GB 内存</h1>
+    <p>用于部署 AxleoCollect 后台（Go 单二进制 + SQLite + 本地照片存储，几十个中介使用）。</p>
+    <div class="meta">数据采集：2026-11-19 ~ 11-20。来源为各家官方 API / 官网价格页，价格随时可能变动，下单前以结算页为准。</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section>
+    <h2>结论</h2>
+    <div class="summary">
+      <div class="card pick">
+        <h3>首选：AWS Lightsail 悉尼 2GB</h3>
+        <p>约 US$12/月，2 vCPU、60GB SSD，自带每日快照，可配合 S3 悉尼做异机备份。已有 AWS 澳洲账号，开机最快。</p>
+      </div>
+      <div class="card alt">
+        <h3>备选：BinaryLane 2GB</h3>
+        <p>A$9.80/月，澳洲本土商家，NVMe 40GB、流量 2TB。同配置大约是 Lightsail 的一半价钱，但只有 1 vCPU。</p>
+      </div>
+      <div class="card warn">
+        <h3>便宜但有代价：OVH VPS-1 / HostHatch</h3>
+        <p>OVH 4GB 只要 A$6.29 起（不含 GST），但悉尼每月流量 500GB 封顶，超出后限速。HostHatch 磁盘小、CPU 共享。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="toolbar">
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tier="2" aria-selected="true">2GB 内存</button>
+        <button role="tab" data-tier="4" aria-selected="false">4GB 内存</button>
+      </div>
+      <label>排序
+        <select id="sort">
+          <option value="usd">按月费（折合美元）</option>
+          <option value="vendor">按供应商</option>
+          <option value="disk">按磁盘（大到小）</option>
+        </select>
+      </label>
+      <label>汇率 1 AUD =
+        <select id="rate">
+          <option value="0.62">0.62</option>
+          <option value="0.65" selected>0.65</option>
+          <option value="0.68">0.68</option>
+        </select> USD（仅用于排序和折算）
+      </label>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>供应商 / 型号</th>
+            <th>机房</th>
+            <th>vCPU</th>
+            <th>内存</th>
+            <th>磁盘</th>
+            <th>月流量</th>
+            <th>月费（原币种）</th>
+            <th>折合 USD</th>
+            <th>订购要求（个人 / 企业、付款）</th>
+            <th>备注</th>
+            <th>链接</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>说明</h2>
+    <div class="notes">
+      <ol>
+        <li><strong>币种</strong>：<span class="cur usd">USD</span> 为美元，<span class="cur aud">AUD</span> 为澳元。美元报价的商家对澳洲账户通常另加 10% GST；OVH 标的是不含 GST 的价格。BinaryLane 是澳洲本土商家，以结算页为准。</li>
+        <li><strong>价格来源</strong>：Lightsail 来自 AWS Price List API（悉尼 ap-southeast-2，按小时价 × 744 小时折算）；Vultr、Linode 来自官方公开 API；BinaryLane、DigitalOcean、OVH 来自官网价格页；HostHatch 来自官网前端套餐数据。</li>
+        <li><strong>订购要求</strong>：所有商家都可以用个人身份注册，企业可以填公司名和 ABN 开发票。付款方式和是否要求证件验证是根据各家的常见做法整理的，<strong>没有逐家实际注册核实</strong>，以注册页为准。新账号被风控要求上传证件或预充值的情况各家都有。</li>
+        <li><strong>Contabo</strong>：最小的 Cloud VPS 4 就是 4 vCPU / 8GB / 100GB SSD，基础价 US$6.6 起，悉尼机房另收地区费（页面动态加载，没有抓到具体金额），所以没有放进 2GB / 4GB 表里。入口：<a href="https://contabo.com/en/locations/australia/" target="_blank" rel="noopener">contabo.com/en/locations/australia</a>。</li>
+        <li><strong>GreenCloudVPS 没有澳洲机房</strong>（亚太只有新加坡、香港、东京、河内），不列入。</li>
+        <li><span class="unverified">链接未验证</span>：Vultr 的官网在采集时网络连不上，链接是官方常用地址，请在浏览器里确认。其余链接均已用 curl 检查返回 200。</li>
+        <li><strong>项目需求</strong>：2GB 内存就能跑；磁盘建议 ≥ 40GB（照片 + 14 份每日备份）；数据放在澳洲境内对隐私法 / DNCR 合规更有利。</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>AxleoCollect 内部选型资料 · 数据采集日期 2026-11-20</footer>
+</main>
+
+<script>
+const LINKS = {
+  aws: [
+    ["价格页", "https://aws.amazon.com/lightsail/pricing/"],
+    ["控制台下单", "https://lightsail.aws.amazon.com/"],
+    ["注册账号", "https://portal.aws.amazon.com/billing/signup"],
+  ],
+  bl: [
+    ["价格页", "https://www.binarylane.com.au/vps-hosting"],
+    ["注册 / 下单", "https://home.binarylane.com.au/signup"],
+  ],
+  vultr: [
+    ["价格页", "https://www.vultr.com/pricing/", true],
+    ["控制台下单", "https://my.vultr.com/deploy/", true],
+    ["悉尼测速", "https://syd-au-ping.vultr.com/"],
+  ],
+  do: [
+    ["价格页 / 注册", "https://www.digitalocean.com/pricing/droplets"],
+  ],
+  linode: [
+    ["注册账号", "https://login.linode.com/signup"],
+    ["控制台下单", "https://cloud.linode.com/linodes/create"],
+  ],
+  ovh1: [
+    ["价格页", "https://www.ovhcloud.com/en-au/vps/"],
+    ["VPS-1 配置下单", "https://www.ovhcloud.com/en-au/vps/configurator/?planCode=vps-2027-model1"],
+  ],
+  hh: [
+    ["价格页", "https://hosthatch.com/nvme-vps"],
+    ["控制台下单", "https://cloud.hosthatch.com/"],
+    ["悉尼测速", "http://lg.syd.hosthatch.com/"],
+  ],
+};
+
+const REQ = {
+  aws: [["个人", "ok"], ["企业", "ok"], "信用卡 + 手机验证；澳洲账户由 AWS Australia 开票并加收 GST，企业可填 ABN"],
+  bl: [["个人", "ok"], ["企业", "ok"], "信用卡 / PayPal；澳洲本土商家，发票含 ABN 信息"],
+  vultr: [["个人", "ok"], ["企业", "ok"], "信用卡 / PayPal 等；新账号可能需要预充值"],
+  do: [["个人", "ok"], ["团队 / 企业", "ok"], "信用卡 / PayPal；新账号可能触发身份验证"],
+  linode: [["个人", "ok"], ["企业", "ok"], "信用卡 / PayPal"],
+  ovh: [["个人", "ok"], ["企业", "ok"], "注册时选择个人或企业账户；标价不含 GST；可能要求证件验证"],
+  hh: [["个人", "ok"], ["企业", "info"], "信用卡 / PayPal 等；面向个人的小商家，企业发票功能有限"],
+};
+
+// cur: USD | AUD ; price 为原币种月费
+const DATA = [
+  // ---- 2GB ----
+  { tier: 2, vendor: "AWS Lightsail", model: "2GB 套餐", dc: "悉尼", cpu: "2", ram: "2GB", disk: 60, diskT: "60GB SSD", bw: "1.5TB", price: 12, approx: true, cur: "USD", req: "aws", links: "aws", rec: true,
+    notes: [["推荐", "ok"], ["自带快照", "info"], ["仅 IPv6 版约 US$10", "info"]] },
+  { tier: 2, vendor: "BinaryLane", model: "Standard 2GB", dc: "悉尼等 5 个澳洲城市", cpu: "1", ram: "2GB", disk: 40, diskT: "40GB NVMe", bw: "2TB", price: 9.80, cur: "AUD", req: "bl", links: "bl", rec: true,
+    notes: [["备选", "ok"], ["澳洲本土", "info"]] },
+  { tier: 2, vendor: "Vultr", model: "vc2-1c-2gb", dc: "悉尼 / 墨尔本", cpu: "1", ram: "2GB", disk: 55, diskT: "55GB SSD", bw: "2TB", price: 10, cur: "USD", req: "vultr", links: "vultr",
+    notes: [["按小时计费", "info"]] },
+  { tier: 2, vendor: "Vultr", model: "vhp-1c-2gb-amd", dc: "悉尼 / 墨尔本", cpu: "1", ram: "2GB", disk: 50, diskT: "50GB NVMe", bw: "3TB", price: 12, cur: "USD", req: "vultr", links: "vultr",
+    notes: [["高性能 AMD", "info"]] },
+  { tier: 2, vendor: "DigitalOcean", model: "s-1vcpu-2gb", dc: "悉尼 SYD1", cpu: "1", ram: "2GB", disk: 50, diskT: "50GB SSD", bw: "2TB", price: 12, cur: "USD", req: "do", links: "do",
+    notes: [["按小时计费", "info"]] },
+  { tier: 2, vendor: "Linode (Akamai)", model: "g6-standard-1", dc: "悉尼 / 墨尔本", cpu: "1", ram: "2GB", disk: 50, diskT: "50GB SSD", bw: "2TB", price: 12, cur: "USD", req: "linode", links: "linode",
+    notes: [["澳洲机房不加价", "info"]] },
+  { tier: 2, vendor: "HostHatch", model: "NVMe 2 GB", dc: "悉尼 Equinix SY4", cpu: "1（共享）", ram: "2GB", disk: 10, diskT: "10GB NVMe", bw: "500GB", price: 4, cur: "USD", req: "hh", links: "hh",
+    notes: [["磁盘太小", "risk"], ["CPU 共享", "warn"]] },
+
+  // ---- 4GB ----
+  { tier: 4, vendor: "AWS Lightsail", model: "4GB 套餐", dc: "悉尼", cpu: "2", ram: "4GB", disk: 80, diskT: "80GB SSD", bw: "2TB", price: 24, approx: true, cur: "USD", req: "aws", links: "aws", rec: true,
+    notes: [["自带快照", "info"]] },
+  { tier: 4, vendor: "BinaryLane", model: "Standard 4GB", dc: "悉尼等 5 个澳洲城市", cpu: "2", ram: "4GB", disk: 60, diskT: "60GB NVMe", bw: "3TB", price: 19.60, cur: "AUD", req: "bl", links: "bl", rec: true,
+    notes: [["澳洲本土", "info"]] },
+  { tier: 4, vendor: "OVHcloud", model: "VPS-1", dc: "悉尼", cpu: "2", ram: "4GB", disk: 40, diskT: "40GB NVMe", bw: "500GB（超出限速 10Mbps）", price: 6.29, cur: "AUD", exGst: true, from: true, req: "ovh", links: "ovh1",
+    notes: [["配置最高", "ok"], ["流量封顶", "warn"], ["含每日备份", "info"]] },
+  { tier: 4, vendor: "Vultr", model: "vc2-2c-4gb", dc: "悉尼 / 墨尔本", cpu: "2", ram: "4GB", disk: 80, diskT: "80GB SSD", bw: "3TB", price: 20, cur: "USD", req: "vultr", links: "vultr",
+    notes: [["按小时计费", "info"]] },
+  { tier: 4, vendor: "Vultr", model: "vhp-2c-4gb-amd", dc: "悉尼 / 墨尔本", cpu: "2", ram: "4GB", disk: 100, diskT: "100GB NVMe", bw: "5TB", price: 24, cur: "USD", req: "vultr", links: "vultr",
+    notes: [["高性能 AMD", "info"]] },
+  { tier: 4, vendor: "DigitalOcean", model: "s-2vcpu-4gb", dc: "悉尼 SYD1", cpu: "2", ram: "4GB", disk: 80, diskT: "80GB SSD", bw: "4TB", price: 24, cur: "USD", req: "do", links: "do",
+    notes: [["按小时计费", "info"]] },
+  { tier: 4, vendor: "Linode (Akamai)", model: "g6-standard-2", dc: "悉尼 / 墨尔本", cpu: "2", ram: "4GB", disk: 80, diskT: "80GB SSD", bw: "4TB", price: 24, cur: "USD", req: "linode", links: "linode",
+    notes: [["澳洲机房不加价", "info"]] },
+  { tier: 4, vendor: "HostHatch", model: "NVMe 4 GB", dc: "悉尼 Equinix SY4", cpu: "2（共享）", ram: "4GB", disk: 20, diskT: "20GB NVMe", bw: "1TB（亚太可能减半）", price: 6, cur: "USD", req: "hh", links: "hh",
+    notes: [["磁盘偏小", "warn"], ["CPU 共享", "warn"]] },
+];
+
+const $rows = document.getElementById("rows");
+const $sort = document.getElementById("sort");
+const $rate = document.getElementById("rate");
+let tier = 2;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tag = ([t, k]) => `<span class="tag ${k}">${esc(t)}</span>`;
+const toUsd = d => {
+  const rate = parseFloat($rate.value);
+  let v = d.cur === "USD" ? d.price : d.price * rate;
+  if (d.exGst) v *= 1.1;
+  return v;
+};
+
+function render() {
+  const list = DATA.filter(d => d.tier === tier);
+  const mode = $sort.value;
+  list.sort((a, b) =>
+    mode === "vendor" ? a.vendor.localeCompare(b.vendor) :
+    mode === "disk" ? b.disk - a.disk :
+    toUsd(a) - toUsd(b));
+
+  $rows.innerHTML = list.map(d => {
+    const req = REQ[d.req];
+    const links = LINKS[d.links].map(([t, u, unv]) =>
+      `<span class="lk"><a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>${unv ? '<span class="unverified">（未验证）</span>' : ""}</span>`).join("");
+    const priceTxt = `${d.cur === "AUD" ? "A$" : "US$"}${d.price.toFixed(2)}`;
+    const priceSub = [d.from ? "起" : "", d.exGst ? "不含 GST" : "", d.approx ? "按小时价折算" : ""].filter(Boolean).join("，");
+    return `<tr class="${d.rec ? "rec" : ""}">
+      <td><span class="vendor">${esc(d.vendor)}</span><span class="sub">${esc(d.model)}</span></td>
+      <td>${esc(d.dc)}</td>
+      <td class="num">${esc(d.cpu)}</td>
+      <td class="num">${esc(d.ram)}</td>
+      <td class="num">${esc(d.diskT)}</td>
+      <td>${esc(d.bw)}</td>
+      <td class="num"><span class="price">${priceTxt}</span><span class="cur ${d.cur.toLowerCase()}">${d.cur}</span>${priceSub ? `<span class="sub">${esc(priceSub)}</span>` : ""}</td>
+      <td class="num">≈ US$${toUsd(d).toFixed(2)}${d.exGst ? '<span class="sub">已加 GST</span>' : ""}</td>
+      <td class="req">${tag(req[0])}${tag(req[1])}<span class="sub">${esc(req[2])}</span></td>
+      <td>${d.notes.map(tag).join("")}</td>
+      <td class="links">${links}</td>
+    </tr>`;
+  }).join("");
+}
+
+document.querySelectorAll(".tabs button").forEach(btn => btn.addEventListener("click", () => {
+  tier = Number(btn.dataset.tier);
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+  render();
+}));
+$sort.addEventListener("change", render);
+$rate.addEventListener("change", render);
+render();
+</script>
+</body>
+</html>
