@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="AxleoCollect 导入 Rex 沙箱数据后的测试指引" />
+<title>AxleoCollect × Rex 沙箱测试指引</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #132238;
+    --muted: #586579;
+    --line: #dbe2ea;
+    --surface: #ffffff;
+    --canvas: #f4f6f9;
+    --blue: #195f9b;
+    --blue-bg: #eaf2fa;
+    --teal: #14766f;
+    --teal-bg: #e7f5f2;
+    --amber: #8a5300;
+    --amber-bg: #fff4dc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--canvas);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  a { color: var(--blue); }
+  .wrap { width: min(100% - 32px, 820px); margin: 0 auto; }
+
+  header { background: var(--ink); color: #fff; padding: 24px 0 20px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 650; }
+  header p { margin: 0; color: #c6d2e0; }
+  header .meta { margin-top: 10px; font-size: 13px; color: #9fb0c4; }
+
+  main { padding: 20px 0 48px; }
+  section { margin-bottom: 26px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .box p { margin: 0 0 8px; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box ul { margin: 0; padding-left: 20px; }
+  .note { background: var(--blue-bg); border-color: #c9dcef; }
+  .warn { background: var(--amber-bg); border-color: #f0dcb0; }
+
+  ol.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  ol.checks li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--teal-bg); color: var(--teal); font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+  .title { font-weight: 650; flex: 1; }
+  .time { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .row { display: grid; grid-template-columns: 44px 1fr; gap: 6px; font-size: 14px; }
+  .row + .row { margin-top: 4px; }
+  .row b { color: var(--muted); font-weight: 600; }
+  label.done { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+  label.done input { width: 18px; height: 18px; }
+  code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+  .tag { display: inline-block; font-size: 12px; color: var(--amber); background: var(--amber-bg); border-radius: 4px; padding: 0 6px; margin-left: 4px; }
+  footer { color: var(--muted); font-size: 13px; }
+</style>
+<style>
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; background: #f8fafc; }
+  tr:last-child td { border-bottom: none; }
+  ol.steps { margin: 0; padding-left: 20px; }
+  ol.steps li + li { margin-top: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>AxleoCollect × Rex 沙箱测试指引</h1>
+    <p>导入 Rex 沙箱数据后的真机检查，以及如何确认 Rex 的修改已同步到 App。</p>
+    <div class="meta">适用测试版 0.1.0 (46) · iOS Ad Hoc · 2026-11-23</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section>
+    <h2>当前状态</h2>
+    <div class="box note">
+      <p><b>只读：</b>App 只从 Rex 沙箱（账户 2057，Integration Partners Testing Account）读取数据，<b>不会写回 Rex</b>。写入功能关闭，开启前需要另行确认。</p>
+      <p>App 里的数据 = Rex 沙箱导入的数据（带“Rex 沙箱”标签）+ 原有 Mary/John 演示数据。</p>
+      <p>每一次 Rex 调用都记录在管理后台的“Rex 调用日志”里，可按读/写筛选。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>测试前准备</h2>
+    <div class="box">
+      <ol class="steps">
+        <li>用 Safari 打开 <a href="https://agentcollect-install.pages.dev/">agentcollect-install.pages.dev</a>，安装或覆盖安装 <b>0.1.0 (46)</b>。</li>
+        <li>打开 App：之前登录过的会回到登录页（数据分配有调整，需要重新登录）。</li>
+        <li>首次打开允许<b>通知</b>（待办提醒和推送要用）；定位在打开 DK 页时才会请求。</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>测试账号和数据</h2>
+    <table>
+      <tr><th>账号</th><th>导入房产</th><th>导入联系人</th><th>用途</th></tr>
+      <tr><td><code>mary@axleo.local</code></td><td>200</td><td>200</td><td>日常测试</td></tr>
+      <tr><td><code>john@axleo.local</code></td><td>200</td><td>200</td><td>日常测试；和 Mary 互相指派待办、测推送</td></tr>
+      <tr><td><code>import@axleo.local</code></td><td>1,734</td><td>3,938</td><td>只用来测大数据量的同步耗时（密码向开发者索取）</td></tr>
+    </table>
+    <div class="box" style="margin-top:10px">
+      <ul>
+        <li>Mary/John 的房产挑的是<b>有业主或租客关系</b>、<b>离 Sunnybank 最近</b>的：约 70 处在昆士兰，其余在新南威尔士（Sydney 一带）。</li>
+        <li>联系人优先是这些房产的业主、租客。</li>
+        <li>4,461 处 Sunnybank 演示房产所有人共享。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>检查项</h2>
+    <ol class="checks">
+      <li><div class="head"><span class="num">1</span><span class="title">首次同步耗时</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>用 Mary 登录，从点“登录”开始计时，到联系人列表出现数据为止。</span></div>
+        <div class="row"><b>预期</b><span>数据量约 4,900 条（下载约 120 KB）。记下秒数。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">2</span><span class="title">列表和地图是否流畅</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>上下快速滑动联系人列表；打开全屏地图拖动、缩放。</span></div>
+        <div class="row"><b>预期</b><span>没有明显卡顿或白屏。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">3</span><span class="title">“Rex 沙箱”标签</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>打开一个导入的联系人和一个导入的房产。</span></div>
+        <div class="row"><b>预期</b><span>详情页显示“Rex 沙箱”标签；演示数据没有这个标签。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">4</span><span class="title">外地房产在地图上</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>全屏地图缩小，移到 Brisbane 北边或 Sydney。</span></div>
+        <div class="row"><b>预期</b><span>导入的房产显示为点（没有地块边界）；Sunnybank 地块显示不变。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">5</span><span class="title">Mary/John 互相隔离</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>两台手机分别登录 Mary、John，对比导入的联系人。</span></div>
+        <div class="row"><b>预期</b><span>各自只看到分给自己的导入记录；演示数据两人都有。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">6</span><span class="title">编辑导入的联系人</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>给一个导入的联系人加备注或标签，保存。</span></div>
+        <div class="row"><b>预期</b><span>保存成功；<b>Rex 里不会变</b>（写入关闭）。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">7</span><span class="title">大数据量同步</span><span class="tag">可选</span><span class="time">约 2 分钟</span></div>
+        <div class="row"><b>操作</b><span>用 <code>import@axleo.local</code> 登录（约 10,000 条，下载约 300 KB），同第 1、2 项计时和滑动。</span></div>
+        <div class="row"><b>预期</b><span>记下耗时，和 Mary 对比；明显卡顿请记录在哪个页面。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">8</span><span class="title">待办提醒</span><span class="time">约 3 分钟</span></div>
+        <div class="row"><b>操作</b><span>新建一条待办，日期今天，时间设为 2–3 分钟后。</span></div>
+        <div class="row"><b>预期</b><span>到点收到通知；点通知打开这条待办。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">9</span><span class="title">两台手机推送</span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>Mary 新建待办并指派给 John。</span></div>
+        <div class="row"><b>预期</b><span>John 的手机收到推送（App 在后台或锁屏时）。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+      <li><div class="head"><span class="num">10</span><span class="title">剪贴板线索</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>复制一段含姓名和电话的文字，打开询盘（Enquiry）页。</span></div>
+        <div class="row"><b>预期</b><span>出现“检测到复制的内容”提示，可一键带入；也可点“从剪贴板粘贴线索”。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>确认 Rex 的修改已同步到 App</h2>
+    <div class="box warn">
+      <p>目前是<b>手动同步</b>：Rex 里修改后，需要请开发者“重跑导入”（约 3 分钟，期间服务短暂不可用）。</p>
+    </div>
+    <div class="box" style="margin-top:10px">
+      <ol class="steps">
+        <li>用集成账号登录 Rex 网页版（地址以 Rex 邀请邮件为准，一般为 app.rexsoftware.com），切换到 <b>Integration Partners Testing Account</b>。</li>
+        <li>找一条 <b>Mary 或 John 名下</b>的记录（在 App 里先记下姓名或地址），在 Rex 里修改：
+          <ul>
+            <li>联系人：手机号、邮箱、勾选 Do not contact；</li>
+            <li>房产：卧室、浴室、车位数。</li>
+          </ul>
+          记下改前、改后的值和时间。沙箱是多家公司共用的，<b>只改测试用的记录，测完改回去</b>。</li>
+        <li>告诉开发者“重跑导入”。只更新 Rex 里有变化的记录，开发者会回报更新了几条。</li>
+        <li>App 里下拉刷新或重新打开，找到那条记录：值变成 Rex 的新值 = 同步成功。</li>
+      </ol>
+    </div>
+    <table style="margin-top:10px">
+      <tr><th>会同步</th><td>联系人：姓名、手机、邮箱、请勿联系（DND）、联系偏好（信件/邮件/电话/短信）<br />房产：地址、经纬度、卧室、浴室、车位，以及业主、租客等关系</td></tr>
+      <tr><th>注意</th><td>Rex 改过的字段会覆盖 App 里同一字段的本地修改；Mary/John 的分配不会变</td></tr>
+      <tr><th>暂不支持</th><td>Rex 里删除或归档的记录，App 里仍然存在；Rex 新增的记录要重跑后才出现，并按剩余名额分配</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>以后开启写入时，在 Rex 里怎么核对</h2>
+    <div class="box note"><p>写入只会写到沙箱账户，并需要另行确认后才开启。</p></div>
+    <table style="margin-top:10px">
+      <tr><th>App 里的操作</th><th>在 Rex 里查看</th></tr>
+      <tr><td>新建联系人或记录</td><td>名称以 <code>AXLEO TEST - </code> 开头</td></tr>
+      <tr><td>备注</td><td>联系人 Notes，末尾带 <code>via AxleoCollect · 中介名</code></td></tr>
+      <tr><td>标签</td><td>联系人 Tags，带 <code>DK - </code> / <code>OFI - </code> / <code>Enquiry - </code> 前缀</td></tr>
+      <tr><td>待办完成</td><td>对应 Reminder 标记为已完成</td></tr>
+      <tr><td>请勿联系 / 不投信件</td><td>联系人的联系偏好</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>重置测试数据</h2>
+    <table>
+      <tr><th>跟开发者说</th><th>效果</th></tr>
+      <tr><td>“重置”</td><td>清空所有测试改动和导入数据，只留 Mary/John 演示数据</td></tr>
+      <tr><td>“重置并重新导入”</td><td>同上，然后从 Rex 沙箱重新导入，按上面的规则分配</td></tr>
+      <tr><td>“重跑导入”</td><td>不清空，只更新 Rex 里有变化的记录</td></tr>
+    </table>
+    <div class="box" style="margin-top:10px"><p>每次重置前自动备份，可回滚。重置后所有手机需要退出、重新登录。账号、设置和 Rex 调用日志保留。</p></div>
+  </section>
+
+  <section>
+    <h2>发现问题时</h2>
+    <div class="box warn">
+      <p>截图或录屏，记下 iPhone 型号、iOS 版本、测试版构建号（0.1.0 (46)）、登录账号和时间，发给开发者。</p>
+      <p>同步慢或卡顿：记下第 1、7 项的秒数，以及卡在哪个页面。</p>
+      <p>程序闪退：设置 → 隐私与安全性 → 分析与改进 → 分析数据，找 <code>agentCollect</code> 开头的崩溃日志一并发送。</p>
+    </div>
+  </section>
+
+  <footer>勾选状态只保存在当前页面，刷新后清空。</footer>
+</main>
+</body>
+</html>
