@@ -100,6 +100,15 @@
         <li>首次打开允许<b>通知</b>（待办提醒和推送要用）；定位在打开 DK 页时才会请求。</li>
       </ol>
     </div>
+    <div class="box note" style="margin-top:10px">
+      <p><b>在哪里看同步状态和导入的联系人</b></p>
+      <ul>
+        <li><b>同步状态</b>：点左上角 Logo 进入“我的” → “同步”卡片。“上次同步”显示具体时间 = 同步完成（显示“—”= 还没完成）；“待同步”是手机上还没上传的改动数。App 打开时每分钟自动同步一次。</li>
+        <li><b>全部联系人</b>：“我的”页面拉到最下面 → <b>“数据”</b>按钮。导入的联系人在这里（Mary 约 207 个）。</li>
+        <li><b>从房产进入</b>：全屏地图移到 Brisbane 北边或 Sydney，点房产点 → 房产页的业主/租客 → 联系人。</li>
+        <li>询盘（Enquiry）页的 leads 只是<b>线索</b>（演示数据 4 条），导入的联系人<b>不会</b>出现在那里；首页搜索目前也<b>不搜联系人</b>。</li>
+      </ul>
+    </div>
   </section>
 
   <section>
@@ -123,15 +132,15 @@
     <h2>检查项</h2>
     <ol class="checks">
       <li><div class="head"><span class="num">1</span><span class="title">首次同步耗时</span><span class="time">约 1 分钟</span></div>
-        <div class="row"><b>操作</b><span>用 Mary 登录，从点“登录”开始计时，到联系人列表出现数据为止。</span></div>
-        <div class="row"><b>预期</b><span>数据量约 4,900 条（下载约 120 KB）。记下秒数。</span></div>
+        <div class="row"><b>操作</b><span>已登录过的先在“我的”页面退出登录。用 Mary 登录，点“登录”时开始计时，马上进入“我的”页面，到“上次同步”从“—”变成具体时间为止（不自动刷新就退出该页再进）。</span></div>
+        <div class="row"><b>预期</b><span>数据量约 4,900 条（下载约 120 KB）。记下秒数。之后的同步只拉变化部分，会快很多，不能当首次同步计。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">2</span><span class="title">列表和地图是否流畅</span><span class="time">约 1 分钟</span></div>
-        <div class="row"><b>操作</b><span>上下快速滑动联系人列表；打开全屏地图拖动、缩放。</span></div>
+        <div class="row"><b>操作</b><span>“我的” → “数据”，上下快速滑动联系人列表；打开全屏地图拖动、缩放。</span></div>
         <div class="row"><b>预期</b><span>没有明显卡顿或白屏。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">3</span><span class="title">“Rex 沙箱”标签</span><span class="time">约 30 秒</span></div>
-        <div class="row"><b>操作</b><span>打开一个导入的联系人和一个导入的房产。</span></div>
+        <div class="row"><b>操作</b><span>“我的” → “数据”里打开一个导入的联系人；全屏地图移到 Brisbane 北边或 Sydney，打开一个导入的房产。</span></div>
         <div class="row"><b>预期</b><span>详情页显示“Rex 沙箱”标签；演示数据没有这个标签。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">4</span><span class="title">外地房产在地图上</span><span class="time">约 1 分钟</span></div>
@@ -139,7 +148,7 @@
         <div class="row"><b>预期</b><span>导入的房产显示为点（没有地块边界）；Sunnybank 地块显示不变。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">5</span><span class="title">Mary/John 互相隔离</span><span class="time">约 1 分钟</span></div>
-        <div class="row"><b>操作</b><span>两台手机分别登录 Mary、John，对比导入的联系人。</span></div>
+        <div class="row"><b>操作</b><span>两台手机分别登录 Mary、John，在“我的” → “数据”里对比导入的联系人。</span></div>
         <div class="row"><b>预期</b><span>各自只看到分给自己的导入记录；演示数据两人都有。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">6</span><span class="title">编辑导入的联系人</span><span class="time">约 30 秒</span></div>
@@ -173,14 +182,14 @@
     <div class="box" style="margin-top:10px">
       <ol class="steps">
         <li>用集成账号登录 Rex 网页版（地址以 Rex 邀请邮件为准，一般为 app.rexsoftware.com），切换到 <b>Integration Partners Testing Account</b>。</li>
-        <li>找一条 <b>Mary 或 John 名下</b>的记录（在 App 里先记下姓名或地址），在 Rex 里修改：
+        <li>找一条 <b>Mary 或 John 名下</b>的记录（在 App 的“我的” → “数据”或房产页先记下姓名或地址），在 Rex 里修改：
           <ul>
             <li>联系人：手机号、邮箱、勾选 Do not contact；</li>
             <li>房产：卧室、浴室、车位数。</li>
           </ul>
           记下改前、改后的值和时间。沙箱是多家公司共用的，<b>只改测试用的记录，测完改回去</b>。</li>
         <li>告诉开发者“重跑导入”。只更新 Rex 里有变化的记录，开发者会回报更新了几条。</li>
-        <li>App 里下拉刷新或重新打开，找到那条记录：值变成 Rex 的新值 = 同步成功。</li>
+        <li>等约 1 分钟（App 打开时每分钟自动同步）或退出后重新打开 App，在“我的” → “数据”找到那条记录：值变成 Rex 的新值 = 同步成功。</li>
       </ol>
     </div>
     <table style="margin-top:10px">
