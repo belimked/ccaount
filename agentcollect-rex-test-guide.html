@@ -85,7 +85,8 @@
   <section>
     <h2>当前状态</h2>
     <div class="box note">
-      <p><b>只读：</b>App 只从 Rex 沙箱（账户 2057，Integration Partners Testing Account）读取数据，<b>不会写回 Rex</b>。写入功能关闭，开启前需要另行确认。</p>
+      <p><b>Rex → App：自动。</b>服务器每 60 秒检查 Rex 沙箱（账户 2057，Integration Partners Testing Account）的变化，只拉取改过的记录；手机每分钟同步一次。</p>
+      <p><b>App → Rex：</b>只写回<b>从 Rex 导入的联系人</b>，只能写沙箱 2057（服务器向 Rex 确认是测试账户后才放行，其他账户一律拦截）。写入开关开启后开发者会通知；未开启前 App 里的修改不会到 Rex。</p>
       <p>App 里的数据 = Rex 沙箱导入的数据（带“Rex 沙箱”标签）+ 原有 Mary/John 演示数据。</p>
       <p>每一次 Rex 调用都记录在管理后台的“Rex 调用日志”里，可按读/写筛选。</p>
     </div>
@@ -153,7 +154,7 @@
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">6</span><span class="title">编辑导入的联系人</span><span class="time">约 30 秒</span></div>
         <div class="row"><b>操作</b><span>给一个导入的联系人加备注或标签，保存。</span></div>
-        <div class="row"><b>预期</b><span>保存成功；<b>Rex 里不会变</b>（写入关闭）。</span></div>
+        <div class="row"><b>预期</b><span>保存成功。写入开启后 Rex 里约 1 分钟内变化（见下方“App → Rex”）；未开启时 Rex 不变。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">7</span><span class="title">大数据量同步</span><span class="tag">可选</span><span class="time">约 2 分钟</span></div>
         <div class="row"><b>操作</b><span>用 <code>import@axleo.local</code> 登录（约 10,000 条，下载约 300 KB），同第 1、2 项计时和滑动。</span></div>
@@ -175,9 +176,9 @@
   </section>
 
   <section>
-    <h2>确认 Rex 的修改已同步到 App</h2>
-    <div class="box warn">
-      <p>目前是<b>手动同步</b>：Rex 里修改后，需要请开发者“重跑导入”（约 3 分钟，期间服务短暂不可用）。</p>
+    <h2>Rex → App：Rex 里修改，App 自动更新</h2>
+    <div class="box note">
+      <p>不需要找开发者，改完等 1–2 分钟即可（服务器 60 秒检查一次 + 手机 60 秒同步一次）。</p>
     </div>
     <div class="box" style="margin-top:10px">
       <ol class="steps">
@@ -188,27 +189,34 @@
             <li>房产：卧室、浴室、车位数。</li>
           </ul>
           记下改前、改后的值和时间。沙箱是多家公司共用的，<b>只改测试用的记录，测完改回去</b>。</li>
-        <li>告诉开发者“重跑导入”。只更新 Rex 里有变化的记录，开发者会回报更新了几条。</li>
-        <li>等约 1 分钟（App 打开时每分钟自动同步）或退出后重新打开 App，在“我的” → “数据”找到那条记录：值变成 Rex 的新值 = 同步成功。</li>
+        <li>保存后等 1–2 分钟（App 保持打开，或退出后重新打开），在“我的” → “数据”找到那条记录：值变成 Rex 的新值 = 同步成功。</li>
+        <li>日志：管理后台 → <b>Rex 同步事件</b>里有一条“Rex → App”，显示记录、改了哪些字段（旧值 → 新值）和时间；<b>Rex 调用日志</b>里有对应的 read 调用。后台地址和账号向开发者索取。</li>
       </ol>
     </div>
     <table style="margin-top:10px">
       <tr><th>会同步</th><td>联系人：姓名、手机、邮箱、请勿联系（DND）、联系偏好（信件/邮件/电话/短信）<br />房产：地址、经纬度、卧室、浴室、车位，以及业主、租客等关系</td></tr>
-      <tr><th>注意</th><td>Rex 改过的字段会覆盖 App 里同一字段的本地修改；Mary/John 的分配不会变</td></tr>
-      <tr><th>暂不支持</th><td>Rex 里删除或归档的记录，App 里仍然存在；Rex 新增的记录要重跑后才出现，并按剩余名额分配</td></tr>
+      <tr><th>注意</th><td>Rex 改过的记录会覆盖 App 里同一条记录；但如果这条记录在 App 里还有没推到 Rex 的修改，会先跳过，等推送完再拉。Mary/John 的分配不会变</td></tr>
+      <tr><th>新增 / 删除</th><td>Rex 新增的记录自动出现（Mary/John 名额已满时分给 admin，测试账号看不到）；Rex 里删除或归档的记录，App 里随之删除</td></tr>
     </table>
   </section>
 
   <section>
-    <h2>以后开启写入时，在 Rex 里怎么核对</h2>
-    <div class="box note"><p>写入只会写到沙箱账户，并需要另行确认后才开启。</p></div>
+    <h2>App → Rex：App 里修改，Rex 更新</h2>
+    <div class="box warn"><p>需要写入开关开启（开发者会通知）。只写沙箱 2057，只写<b>从 Rex 导入的联系人</b>；演示数据和 App 里新建的联系人不会写到 Rex。</p></div>
+    <div class="box" style="margin-top:10px">
+      <ol class="steps">
+        <li>在 App 里打开一个带“Rex 沙箱”标签、Mary/John 名下的联系人，修改手机号或邮箱（或加备注、标签），保存。记下改前、改后的值和时间。</li>
+        <li>约 1 分钟后，在 Rex 网页版打开同一个联系人（按姓名搜索），确认值已变化。</li>
+        <li>日志：管理后台 → <b>Rex 同步事件</b>有一条“App → Rex”，结果为成功；<b>Rex 调用日志</b>有对应的写入调用（可按这条记录筛选，看到完整请求和 Rex 的回复）。</li>
+        <li>结果为失败或“已拦截”时，截图日志发给开发者。</li>
+      </ol>
+    </div>
     <table style="margin-top:10px">
       <tr><th>App 里的操作</th><th>在 Rex 里查看</th></tr>
-      <tr><td>新建联系人或记录</td><td>名称以 <code>AXLEO TEST - </code> 开头</td></tr>
+      <tr><td>姓名、手机、邮箱</td><td>联系人的姓名、电话、邮箱（更新原有那一条，不新增）</td></tr>
+      <tr><td>请勿联系 / 联系偏好</td><td>联系人的 Do not contact 和联系偏好（信件/邮件/电话/短信）</td></tr>
       <tr><td>备注</td><td>联系人 Notes，末尾带 <code>via AxleoCollect · 中介名</code></td></tr>
       <tr><td>标签</td><td>联系人 Tags，带 <code>DK - </code> / <code>OFI - </code> / <code>Enquiry - </code> 前缀</td></tr>
-      <tr><td>待办完成</td><td>对应 Reminder 标记为已完成</td></tr>
-      <tr><td>请勿联系 / 不投信件</td><td>联系人的联系偏好</td></tr>
     </table>
   </section>
 
@@ -218,7 +226,7 @@
       <tr><th>跟开发者说</th><th>效果</th></tr>
       <tr><td>“重置”</td><td>清空所有测试改动和导入数据，只留 Mary/John 演示数据</td></tr>
       <tr><td>“重置并重新导入”</td><td>同上，然后从 Rex 沙箱重新导入，按上面的规则分配</td></tr>
-      <tr><td>“重跑导入”</td><td>不清空，只更新 Rex 里有变化的记录</td></tr>
+
     </table>
     <div class="box" style="margin-top:10px"><p>每次重置前自动备份，可回滚。重置后所有手机需要退出、重新登录。账号、设置和 Rex 调用日志保留。</p></div>
   </section>
