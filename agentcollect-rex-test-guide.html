@@ -77,7 +77,7 @@
   <div class="wrap">
     <h1>AxleoCollect × Rex 沙箱测试指引</h1>
     <p>导入 Rex 沙箱数据后的真机检查，以及如何确认 Rex 的修改已同步到 App。</p>
-    <div class="meta">适用测试版 0.1.0 (49) · iOS Ad Hoc · 2026-11-24</div>
+    <div class="meta">适用测试版 0.1.0 (50) · iOS Ad Hoc · 2026-11-24 更新</div>
   </div>
 </header>
 
@@ -85,8 +85,9 @@
   <section>
     <h2>当前状态</h2>
     <div class="box note">
-      <p><b>Rex → App：自动。</b>服务器每 60 秒检查 Rex 沙箱（账户 2057，Integration Partners Testing Account）的变化，只拉取改过的记录；手机每分钟同步一次。</p>
-      <p><b>App → Rex：</b>只写回<b>从 Rex 导入的联系人</b>，只能写沙箱 2057（服务器向 Rex 确认是测试账户后才放行，其他账户一律拦截）。写入开关开启后开发者会通知；未开启前 App 里的修改不会到 Rex。</p>
+      <p><b>Rex → App：自动，已验证。</b>服务器每 60 秒检查 Rex 沙箱（账户 2057，Integration Partners Testing Account）的变化，只拉取改过的记录；手机每分钟同步一次。Rex 主动推送（webhook）还没开通，目前只靠这 60 秒一次的检查。</p>
+      <p><b>App → Rex：写入已开启，已验证</b>（11-24 在 App 里改联系人，写回 Rex 全部成功）。只写回<b>从 Rex 导入的联系人</b>，只能写沙箱 2057（服务器向 Rex 确认是测试账户后才放行，其他账户一律拦截）。</p>
+      <p><b>服务器</b>：11-24 起后端从内网服务器搬到 AWS 悉尼，App 和后台地址不变，不用重新安装或登录。后台“Rex 调用日志”里 11-23 及以前的报错是旧服务器留下的，可以忽略。</p>
       <p>App 里的数据 = Rex 沙箱导入的数据（带“Rex 沙箱”标签）+ 原有 Mary/John 演示数据。</p>
       <p>每一次 Rex 调用都记录在管理后台的“Rex 调用日志”里，可按读/写筛选。</p>
     </div>
@@ -96,8 +97,8 @@
     <h2>测试前准备</h2>
     <div class="box">
       <ol class="steps">
-        <li>用 Safari 打开 <a href="https://agentcollect-install.pages.dev/">agentcollect-install.pages.dev</a>，安装或覆盖安装 <b>0.1.0 (49)</b>。</li>
-        <li>打开 App：之前登录过的会回到登录页（数据分配有调整，需要重新登录）。</li>
+        <li>用 Safari 打开 <a href="https://agentcollect-install.pages.dev/">agentcollect-install.pages.dev</a>，安装或覆盖安装 <b>0.1.0 (50)</b>。</li>
+        <li>从 (49) 覆盖安装不用重新登录；(48) 或更早的版本先在“我的”里退出登录再重新登录。</li>
         <li>首次打开允许<b>通知</b>（待办提醒和推送要用）；定位在打开 DK 页时才会请求。</li>
       </ol>
     </div>
@@ -124,7 +125,7 @@
       <ul>
         <li>Mary/John 的房产挑的是<b>有业主或租客关系</b>、<b>离 Sunnybank 最近</b>的：约 70 处在昆士兰，其余在新南威尔士（Sydney 一带）。</li>
         <li>联系人优先是这些房产的业主、租客。</li>
-        <li>4,461 处 Sunnybank 演示房产所有人共享。</li>
+        <li>Sunnybank、Sunnybank Hills、Calamvale、Parkinson 等区约 21,600 处房产（Pricefinder 地块和业主）所有人共享，所以每个账号首次同步的数据量比以前大很多。</li>
       </ul>
     </div>
   </section>
@@ -134,7 +135,7 @@
     <ol class="checks">
       <li><div class="head"><span class="num">1</span><span class="title">首次同步耗时</span><span class="time">约 1 分钟</span></div>
         <div class="row"><b>操作</b><span>已登录过的先在“我的”页面退出登录。用 Mary 登录，点“登录”时开始计时，马上进入“我的”页面，到“上次同步”从“—”变成具体时间为止（不自动刷新就退出该页再进）。</span></div>
-        <div class="row"><b>预期</b><span>数据量约 4,900 条（下载约 120 KB）。记下秒数。之后的同步只拉变化部分，会快很多，不能当首次同步计。</span></div>
+        <div class="row"><b>预期</b><span>数据量约 22,000 条（主要是四个区的共享房产）。记下秒数。之后的同步只拉变化部分，会快很多，不能当首次同步计。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">2</span><span class="title">列表和地图是否流畅</span><span class="time">约 1 分钟</span></div>
         <div class="row"><b>操作</b><span>“我的” → “数据”，上下快速滑动联系人列表；打开全屏地图拖动、缩放。</span></div>
@@ -154,10 +155,10 @@
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">6</span><span class="title">编辑导入的联系人</span><span class="time">约 30 秒</span></div>
         <div class="row"><b>操作</b><span>给一个导入的联系人加备注或标签，保存。</span></div>
-        <div class="row"><b>预期</b><span>保存成功。写入开启后 Rex 里约 1 分钟内变化（见下方“App → Rex”）；未开启时 Rex 不变。</span></div>
+        <div class="row"><b>预期</b><span>保存成功，Rex 里约 1 分钟内变化（见下方“App → Rex”）。演示数据和 App 里新建的联系人不会写到 Rex。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">7</span><span class="title">大数据量同步</span><span class="tag">可选</span><span class="time">约 2 分钟</span></div>
-        <div class="row"><b>操作</b><span>用 <code>import@axleo.local</code> 登录（约 10,000 条，下载约 300 KB），同第 1、2 项计时和滑动。</span></div>
+        <div class="row"><b>操作</b><span>用 <code>import@axleo.local</code> 登录（约 27,000 条：自己名下 5,700 条 + 共享房产 21,600 条），同第 1、2 项计时和滑动。</span></div>
         <div class="row"><b>预期</b><span>记下耗时，和 Mary 对比；明显卡顿请记录在哪个页面。</span></div>
         <label class="done"><input type="checkbox" /> 通过</label></li>
       <li><div class="head"><span class="num">8</span><span class="title">待办提醒</span><span class="time">约 3 分钟</span></div>
@@ -202,7 +203,7 @@
 
   <section>
     <h2>App → Rex：App 里修改，Rex 更新</h2>
-    <div class="box warn"><p>需要写入开关开启（开发者会通知）。只写沙箱 2057，只写<b>从 Rex 导入的联系人</b>；演示数据和 App 里新建的联系人不会写到 Rex。</p></div>
+    <div class="box note"><p>写入开关<b>已开启</b>。只写沙箱 2057，只写<b>从 Rex 导入的联系人</b>；演示数据和 App 里新建的联系人不会写到 Rex。沙箱是多家公司共用的，只改测试用的记录。</p></div>
     <div class="box" style="margin-top:10px">
       <ol class="steps">
         <li>在 App 里打开一个带“Rex 沙箱”标签、Mary/John 名下的联系人，修改手机号或邮箱（或加备注、标签），保存。记下改前、改后的值和时间。</li>
@@ -234,7 +235,7 @@
   <section>
     <h2>发现问题时</h2>
     <div class="box warn">
-      <p>截图或录屏，记下 iPhone 型号、iOS 版本、测试版构建号（0.1.0 (49)）、登录账号和时间，发给开发者。</p>
+      <p>截图或录屏，记下 iPhone 型号、iOS 版本、测试版构建号（0.1.0 (50)）、登录账号和时间，发给开发者。</p>
       <p>同步慢或卡顿：记下第 1、7 项的秒数，以及卡在哪个页面。</p>
       <p>程序闪退：设置 → 隐私与安全性 → 分析与改进 → 分析数据，找 <code>agentCollect</code> 开头的崩溃日志一并发送。</p>
     </div>

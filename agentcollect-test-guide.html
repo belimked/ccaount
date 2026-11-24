@@ -69,7 +69,7 @@
   <div class="wrap">
     <h1>agentCollect 真机 5 分钟检查清单</h1>
     <p>只测模拟器覆盖不了的硬件功能：摇一摇、麦克风、语音、相机、GPS。</p>
-    <div class="meta">适用测试版 0.1.0 (49) · iOS Ad Hoc · 2026-11-24</div>
+    <div class="meta">适用测试版 0.1.0 (50) · iOS Ad Hoc · 2026-11-24</div>
   </div>
 </header>
 <main class="wrap">
@@ -81,7 +81,7 @@
           <a href="https://agentcollect-install.pages.dev">agentcollect-install.pages.dev</a>（国内网络用这个）或
           <a href="https://belimked.github.io/011.aus_assent/">belimked.github.io/011.aus_assent</a></li>
         <li>首次打开如提示开发者模式：设置 → 隐私与安全性 → 开发者模式 → 开启 → 重启 → 打开。</li>
-        <li>用 <code>mary@axleo.local</code>（或自己的账号）登录。<b>从旧版覆盖安装后，先在“我的”里退出登录再重新登录</b>：11-23 测试数据重置后旧登录已失效，不重新登录会一直显示 “waiting to sync”，语音也无法识别。</li>
+        <li>用 <code>mary@axleo.local</code>（或自己的账号）登录。从 (49) 覆盖安装到 (50) <b>不用重新登录</b>，数据保留。从 (48) 或更早的版本覆盖安装时，<b>先在“我的”里退出登录再重新登录</b>：11-23 测试数据重置后旧登录已失效，不重新登录会一直显示 “waiting to sync”，语音也无法识别。</li>
         <li>手机联网，最好在室外或窗边（GPS 需要）。</li>
       </ul>
     </div>
@@ -157,9 +157,9 @@
         <label class="done"><input type="checkbox" />通过</label>
       </li>
       <li>
-        <div class="head"><span class="num">11</span><span class="title">全屏地图标记和图例<span class="tag">build 49 新</span></span><span class="time">约 1 分钟</span></div>
-        <div class="row"><b>操作</b><span>DK → 地图全屏，移到 Sunnybank / Sunnybank Hills / Calamvale / Parkinson 任一区，放大到街道级。</span></div>
-        <div class="row"><b>预期</b><span>图例是浮在地图底部的白色卡片，两列，每项前有图标（绿点、红点、蓝点、P、橙点、★、⊘、灰点、虚线圈、You · live），文字不被截断；“尚无联系人”是<b>红点</b>；“我的位置”按钮在图例上方、不重叠；四个区的每块地都有灰色 Pricefinder 地块点，点一下出预览卡片。</span></div>
+        <div class="head"><span class="num">11</span><span class="title">全屏地图布局和图例<span class="tag">build 50 新</span></span><span class="time">约 1 分钟</span></div>
+        <div class="row"><b>操作</b><span>DK → 地图全屏。点左下角 “图例 ▲”，再点 “收起 ▼”。在搜索框输入 <code>Gager</code>，再点顶部的 “清除 ✕”。移到 Sunnybank / Sunnybank Hills / Calamvale / Parkinson 任一区，放大到街道级。</span></div>
+        <div class="row"><b>预期</b><span>地图铺满整个屏幕：顶部一行是返回、搜索框、Map / Satellite / List；右下角浮着 “退出全屏” 和 “我的位置”。图例默认收起成左下角的小按钮，展开后是两列小字图例（绿点、红点、蓝点、P、橙点、★、⊘、灰点、虚线圈、你的实时位置），右下角两个按钮自动上移、不被挡住。搜索时顶部显示 “仅显示“Gager”· N 个 · 清除 ✕”。人不在 Sunnybank 一带时，顶部提示 “你附近没有片区数据 … 前往 ›”，点一下跳到 Gager St。四个区的每块地都有灰色 Pricefinder 地块点，点一下出预览卡片。</span></div>
         <label class="done"><input type="checkbox" />通过</label>
       </li>
       <li>
@@ -168,13 +168,19 @@
         <div class="row"><b>预期</b><span>前两个被拒绝并提示名称至少要包含一个字母或汉字；<code>Gager West</code> 可以保存。</span></div>
         <label class="done"><input type="checkbox" />通过</label>
       </li>
+      <li>
+        <div class="head"><span class="num">13</span><span class="title">开放日状态（UAT 问题 13）</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>操作</b><span>同步一次后进底部 OFI 标签。测试数据是两场带 <code>test-</code> 前缀的开放日（test-Mary 2 Gager St、test-John 6 Gager St），只在当天显示，时间由开发者按需设置。</span></div>
+        <div class="row"><b>预期</b><span>每场按当前时间显示：还没开始 = Upcoming，进行中 = On now，已结束 = Finished。两场时间不同的开放日<b>不应同时</b>显示 On now；过了结束时间后，再打开 OFI 页会变成 Finished。</span></div>
+        <label class="done"><input type="checkbox" />通过</label>
+      </li>
     </ol>
   </section>
 
   <section>
     <h2>发现问题时</h2>
     <div class="box warn">
-      <p>截图或录屏，记下 iPhone 型号、iOS 版本、测试版构建号（如 0.1.0 (49)）和时间，发给开发者。</p>
+      <p>截图或录屏，记下 iPhone 型号、iOS 版本、测试版构建号（如 0.1.0 (50)）和时间，发给开发者。</p>
       <p>程序闪退：设置 → 隐私与安全性 → 分析与改进 → 分析数据，找 <code>agentCollect</code> 开头的崩溃日志一并发送。</p>
     </div>
   </section>
