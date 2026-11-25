@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="AxleoCollect UAT 2 反馈修正说明与验证步骤" />
+<title>AxleoCollect UAT 2 反馈修正说明</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #132238;
+    --muted: #586579;
+    --line: #dbe2ea;
+    --surface: #ffffff;
+    --canvas: #f4f6f9;
+    --blue: #195f9b;
+    --blue-bg: #eaf2fa;
+    --teal: #14766f;
+    --teal-bg: #e7f5f2;
+    --amber: #8a5300;
+    --amber-bg: #fff4dc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--canvas);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  a { color: var(--blue); }
+  .wrap { width: min(100% - 32px, 820px); margin: 0 auto; }
+
+  header { background: var(--ink); color: #fff; padding: 24px 0 20px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 650; }
+  header p { margin: 0; color: #c6d2e0; }
+  header .meta { margin-top: 10px; font-size: 13px; color: #9fb0c4; }
+
+  main { padding: 20px 0 48px; }
+  section { margin-bottom: 26px; }
+  h2 { font-size: 17px; margin: 0 0 10px; }
+
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .box p { margin: 0 0 8px; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box ul { margin: 0; padding-left: 20px; }
+  .note { background: var(--blue-bg); border-color: #c9dcef; }
+  .warn { background: var(--amber-bg); border-color: #f0dcb0; }
+
+  ol.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  ol.checks li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--teal-bg); color: var(--teal); font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+  .title { font-weight: 650; flex: 1; }
+  .time { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .row { display: grid; grid-template-columns: 44px 1fr; gap: 6px; font-size: 14px; }
+  .row + .row { margin-top: 4px; }
+  .row b { color: var(--muted); font-weight: 600; }
+  label.done { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+  label.done input { width: 18px; height: 18px; }
+  code { background: #eef1f5; border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+  .tag { display: inline-block; font-size: 12px; color: var(--amber); background: var(--amber-bg); border-radius: 4px; padding: 0 6px; margin-left: 4px; }
+  footer { color: var(--muted); font-size: 13px; }
+</style>
+<style>
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; background: #f8fafc; }
+  tr:last-child td { border-bottom: none; }
+  ol.steps { margin: 0; padding-left: 20px; }
+  ol.steps li + li { margin-top: 4px; }
+</style>
+<style>
+  .st { display: inline-block; font-size: 12px; border-radius: 4px; padding: 0 6px; white-space: nowrap; }
+  .ok { color: var(--teal); background: var(--teal-bg); }
+  .wait { color: var(--blue); background: var(--blue-bg); }
+  .part { color: var(--amber); background: var(--amber-bg); }
+  .pri { color: var(--muted); font-size: 12px; font-weight: 600; }
+  .row { grid-template-columns: 44px 1fr; }
+  .row ol, .row ul { margin: 0; padding-left: 18px; }
+  .qa dt { font-weight: 650; margin-top: 12px; }
+  .qa dt:first-child { margin-top: 0; }
+  .qa dd { margin: 4px 0 0; }
+  nav.toc { font-size: 14px; }
+  nav.toc a { margin-right: 12px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>AxleoCollect UAT 2 反馈修正说明</h1>
+    <p>对应 Ping Han《AxleoCollect — UAT 2 反馈》：10 个问题怎么修的、怎么验证，以及给 Kevin 的 7 个问题的答复。</p>
+    <div class="meta">适用测试版 64 · iOS Ad Hoc · 2026-11-25 更新</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section>
+    <nav class="toc box"><a href="#prep">测试准备</a><a href="#overview">总览</a><a href="#items">逐条验证</a><a href="#extra">额外修复</a><a href="#qa">问题答复</a><a href="#todo">需要配合</a></nav>
+  </section>
+
+  <section id="prep">
+    <h2>测试准备</h2>
+    <div class="box">
+      <ol class="steps">
+        <li>用 Safari 打开 <a href="https://agentcollect-install.pages.dev/">agentcollect-install.pages.dev</a>，覆盖安装 <b>64 号包</b>。</li>
+        <li>用 <code>mary@axleo.local</code> 登录。已登录过的先退出再登录（点左上角 Logo → Me → Sign out），让手机重新拉取全部数据。首次同步约 2,400 套房产，几秒完成。</li>
+      </ol>
+    </div>
+    <table style="margin-top:10px">
+      <tr><th>测试房产</th><th>情况</th><th>用来测</th></tr>
+      <tr><td><b>16 Gager St, Sunnybank</b></td><td>在 Rex 里，业主 Teddie Bear</td><td>业主同步、Open in Rex、备注写入 Rex</td></tr>
+      <tr><td><b>9 Boorman St, Sunnybank</b></td><td>不在 Rex，有 RP Data（测试数据）</td><td>"不在 Rex"的处理、地图位置</td></tr>
+      <tr><td><b>Lister St, Sunnybank</b></td><td>一整条街的房产</td><td>画 patch</td></tr>
+    </table>
+    <div class="box warn" style="margin-top:10px">
+      <p><b>Rex 沙箱规则</b>：App 里新建的联系人会<b>真实写进</b> Rex 沙箱。只用虚构姓名，手机号用 ACMA 虚构号码 <b>0491 570 156 ~ 0491 570 159</b>，不要用真实的人名和号码。</p>
+    </div>
+  </section>
+
+  <section id="overview">
+    <h2>总览</h2>
+    <table>
+      <tr><th>#</th><th>问题</th><th>修正</th><th>状态</th></tr>
+      <tr><td>1</td><td>Rex 中已关联的业主不显示 <span class="pri">高</span></td><td>每 60 秒同步 Rex 业主关联；手机号统一格式后匹配</td><td><span class="st wait">待重测</span></td></tr>
+      <tr><td>4</td><td>App 添加的业主未写入 Rex <span class="pri">高</span></td><td>新联系人写入 Rex 并关联为 Owner；显示同步状态</td><td><span class="st wait">待重测</span></td></tr>
+      <tr><td>7</td><td>OFI 没有列表、无法返回 <span class="pri">高</span></td><td>从 Rex 导入开放日；列出今天的开放日或下一场</td><td><span class="st wait">待重测</span></td></tr>
+      <tr><td>10</td><td>Check in · OFI 打开错误页 <span class="pri">高</span></td><td>跳到 OFI 页；找不到的页面一律回首页</td><td><span class="st ok">已修</span></td></tr>
+      <tr><td>8</td><td>My patch 找到 0 套 <span class="pri">高</span></td><td>实时计数、列出房产；默认"区名 + 编号"；改名 Save patch</td><td><span class="st ok">已修</span></td></tr>
+      <tr><td>5</td><td>房产详情是示例数据 <span class="pri">高</span></td><td>删除示例数据；按 RP Data 字段显示并注明来源和日期</td><td><span class="st part">部分完成</span></td></tr>
+      <tr><td>6</td><td>Open in Rex 无反应 <span class="pri">中</span></td><td>打开 Rex 房产页；不在 Rex 时置灰显示 Not in Rex yet</td><td><span class="st ok">已修</span></td></tr>
+      <tr><td>3</td><td>无联系人时语音不可用；录音方式不一致 <span class="pri">中</span></td><td>任何房产都能录备注；统一点一下开始、再点一下停止</td><td><span class="st ok">已修</span></td></tr>
+      <tr><td>2</td><td>Add contact 与 Edit record 重复 <span class="pri">低</span></td><td>只保留一个按钮</td><td><span class="st ok">已修</span></td></tr>
+      <tr><td>9</td><td>Share to AxleoCollect 与 New enquiry 重复 <span class="pri">低</span></td><td>从 + 菜单删除 Share</td><td><span class="st ok">已修</span></td></tr>
+    </table>
+    <p style="font-size:13px;color:var(--muted)">"待重测"= 已修复，需要 Ping 在 Rex 沙箱里配合操作才能确认。问题 5 的真实 RP Data 要等 CoreLogic 授权，目前是测试数据。</p>
+  </section>
+
+  <section id="items">
+    <h2>逐条验证</h2>
+    <ol class="checks">
+      <li><div class="head"><span class="num">1</span><span class="title">Rex 中已关联的业主在 App 中显示</span><span class="time">约 3 分钟</span></div>
+        <div class="row"><b>原因</b><span>App 只在导入时读一次 Rex，之后 Rex 里改的业主关联不会同步过来；Rex 存的手机号带空格（如 <code>0401 999 088</code>），App 搜索时没去掉空格。</span></div>
+        <div class="row"><b>修正</b><span>服务器每 60 秒检查 Rex 的变更并同步业主关联，另外每天全量核对一次。手机号匹配前去掉空格，<code>+61</code> 和 <code>0</code> 开头视为同一个号码。首页下拉可手动刷新。</span></div>
+        <div class="row"><b>操作</b><span><ol><li>在 Rex 里把一个联系人关联为 16 Gager St 的业主。</li><li>等 1–2 分钟，App 首页下拉刷新。</li><li>打开 16 Gager St → OWNER。</li><li>输入他的手机号，带空格和不带空格各试一次。</li></ol></span></div>
+        <div class="row"><b>预期</b><span>OWNER 里能看到这个人；两种写法都能匹配到他。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">4</span><span class="title">App 中添加的业主写入 Rex</span><span class="time">约 3 分钟</span></div>
+        <div class="row"><b>原因</b><span>App 新建的联系人没有写到 Rex，也没有在 Rex 里建立"业主"关联；当时部分修改因同步推送出错没有到达服务器（已修复）。</span></div>
+        <div class="row"><b>修正</b><span>App 新建的联系人会在 Rex 里新建，并关联为这套房产的 Owner。联系人和房产下面显示同步状态：<b>Pending Rex / In Rex / Rex failed / Rex skipped</b>。</span></div>
+        <div class="row"><b>操作</b><span><ol><li><b>必须用 16 Gager St</b>（在 Rex 里）→ Edit record → 填虚构姓名和 0491 570 156 → 保存。</li><li>等 1–2 分钟，看状态。</li><li>在 Rex 打开 16 Gager Street → Contacts。</li></ol></span></div>
+        <div class="row"><b>预期</b><span>状态变为 In Rex；Rex 里能看到这个人，角色是 Owner。</span></div>
+        <div class="row"><b>注意</b><span>不在 Rex 的房产（如 9 Boorman St），联系人照样写进 Rex，但不会自动在 Rex 里新建房产，所以没有 Owner 关联，App 显示 Not in Rex yet。上次用 3 Feltwell St 测试就是这种情况；那条测试联系人已从 Rex 和 App 中清除。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">7</span><span class="title">OFI 列出今天的开放日</span><span class="time">约 5 分钟</span></div>
+        <div class="row"><b>原因</b><span>App 没有从 Rex 读取开放日（Open Home），列表是空的，页面上只剩转介卡片。</span></div>
+        <div class="row"><b>修正</b><span>服务器从 Rex 导入挂牌的开放日（日期、开始时间、时长、时区）。OFI 页列出今天的开放日（地址、时间、签到人数）；今天没有时显示 "No open homes today" 和下一场。删除了 "Hidden extra: long-press the logo…" 一行；转介请求移到首页，只在有数据时显示。</span></div>
+        <div class="row"><b>操作</b><span><ol><li>在 Rex 里给一个挂牌建一个<b>今天</b>的 Open Home。</li><li>等 1–2 分钟，App 下拉刷新 → OFI 页。</li><li>进入签到，再返回列表。</li></ol></span></div>
+        <div class="row"><b>预期</b><span>能看到这一场；签到和返回都正常。</span></div>
+        <div class="row"><b>注意</b><span>签到人数写回 Rex 的字段还没在 Rex 里确认，目前只在 App 里统计。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">10</span><span class="title">Check in · OFI 不再打开错误页</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>原因</b><span>+ 菜单里这一项的跳转地址写错了。</span></div>
+        <div class="row"><b>修正</b><span>改为跳到 OFI 页。任何找不到的页面都直接回到首页，不再向中介显示原始路由错误。</span></div>
+        <div class="row"><b>操作</b><span>首页 → + → Check in · OFI。</span></div>
+        <div class="row"><b>预期</b><span>进入 OFI 页面，不出现 "Unmatched Route"。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">8</span><span class="title">My patch 圈出房产</span><span class="time">约 2 分钟</span></div>
+        <div class="row"><b>原因</b><span>圈选计数只查了手机里的一小部分示例房产，坐标判断也有误；Delfin Drive / Carnaby Street 一带当时手机里没有房产数据。</span></div>
+        <div class="row"><b>修正</b><span>画图时实时显示区域内的房产数，完成后列出全部房产（服务器查询，覆盖 Rex、Pricefinder、RP Data）。默认名称改为"区名 + 编号"，如 "Sunnybank 1"。按钮改名 <b>Save patch</b>：片区只存在 AxleoCollect 里，<b>不写入 Rex</b>。</span></div>
+        <div class="row"><b>操作</b><span>首页 → Market monitor → Edit patch → 在 Lister St 一带画一个区域。</span></div>
+        <div class="row"><b>预期</b><span>画的过程中计数变化；完成后能看到房产列表，默认名称是 "Sunnybank n"。</span></div>
+        <div class="row"><b>注意</b><span>目前有数据的区：Sunnybank、Sunnybank Hills、Calamvale、Parkinson（约 2,200 套）。其他区（如 Macgregor）没有市场数据，显示 0 是正常的。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">5</span><span class="title">房产详情显示 RP Data 字段和来源</span><span class="time">约 1 分钟</span><span class="tag">部分完成</span></div>
+        <div class="row"><b>原因</b><span>页面上的 4/2/2、615 m²、Lot 19 RP 123456 是写死的示例数据。</span></div>
+        <div class="row"><b>修正</b><span>删除示例数据，没有数据的字段显示 "—"。显示房型、卧室/浴室/车位、土地/建筑面积、建成年份、用途、分区、地块（lot/plan）、最近成交（价格/日期/类型）、中介和经纪人、登记业主、成交历史；底部注明 <b>Source: RP Data · updated [日期]</b>。</span></div>
+        <div class="row"><b>操作</b><span>打开 9 Boorman St、16 Gager St 或 Lister St 上的任一房产。</span></div>
+        <div class="row"><b>预期</b><span>能看到上述字段和来源行；业主姓名以 "(Test)" 结尾。</span></div>
+        <div class="row"><b>注意</b><span><b>现在是测试数据</b>：按 RP Data 导出格式生成，业主姓名、价格、日期都是虚构的，不是真实数据。真实 RP Data 等 CoreLogic 许可确认后再导入。估值、学校、可比成交不在 Ping 提供的导出文件里，需要 CoreLogic 的其他导出或 API。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">6</span><span class="title">Open in Rex</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>修正</b><span>在 Rex 里的房产打开 <code>app.rexsoftware.com/properties/#tab=key_details&amp;id=&lt;Rex ID&gt;</code>；不在 Rex 的房产按钮置灰，显示 Not in Rex yet。</span></div>
+        <div class="row"><b>操作</b><span>16 Gager St → Open in Rex ↗；再打开 9 Boorman St。</span></div>
+        <div class="row"><b>预期</b><span>16 Gager St 打开 Rex 网页的这套房产；9 Boorman St 显示 Not in Rex yet，点不了。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">3</span><span class="title">房产备注：不需要联系人，录音方式统一</span><span class="time">约 3 分钟</span></div>
+        <div class="row"><b>修正</b><span><ul><li>房产备注不再需要联系人，任何房产都能录语音或写文字。</li><li>录音统一为<b>点一下开始、再点一下停止</b>；Talk to me 翻译除外，仍是按住说话。</li><li>语音里识别到姓名和澳洲手机号时，弹出确认卡片由中介确认；没识别到就直接保存。修复了识别结果出现 <code>&lt;UNKNOWN&gt;</code> 的问题。</li><li><b>新增</b>：在 Rex 里的房产，App 里写的新备注会自动写进 Rex 房产的 Notes，正文末尾带 "— via AxleoCollect · 中介名"。</li></ul></span></div>
+        <div class="row"><b>操作</b><span><ol><li>9 Boorman St → NOTES → 点麦克风，说一句不含姓名电话的话 → 再点停止。</li><li>16 Gager St → 写一条文字备注 → 等 1–2 分钟。</li><li>在 Rex 打开 16 Gager Street → Notes。</li></ol></span></div>
+        <div class="row"><b>预期</b><span>第 1 步直接保存，不弹确认卡片，备注下显示 Rex skipped。第 2 步状态从 Pending Rex 变为 In Rex，Rex 里能看到这条备注。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">2</span><span class="title">业主按钮不再重复</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>修正</b><span>OWNER 区只保留一个按钮：没有业主时显示 <b>Add or link owner</b>，有业主时显示 <b>Edit record</b>。</span></div>
+        <div class="row"><b>操作</b><span>分别打开 9 Boorman St 和 16 Gager St。</span></div>
+        <div class="row"><b>预期</b><span>各只有一个按钮，文字如上。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+
+      <li><div class="head"><span class="num">9</span><span class="title">+ 菜单不再重复</span><span class="time">约 30 秒</span></div>
+        <div class="row"><b>修正</b><span>+ 菜单只保留 Add to-do / New enquiry / Check in · OFI。从其他 App 分享到 AxleoCollect（手机分享菜单）仍然可用。</span></div>
+        <div class="row"><b>操作</b><span>首页 → +。</span></div>
+        <div class="row"><b>预期</b><span>没有 Share to AxleoCollect。</span></div>
+        <label class="done"><input type="checkbox" /> 通过</label></li>
+    </ol>
+  </section>
+
+  <section id="extra">
+    <h2>测试中额外发现并修复的问题</h2>
+    <table>
+      <tr><th>问题</th><th>原因</th><th>修正</th></tr>
+      <tr><td>App 很卡</td><td>手机同步了 4 万套房产（12MB），大部分是 QLD 公开地块</td><td>手机只同步 Rex、市场数据和有 App 内容的房产：Mary 现在约 2,400 套、2.7MB。另外优化了保存和刷新</td></tr>
+      <tr><td>上次同步显示 "Invalid Date"</td><td>时间保存格式不对</td><td>统一为标准时间格式，旧的错误值显示 "—"</td></tr>
+      <tr><td>服务器卡死</td><td>Rex 同步中的数据库查询互相等待</td><td>已修复，并加了防回归测试</td></tr>
+      <tr><td>部分房产地图位置不对或没有</td><td>坐标字段不统一</td><td>写入时统一坐标并补全历史数据；没有坐标的显示"暂无地图坐标"</td></tr>
+      <tr><td>语音识别出现 <code>&lt;UNKNOWN&gt;</code></td><td>AI 返回的占位符被当成了姓名/号码</td><td>过滤占位符，只接受有效的姓名和澳洲手机号</td></tr>
+      <tr><td>演示数据混在测试数据里</td><td>开发用的演示联系人、转介等</td><td>已从测试服务器移除，重置后也不会再加回来</td></tr>
+    </table>
+  </section>
+
+  <section id="qa">
+    <h2>给 Kevin 的问题：我们的答复</h2>
+    <dl class="qa box">
+      <dt>1. App 中新建的联系人写入 Rex 前是否需要审批？中介在哪里查看状态？</dt>
+      <dd>目前<b>不需要审批</b>，保存后直接写入 Rex，通常 1–2 分钟内完成。状态显示在联系人和房产页面：Pending Rex / In Rex / Rex failed / Rex skipped。合并联系人、改派等操作需要管理员在首页审批。如果新建联系人也要审批，可以加，<b>请 Kevin 决定</b>。</dd>
+      <dt>2. Rex 多久同步到 App 一次？能否增加手动刷新？</dt>
+      <dd>Rex → App：服务器<b>每 60 秒</b>检查一次 Rex 的变更，业主关联另外每天全量核对一次。App → Rex：保存后立即排队，通常 1–2 分钟内写入。手动刷新：<b>首页下拉</b>。</dd>
+      <dt>3. 统一采用哪种录音方式？</dt>
+      <dd>已统一为<b>点一下开始、再点一下停止</b>：边走边说不用一直按着，也不会因为手指松开而中断。只有 Talk to me 翻译保留按住说话，因为它是一问一答的对话。</dd>
+      <dt>4. 没有联系人时，能否把文字备注保存到房产？</dt>
+      <dd><b>可以，已实现。</b>房产备注不需要联系人；在 Rex 里的房产，新备注还会同步写进 Rex 的 Notes。</dd>
+      <dt>5. RP Data：CoreLogic 许可允许在 App 中显示哪些字段？</dt>
+      <dd>这需要 Kevin / Ping 向 CoreLogic 确认：
+        <ul>
+          <li>订阅条款是否允许把导出数据存进第三方系统（AxleoCollect 服务器）并在手机上显示；</li>
+          <li>业主姓名能否用于上门和电话联系（QLD 业主姓名不能用于直接营销）；</li>
+          <li>数据处理与隐私：服务器在悉尼，AI 功能（语音识别等）调用的服务在美国。</li>
+        </ul>
+        确认之前，测试环境只用测试数据。拿到许可后，先一键清除测试数据，再导入真实数据。</dd>
+      <dt>6. "Teddy Chen" 是语音转文字错误还是保存错误？</dt>
+      <dd>服务器上<b>没有 "Teddie Chan" 或 "Teddy Chen" 的记录</b>，说明当时这条联系人没有成功同步到服务器（当时的同步问题已修复），所以没法从日志判断。请重测问题 4 时<b>手动输入</b>姓名：保存后和输入不一致，就是保存问题；只有语音输入时出错，就是语音识别问题。</dd>
+      <dt>7. Lisa Tran（Axleo Finance）的转介是真实数据还是测试数据？</dt>
+      <dd><b>测试数据</b>，来自开发用的演示数据，已从测试服务器移除。</dd>
+    </dl>
+  </section>
+
+  <section id="todo">
+    <h2>需要 Ping / Kevin 配合</h2>
+    <div class="box">
+      <ol class="steps">
+        <li>用 64 号包按上面各条验证，尤其是<b>问题 4（16 Gager St）</b>和<b>问题 7（在 Rex 建一个今天的 Open Home）</b>。</li>
+        <li>在 Rex 网页 16 Gager Street 的 Notes 里查看两条 "AXLEO TEST" 测试备注（作者显示、末尾签名），看完告诉我们删除。</li>
+        <li>确认 CoreLogic 许可和数据处理（问题 5）。</li>
+        <li>决定新建联系人写入 Rex 前是否需要审批（问题 1）。</li>
+        <li>要测成交提醒的话告诉我们，我们导入 14 条"新成交"测试数据。</li>
+      </ol>
+    </div>
+    <div class="box note" style="margin-top:10px">
+      <p>遇到问题请记下<b>时间、账号、房产、操作步骤</b>，我们可以直接在服务器上查。</p>
+    </div>
+  </section>
+
+  <footer>AxleoCollect · UAT 2 反馈修正说明 · 2026-11-25</footer>
+</main>
+</body>
+</html>
