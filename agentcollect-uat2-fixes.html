@@ -90,7 +90,7 @@
 <header>
   <div class="wrap">
     <h1>AxleoCollect UAT 2 反馈修正说明</h1>
-    <p>对应 Ping Han《AxleoCollect — UAT 2 反馈》：10 个问题怎么修的、怎么验证，以及给 Kevin 的 7 个问题的答复。</p>
+    <p>对应 Ping Han《AxleoCollect — UAT 2 反馈》：10 个问题怎么修的、怎么验证，以及反馈中 7 个问题的答复。</p>
     <div class="meta">适用测试版 64 · iOS Ad Hoc · 2026-11-25 更新</div>
   </div>
 </header>
@@ -226,10 +226,10 @@
   </section>
 
   <section id="qa">
-    <h2>给 Kevin 的问题：我们的答复</h2>
+    <h2>反馈中的问题：我们的答复</h2>
     <dl class="qa box">
       <dt>1. App 中新建的联系人写入 Rex 前是否需要审批？中介在哪里查看状态？</dt>
-      <dd>目前<b>不需要审批</b>，保存后直接写入 Rex，通常 1–2 分钟内完成。状态显示在联系人和房产页面：Pending Rex / In Rex / Rex failed / Rex skipped。合并联系人、改派等操作需要管理员在首页审批。如果新建联系人也要审批，可以加，<b>请 Kevin 决定</b>。</dd>
+      <dd>目前<b>不需要审批</b>，保存后直接写入 Rex，通常 1–2 分钟内完成。状态显示在联系人和房产页面：Pending Rex / In Rex / Rex failed / Rex skipped。合并联系人、改派等操作需要管理员在首页审批。如果新建联系人也要审批，可以加，<b>请确认</b>。</dd>
       <dt>2. Rex 多久同步到 App 一次？能否增加手动刷新？</dt>
       <dd>Rex → App：服务器<b>每 60 秒</b>检查一次 Rex 的变更，业主关联另外每天全量核对一次。App → Rex：保存后立即排队，通常 1–2 分钟内写入。手动刷新：<b>首页下拉</b>。</dd>
       <dt>3. 统一采用哪种录音方式？</dt>
@@ -237,7 +237,7 @@
       <dt>4. 没有联系人时，能否把文字备注保存到房产？</dt>
       <dd><b>可以，已实现。</b>房产备注不需要联系人；在 Rex 里的房产，新备注还会同步写进 Rex 的 Notes。</dd>
       <dt>5. RP Data：CoreLogic 许可允许在 App 中显示哪些字段？</dt>
-      <dd>这需要 Kevin / Ping 向 CoreLogic 确认：
+      <dd>这需要向 CoreLogic 确认：
         <ul>
           <li>订阅条款是否允许把导出数据存进第三方系统（AxleoCollect 服务器）并在手机上显示；</li>
           <li>业主姓名能否用于上门和电话联系（QLD 业主姓名不能用于直接营销）；</li>
@@ -252,7 +252,7 @@
   </section>
 
   <section id="todo">
-    <h2>需要 Ping / Kevin 配合</h2>
+    <h2>需要 Ping 配合</h2>
     <div class="box">
       <ol class="steps">
         <li>用 64 号包按上面各条验证，尤其是<b>问题 4（16 Gager St）</b>和<b>问题 7（在 Rex 建一个今天的 Open Home）</b>。</li>
